@@ -2,7 +2,7 @@
 <idea-plugin>
     <id>dev.jbang.intellij.JBangPlugin</id>
     <name>JBang</name>
-    <vendor email="libing.chen@gmail.com">linux_china</vendor>
+    <vendor email="libing.chen@gmail.com">JBang</vendor>
 
     <depends>com.intellij.modules.java</depends>
 
