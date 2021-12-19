@@ -1,0 +1,19 @@
+<!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+<idea-plugin>
+    <id>dev.jbang.intellij.JBangPlugin</id>
+    <name>JBang</name>
+    <vendor email="libing.chen@gmail.com">linux_china</vendor>
+
+    <depends>com.intellij.modules.java</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <preloadingActivity implementation="dev.jbang.intellij.plugins.jbang.JbangJdkLoader"/>
+        <fileIconProvider implementation="dev.jbang.intellij.plugins.jbang.JbangIconProvider"/>
+    </extensions>
+
+    <extensions defaultExtensionNs="JavaScript">
+        <JsonSchema.ProviderFactory
+                implementation="dev.jbang.intellij.plugins.jbang.JbangCatalogJsonSchemaProviderFactory"/>
+    </extensions>
+
+</idea-plugin>
