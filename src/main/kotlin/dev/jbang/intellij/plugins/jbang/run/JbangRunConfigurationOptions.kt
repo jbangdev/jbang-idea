@@ -13,9 +13,7 @@ class JbangRunConfigurationOptions : RunConfigurationOptions() {
     }
 
     fun setScriptName(scriptName: String?) {
-        if (scriptName != null) {
-            jbangScriptName.setValue(this, scriptName)
-        }
+        jbangScriptName.setValue(this, scriptName ?: "")
     }
 
     fun getScriptOptions(): String? {
@@ -23,9 +21,7 @@ class JbangRunConfigurationOptions : RunConfigurationOptions() {
     }
 
     fun setScriptOptions(scriptOptions: String?) {
-        if (scriptOptions != null) {
-            jbangScriptOptions.setValue(this, scriptOptions)
-        }
+        jbangScriptOptions.setValue(this, scriptOptions ?: "")
     }
 
     fun getScriptArgs(): String? {
@@ -33,9 +29,7 @@ class JbangRunConfigurationOptions : RunConfigurationOptions() {
     }
 
     fun setScriptArgs(scriptArgs: String?) {
-        if (scriptArgs != null) {
-            jbangScriptArgs.setValue(this, scriptArgs)
-        }
+        jbangScriptArgs.setValue(this, scriptArgs ?: "")
     }
 
 }
