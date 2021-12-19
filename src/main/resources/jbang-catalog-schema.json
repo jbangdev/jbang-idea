@@ -1,0 +1,90 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "JBang catalogs JSON Schema",
+  "description": "JSON Schema for jbang-catalog.json",
+  "type": "object",
+  "properties": {
+    "aliases": {
+      "description": "aliases",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "script-ref": {
+            "type": "string",
+            "description": "script to run: local or HTTP Java/Jar file, GAV"
+          },
+          "description": {
+            "type": "string",
+            "description": "description for alias"
+          },
+          "arguments": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "arguments for script"
+          },
+          "java-options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "//JAVA_OPTIONS, such as '-Xms256m -Xmx2048m'. Use `java -X` to list options"
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "//DEPS, such as 'com.github.ben-manes.caffeine:caffeine:3.0.5'"
+          },
+          "repositories": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "//REPOS, such as mavencentral,google,jitpack, springmilestones=https://repo.spring.io/libs-milestone"
+          },
+          "classpaths": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Java classpath"
+          },
+          "properties": {
+            "type": "object",
+            "description": "System properties for script"
+          },
+          "java": {
+            "type": "string",
+            "enum": [
+              "8",
+              "9",
+              "10",
+              "11",
+              "12",
+              "13",
+              "14",
+              "15",
+              "16",
+              "17"
+            ],
+            "description": "Java version, such as 8, 11, 17"
+          },
+          "mainClass": {
+            "type": "string",
+            "description": "main class, such as com.example.Main"
+          }
+        },
+        "required": [
+          "script-ref"
+        ]
+      }
+    }
+  },
+  "required": [
+    "aliases"
+  ]
+}
