@@ -10,4 +10,3 @@ The following features are available:
 * JDK sync with JBang: Sync jdk from JBang to IntelliJ IDEA
 
 <!-- Plugin description end -->
-
