@@ -52,7 +52,6 @@ class JbangRunConfiguration(
     override fun getState(executor: Executor, executionEnvironment: ExecutionEnvironment): RunProfileState {
         return object : CommandLineState(executionEnvironment) {
             override fun startProcess(): ProcessHandler {
-                //jbangRunSettingsEditor.applyTo(this@JbangRunConfiguration)
                 val command = mutableListOf("jbang", "run")
                 val scriptName = getScriptName()
                 val options = getScriptOptions()
