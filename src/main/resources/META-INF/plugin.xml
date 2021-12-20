@@ -11,11 +11,18 @@
         <fileIconProvider implementation="dev.jbang.intellij.plugins.jbang.JbangIconProvider"/>
         <configurationType implementation="dev.jbang.intellij.plugins.jbang.run.JbangConfigurationType"/>
         <runConfigurationProducer implementation="dev.jbang.intellij.plugins.jbang.run.JbangRunConfigurationProducer"/>
+        <fileType name="JSHELL" extensions="jsh"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">
         <JsonSchema.ProviderFactory
                 implementation="dev.jbang.intellij.plugins.jbang.JbangCatalogJsonSchemaProviderFactory"/>
     </extensions>
+
+    <actions>
+        <action class="dev.jbang.intellij.plugins.jbang.actions.CreateJbangScriptAction" id="CreateJbangScriptAction">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFromTemplate"/>
+        </action>
+    </actions>
 
 </idea-plugin>
