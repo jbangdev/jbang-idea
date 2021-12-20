@@ -15,7 +15,6 @@ import java.io.File
 class JbangRunConfiguration(
     project: Project, factory: ConfigurationFactory, name: String
 ) : RunConfigurationBase<JbangRunConfigurationOptions>(project, factory, name), Factory<JbangRunConfiguration> {
-    private val jbangRunSettingsEditor = JbangRunSettingsEditor(this)
 
     fun getScriptName(): String? {
         return options.getScriptName()
@@ -42,7 +41,7 @@ class JbangRunConfiguration(
     }
 
     override fun getConfigurationEditor(): SettingsEditor<out RunConfiguration> {
-        return jbangRunSettingsEditor
+        return JbangRunSettingsEditor(this)
     }
 
     override fun getOptions(): JbangRunConfigurationOptions {
