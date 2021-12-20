@@ -8,6 +8,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiFile
+import dev.jbang.intellij.plugins.jbang.groovyIcon
 import dev.jbang.intellij.plugins.jbang.jbangIcon
 import dev.jbang.intellij.plugins.jbang.jshellIcon
 import dev.jbang.intellij.plugins.jbang.kotlinIcon
@@ -24,6 +25,7 @@ class CreateJbangScriptAction : CreateFileFromTemplateAction(NAME, DESCRIPTION, 
             .setTitle("New $NAME")
             .addKind("Java", AllIcons.FileTypes.Java, "JBang Java")
             .addKind("Kotlin", kotlinIcon, "JBang Kotlin")
+            //.addKind("Groovy", groovyIcon, "JBang Groovy")
             .addKind("JShell", jshellIcon, "JBang JShell")
     }
 
