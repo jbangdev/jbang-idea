@@ -9,6 +9,8 @@
     <extensions defaultExtensionNs="com.intellij">
         <preloadingActivity implementation="dev.jbang.intellij.plugins.jbang.JbangJdkLoader"/>
         <fileIconProvider implementation="dev.jbang.intellij.plugins.jbang.JbangIconProvider"/>
+        <configurationType implementation="dev.jbang.intellij.plugins.jbang.run.JbangConfigurationType"/>
+        <runConfigurationProducer implementation="dev.jbang.intellij.plugins.jbang.run.JbangRunConfigurationProducer"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">
