@@ -8,3 +8,4 @@
 - JDK sync from JBang to IntelliJ IDEA
 - Json Schema support for jbang-catalog.json
 - Run Configuration support: run JBang script by right click
+- JBang script creation from file templates: New -> JBang Script
