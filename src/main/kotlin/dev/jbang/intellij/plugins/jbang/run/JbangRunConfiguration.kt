@@ -80,4 +80,17 @@ class JbangRunConfiguration(
         return this
     }
 
+    @Throws(RuntimeConfigurationException::class)
+    override fun checkConfiguration() {
+        val scriptName = getScriptName()
+        if (scriptName == null || scriptName.isEmpty()) {
+            throw RuntimeConfigurationException("Script name is empty")
+        } else {
+            val scriptFile = File(project.basePath!!, scriptName)
+            if (!scriptFile.exists()) {
+                throw RuntimeConfigurationException("Script file does not exist: $scriptName")
+            }
+        }
+    }
+
 }
