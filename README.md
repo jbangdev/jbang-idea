@@ -9,6 +9,7 @@ The following features are available:
 * JSON Schema for jbang-catalog.json
 * JDKs sync with JBang: sync JDKs from JBang to IntelliJ IDEA
 * JBang script creation from file templates: New -> JBang Script
+- JBang directives completion:  for example `//DEPS`, `//SOURCES`
 * Run Configuration support: run JBang script by right click
     * file name end with '.java', '.kt' or '.jsh'
     * file code should contain `///usr/bin/env jbang` or `//DEPS`
