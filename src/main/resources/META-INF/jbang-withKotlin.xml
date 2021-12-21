@@ -1,0 +1,5 @@
+<idea-plugin>
+    <extensions defaultExtensionNs="com.intellij">
+        <completion.contributor language="kotlin" implementationClass="dev.jbang.intellij.plugins.jbang.completion.JbangKotlinCompletionContributor"/>
+    </extensions>
+</idea-plugin>
