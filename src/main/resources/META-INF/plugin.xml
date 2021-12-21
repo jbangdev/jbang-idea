@@ -5,13 +5,15 @@
     <vendor email="libing.chen@gmail.com">JBang</vendor>
 
     <depends>com.intellij.modules.java</depends>
+    <depends optional="true" config-file="jbang-withKotlin.xml">org.jetbrains.kotlin</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <preloadingActivity implementation="dev.jbang.intellij.plugins.jbang.JbangJdkLoader"/>
         <fileIconProvider implementation="dev.jbang.intellij.plugins.jbang.JbangIconProvider"/>
         <configurationType implementation="dev.jbang.intellij.plugins.jbang.run.JbangConfigurationType"/>
         <runConfigurationProducer implementation="dev.jbang.intellij.plugins.jbang.run.JbangRunConfigurationProducer"/>
-        <fileType name="JSHELL" extensions="jsh"/>
+        <fileType name="JSHELL" language="JShellLanguage" extensions="jsh"/>
+        <completion.contributor language="JAVA" implementationClass="dev.jbang.intellij.plugins.jbang.completion.JbangJavaCompletionContributor"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">
