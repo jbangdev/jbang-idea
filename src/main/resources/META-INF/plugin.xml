@@ -3,6 +3,7 @@
     <id>dev.jbang.intellij.JBangPlugin</id>
     <name>JBang</name>
     <vendor email="libing.chen@gmail.com" url="https://www.jbang.dev/">jbang.dev</vendor>
+    <category>Tool</category>
 
     <depends>com.intellij.modules.java</depends>
     <depends optional="true" config-file="jbang-withKotlin.xml">org.jetbrains.kotlin</depends>
