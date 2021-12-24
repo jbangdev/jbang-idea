@@ -28,7 +28,9 @@ class JbangRunConfigurationProducer : LazyRunConfigurationProducer<JbangRunConfi
         if (!isAcceptableFileType(virtualFile) || !virtualFile.isInLocalFileSystem) return false
         val code = psiFile.text
         // jbang code check: '//DEPS' and '///usr/bin/env jbang'
-        if (!(code.contains("///usr/bin/env jbang") || code.contains("//DEPS "))) return false
+        if (!(code.contains("///usr/bin/env jbang")
+                    || code.startsWith("//DEPS ")
+                    || code.contains("\n//DEPS "))) return false
         val project = psiFile.project
         configuration.setScriptName(virtualFile.path.substring(project.basePath!!.length + 1))
         configuration.name = virtualFile.name
