@@ -25,7 +25,7 @@ class CreateJbangScriptAction : CreateFileFromTemplateAction(NAME, DESCRIPTION, 
             .setTitle("New $NAME")
             .addKind("Java", AllIcons.FileTypes.Java, "JBang Java")
             .addKind("Kotlin", kotlinIcon, "JBang Kotlin")
-            //.addKind("Groovy", groovyIcon, "JBang Groovy")
+            .addKind("Groovy", groovyIcon, "JBang Groovy")
             .addKind("JShell", jshellIcon, "JBang JShell")
     }
 
