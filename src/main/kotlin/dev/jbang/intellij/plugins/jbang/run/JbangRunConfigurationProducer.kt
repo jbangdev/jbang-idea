@@ -37,7 +37,10 @@ class JbangRunConfigurationProducer : LazyRunConfigurationProducer<JbangRunConfi
 
     private fun isAcceptableFileType(virtualFile: VirtualFile): Boolean {
         val name = virtualFile.name
-        return name.endsWith(".java") || name.endsWith(".kt") || name.endsWith(".jsh")
+        return name.endsWith(".java")
+                || name.endsWith(".kt")
+                || name.endsWith(".jsh")
+                || name.endsWith(".groovy")
     }
 
 }
