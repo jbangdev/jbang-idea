@@ -11,7 +11,7 @@ The following features are available:
 * JBang script creation from file templates: New -> JBang Script
 - JBang directives completion:  for example `//DEPS`, `//SOURCES`
 * Run Configuration support: run JBang script by right click
-    * file name end with '.java', '.kt' or '.jsh'
+    * file name end with '.java', '.kt', '.groovy' or '.jsh'
     * file code should contain `///usr/bin/env jbang` or `//DEPS`
 
 <!-- Plugin description end -->
