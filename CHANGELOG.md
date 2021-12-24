@@ -1,7 +1,14 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
 # jbang-intellij-plugin Changelog
+          
+## [0.2.0]
 
+### Added
+
+- GAV directive added for completion
+- Run configuration for Groovy: run Groovy by JBang
+ 
 ## [0.1.0]
 
 ### Added
