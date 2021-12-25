@@ -7,6 +7,8 @@ import com.intellij.execution.configurations.runConfigurationType
 import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
+import dev.jbang.intellij.plugins.jbang.isJbangScript
+import dev.jbang.intellij.plugins.jbang.isJbangScriptFile
 
 class JbangRunConfigurationProducer : LazyRunConfigurationProducer<JbangRunConfiguration>() {
 
@@ -28,7 +30,7 @@ class JbangRunConfigurationProducer : LazyRunConfigurationProducer<JbangRunConfi
         if (!isAcceptableFileType(virtualFile) || !virtualFile.isInLocalFileSystem) return false
         val code = psiFile.text
         // jbang code check
-        if (!(code.contains("///usr/bin/env jbang") || code.lines().any { it.startsWith("//DEPS") })) return false
+        if (!isJbangScript(code)) return false
         val project = psiFile.project
         configuration.setScriptName(virtualFile.path.substring(project.basePath!!.length + 1))
         configuration.name = virtualFile.name
@@ -36,11 +38,7 @@ class JbangRunConfigurationProducer : LazyRunConfigurationProducer<JbangRunConfi
     }
 
     private fun isAcceptableFileType(virtualFile: VirtualFile): Boolean {
-        val name = virtualFile.name
-        return name.endsWith(".java")
-                || name.endsWith(".kt")
-                || name.endsWith(".jsh")
-                || name.endsWith(".groovy")
+        return isJbangScriptFile(virtualFile.name)
     }
 
 }
