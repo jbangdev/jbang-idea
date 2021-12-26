@@ -9,7 +9,9 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Factory
+import dev.jbang.intellij.plugins.jbang.jbangIcon
 import java.io.File
+import javax.swing.Icon
 
 
 class JbangRunConfiguration(
@@ -46,6 +48,10 @@ class JbangRunConfiguration(
 
     override fun getOptions(): JbangRunConfigurationOptions {
         return super.getOptions() as JbangRunConfigurationOptions
+    }
+
+    override fun getIcon(): Icon {
+        return jbangIcon
     }
 
     override fun getState(executor: Executor, executionEnvironment: ExecutionEnvironment): RunProfileState {
