@@ -7,6 +7,8 @@
 ### Added
 
 - Sync Dependencies Action: right click script file and sync dependencies between JBang and Gradle
+- Add icon for `JBang run` in editor popup menu
+- Append ` by JBang` to JBang run configuration to indicate it run by JBang
 
 ## [0.2.0]
 
