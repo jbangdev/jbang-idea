@@ -29,8 +29,12 @@ class SyncDependenciesAction : AnAction() {
         val jbangScriptFile = e.getData(CommonDataKeys.PSI_FILE)
         if (jbangScriptFile != null && isJbangScriptFile(jbangScriptFile.name)) {
             if (isJbangScript(jbangScriptFile.text)) {
-                e.presentation.isEnabledAndVisible = true
-                return
+                val project = e.getData(CommonDataKeys.PROJECT)!!
+                val buildGradle = LocalFileSystem.getInstance().findFileByPath(project.basePath + "/build.gradle")
+                if (buildGradle != null) {
+                    e.presentation.isEnabledAndVisible = true
+                    return
+                }
             }
         }
         e.presentation.isEnabledAndVisible = false
