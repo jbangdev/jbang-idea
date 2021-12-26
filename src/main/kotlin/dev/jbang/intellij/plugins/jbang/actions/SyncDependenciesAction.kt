@@ -10,13 +10,13 @@ import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiDocumentManager
+import dev.jbang.intellij.plugins.jbang.JBANG_DECLARE
 import dev.jbang.intellij.plugins.jbang.isJbangScript
 import dev.jbang.intellij.plugins.jbang.isJbangScriptFile
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
 import org.jetbrains.plugins.gradle.util.GradleConstants
-
 
 /**
  * Sync dependencies between JBang script and Gradle dependencies
@@ -116,7 +116,7 @@ class SyncDependenciesAction : AnAction() {
         val elements = newDependencies.map { "//DEPS $it" }
         val offset = lines.indexOfLast { it.startsWith("//DEPS ") }
         if (offset < 0) {
-            if (lines[0].startsWith("///usr/bin/env jbang")) {  //append to jbang declare
+            if (lines[0].startsWith(JBANG_DECLARE)) {  //append to jbang declare
                 newLines.addAll(1, elements)
             } else { // append to head of script
                 newLines.addAll(0, elements)
