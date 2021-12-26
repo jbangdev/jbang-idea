@@ -33,7 +33,7 @@ class JbangRunConfigurationProducer : LazyRunConfigurationProducer<JbangRunConfi
         if (!isJbangScript(code)) return false
         val project = psiFile.project
         configuration.setScriptName(virtualFile.path.substring(project.basePath!!.length + 1))
-        configuration.name = virtualFile.name
+        configuration.name = virtualFile.name + " by JBang"
         return true
     }
 
