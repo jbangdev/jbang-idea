@@ -109,7 +109,7 @@ class SyncDependenciesAction : AnAction() {
                 .map { it.trim('\'').trim('"') }
                 .map {
                     if (it.startsWith("platform")) {
-                        it.substring(8).trim().trim('\'').trim('"') + "@pom"
+                        it.substring(8).trim().trim('(').trim(')').trim('\'').trim('"') + "@pom"
                     } else {
                         it
                     }
