@@ -10,6 +10,7 @@ import dev.jbang.intellij.plugins.jbang.isJbangScript
 import dev.jbang.intellij.plugins.jbang.isJbangScriptFile
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.idea.util.module
+import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
 
 
 /**
@@ -36,8 +37,12 @@ class SyncDependenciesAction : AnAction() {
             if (isJbangScript(jbangScriptFile.text)) {
                 val project = e.getData(CommonDataKeys.PROJECT)!!
                 val module = jbangScriptFile.module
-                val buildGradle = LocalFileSystem.getInstance().findFileByPath(project.basePath + "/build.gradle")
+                var buildGradle = LocalFileSystem.getInstance().findFileByPath(project.basePath + "/build.gradle")
                 if (module != null && buildGradle != null) {
+                    val buildGradleOfModule = LocalFileSystem.getInstance().findFileByPath(module.getModuleDir() + "/build.gradle")
+                    if (buildGradleOfModule != null) {
+                        buildGradle = buildGradleOfModule;
+                    }
                     //script file in main source set
                     var moduleName = module.name
                     if (moduleName.contains('.')) {
