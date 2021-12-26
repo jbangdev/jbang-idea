@@ -7,6 +7,7 @@
 
     <depends>com.intellij.modules.java</depends>
     <depends optional="true" config-file="jbang-withKotlin.xml">org.jetbrains.kotlin</depends>
+    <depends optional="true" config-file="jbang-withGroovy.xml">org.intellij.groovy</depends>
     <depends optional="true" config-file="jbang-withGradle.xml">com.intellij.gradle</depends>
 
     <extensions defaultExtensionNs="com.intellij">
@@ -16,6 +17,7 @@
         <runConfigurationProducer implementation="dev.jbang.intellij.plugins.jbang.run.JbangRunConfigurationProducer"/>
         <fileType name="JSHELL" language="JShellLanguage" extensions="jsh"/>
         <completion.contributor language="JAVA" implementationClass="dev.jbang.intellij.plugins.jbang.completion.JbangJavaCompletionContributor"/>
+        <runLineMarkerContributor language="JAVA" implementationClass="dev.jbang.intellij.plugins.jbang.run.JbangRunLineMarkerContributor"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">
