@@ -4,6 +4,10 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
+import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
+import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiDocumentManager
 import dev.jbang.intellij.plugins.jbang.isJbangScript
@@ -11,6 +15,7 @@ import dev.jbang.intellij.plugins.jbang.isJbangScriptFile
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
+import org.jetbrains.plugins.gradle.util.GradleConstants
 
 
 /**
@@ -78,6 +83,7 @@ class SyncDependenciesAction : AnAction() {
                             val document = documentManager.getDocument(psiBuildGradle)!!
                             document.setText(addDependenciesToGradle(psiBuildGradle.text, newDependenciesForGradle, sourceSetName))
                         }
+                        refreshProject(project)
                     }
                     println("  ")
                 }
@@ -140,7 +146,7 @@ class SyncDependenciesAction : AnAction() {
                 newLines.addAll(offset + 1, elements)
             } else {  //append to `dependencies {` block
                 newLines.add(dependenciesOffset + 1, "    //dependencies for $sourceSetName SourceSet")
-                newLines.addAll(dependenciesOffset + 1, elements)
+                newLines.addAll(dependenciesOffset + 2, elements)
             }
         } else { // add new `dependencies {}` block
             newLines.add("dependencies {")
@@ -149,5 +155,13 @@ class SyncDependenciesAction : AnAction() {
             newLines.add("}")
         }
         return newLines.joinToString("\n")
+    }
+
+    private fun refreshProject(project: Project) {
+        FileDocumentManager.getInstance().saveAllDocuments()
+        val projectSystemId = GradleConstants.SYSTEM_ID
+        ExternalSystemUtil.refreshProject(
+            project.basePath!!, ImportSpecBuilder(project, projectSystemId).withArguments("--refresh-dependencies")
+        )
     }
 }
