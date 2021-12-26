@@ -1,14 +1,20 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
 # jbang-intellij-plugin Changelog
-          
+
+## [0.3.0]
+
+### Added
+
+- Sync Dependencies Action: Sync dependencies between JBang and Gradle(Groovy now)
+
 ## [0.2.0]
 
 ### Added
 
 - GAV directive added for completion
 - Run configuration for Groovy: run Groovy by JBang
- 
+
 ## [0.1.0]
 
 ### Added
