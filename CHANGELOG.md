@@ -2,6 +2,13 @@
 
 # jbang-intellij-plugin Changelog
 
+## [0.4.0]
+
+### Added
+
+- JBang Run Line Marker for `///usr/bin/env jbang`
+- `//GROOVY` directive completion for JBang Groovy script
+
 ## [0.3.0]
 
 ### Added
