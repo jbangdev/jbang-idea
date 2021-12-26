@@ -78,7 +78,7 @@ class SyncDependenciesAction : AnAction() {
                         ApplicationManager.getApplication().runWriteAction {
                             val documentManager = PsiDocumentManager.getInstance(project)
                             val document = documentManager.getDocument(jbangScriptFile)!!
-                            document.setText(addDependenciesToScript(jbangScriptFile.text, newDependenciesForScript))
+                            document.setText(addDependenciesToScript(jbangScriptFile.name, jbangScriptFile.text, newDependenciesForScript))
                         }
                     }
                     if (newDependenciesForGradle.isNotEmpty()) {
@@ -104,7 +104,17 @@ class SyncDependenciesAction : AnAction() {
         }
         val sourceSetFound = lines.any { it.startsWith(directive) }
         return if (sourceSetFound) {
-            lines.filter { it.startsWith(directive) }.map { it.substring(it.indexOf(" ")).trim() }.map { it.trim('\'').trim('"') }.toSet()
+            lines.asSequence().filter { it.startsWith(directive) }
+                .map { it.substring(it.indexOf(" ")).trim() }
+                .map { it.trim('\'').trim('"') }
+                .map {
+                    if (it.startsWith("platform")) {
+                        it.substring(8).trim().trim('\'').trim('"') + "@pom"
+                    } else {
+                        it
+                    }
+                }
+                .toSet()
         } else {
             return emptySet()
         }
@@ -114,7 +124,7 @@ class SyncDependenciesAction : AnAction() {
         return code.lines().filter { it.startsWith("//DEPS ") }.map { it.substring(it.indexOf(" ")).trim() }.toSet()
     }
 
-    private fun addDependenciesToScript(code: String, newDependencies: Set<String>): String {
+    private fun addDependenciesToScript(fileName: String, code: String, newDependencies: Set<String>): String {
         val lines = code.lines()
         val newLines = lines.toMutableList()
         val elements = newDependencies.map { "//DEPS $it" }
@@ -140,7 +150,11 @@ class SyncDependenciesAction : AnAction() {
             "${sourceSetName}Implementation "
         }
         val elements = newDependencies.map {
-            "  $directive '${it}'"
+            if (it.endsWith("@pom")) {
+                "  $directive platform('${it.subSequence(0, it.length - 4)}')"
+            } else {
+                "  $directive '${it}'"
+            }
         }
         //dependencies block found
         val dependenciesOffset = lines.indexOfFirst { it.trim().startsWith("dependencies ") }
