@@ -7,6 +7,7 @@
 
     <depends>com.intellij.modules.java</depends>
     <depends optional="true" config-file="jbang-withKotlin.xml">org.jetbrains.kotlin</depends>
+    <depends optional="true" config-file="jbang-withGradle.xml">com.intellij.gradle</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <preloadingActivity implementation="dev.jbang.intellij.plugins.jbang.JbangJdkLoader"/>
