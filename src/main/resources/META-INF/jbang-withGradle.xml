@@ -1,0 +1,11 @@
+<idea-plugin>
+    <actions>
+        <action id="jbang.SyncDependenciesAction"
+                class="dev.jbang.intellij.plugins.jbang.actions.SyncDependenciesAction"
+                icon="/icons/jbang-16x16.png"
+                text="Sync JBang DEPS" description="Sync dependencies between JBang and Gradle">
+            <add-to-group group-id="EditorPopupMenu" anchor="first"/>
+            <keyboard-shortcut first-keystroke="control alt S" keymap="$default"/>
+        </action>
+    </actions>
+</idea-plugin>
