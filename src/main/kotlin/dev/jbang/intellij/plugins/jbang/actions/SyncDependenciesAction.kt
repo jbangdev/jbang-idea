@@ -136,7 +136,7 @@ class SyncDependenciesAction : AnAction() {
             "${sourceSetName}Implementation "
         }
         val elements = newDependencies.map {
-            "\t$directive '${it}'"
+            "  $directive '${it}'"
         }
         //dependencies block found
         val dependenciesOffset = lines.indexOfFirst { it.trim().startsWith("dependencies ") }
@@ -145,12 +145,12 @@ class SyncDependenciesAction : AnAction() {
             if (offset >= 0) { // append to implementation
                 newLines.addAll(offset + 1, elements)
             } else {  //append to `dependencies {` block
-                newLines.add(dependenciesOffset + 1, "\t//dependencies for $sourceSetName SourceSet")
+                newLines.add(dependenciesOffset + 1, "  //dependencies for $sourceSetName SourceSet")
                 newLines.addAll(dependenciesOffset + 2, elements)
             }
         } else { // add new `dependencies {}` block
             newLines.add("dependencies {")
-            newLines.add("\t//dependencies for $sourceSetName SourceSet")
+            newLines.add("  //dependencies for $sourceSetName SourceSet")
             newLines.addAll(elements)
             newLines.add("}")
         }
