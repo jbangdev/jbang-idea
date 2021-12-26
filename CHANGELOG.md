@@ -6,7 +6,7 @@
 
 ### Added
 
-- Sync Dependencies Action: Sync dependencies between JBang and Gradle(Groovy now)
+- Sync Dependencies Action: right click script file and sync dependencies between JBang and Gradle
 
 ## [0.2.0]
 
