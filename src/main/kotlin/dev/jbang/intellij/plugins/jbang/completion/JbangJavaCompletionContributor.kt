@@ -26,7 +26,7 @@ class JbangJavaCompletionContributor : JbangBaseDirectiveCompletionContributor()
                     val comment = parameters.position as PsiComment
                     val commentParent = comment.parent
                     if (commentParent is PsiClass || commentParent is PsiFile) {
-                        if (comment.text.startsWith("//")) {
+                        if (shouldCompleteForDirective(comment.text)) {
                             JAVA_DIRECTIVES.forEach {
                                 result.addElement(LookupElementBuilder.create(it))
                             }

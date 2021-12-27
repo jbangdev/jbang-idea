@@ -15,18 +15,16 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
 
 class JbangKotlinCompletionContributor : JbangBaseDirectiveCompletionContributor() {
     init {
-        extend(
-            CompletionType.BASIC, PlatformPatterns.psiElement(PsiComment::class.java).withLanguage(KotlinLanguage.INSTANCE),
+        extend(CompletionType.BASIC,
+            PlatformPatterns.psiElement(PsiComment::class.java).withLanguage(KotlinLanguage.INSTANCE),
             object : CompletionProvider<CompletionParameters>() {
                 override fun addCompletions(
-                    parameters: CompletionParameters,
-                    context: ProcessingContext,
-                    result: CompletionResultSet
+                    parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet
                 ) {
                     val comment = parameters.position as PsiComment
                     val commentParent = comment.parent
                     if (commentParent is KtNamedFunction || commentParent is KtClass || commentParent is PsiFile) {
-                        if (comment.text.startsWith("//")) {
+                        if (shouldCompleteForDirective(comment.text)) {
                             JAVA_DIRECTIVES.forEach {
                                 result.addElement(LookupElementBuilder.create(it))
                             }
@@ -34,8 +32,7 @@ class JbangKotlinCompletionContributor : JbangBaseDirectiveCompletionContributor
                         }
                     }
                 }
-            }
-        )
+            })
     }
 
 }  
