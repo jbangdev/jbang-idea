@@ -1,5 +1,7 @@
 package dev.jbang.intellij.plugins.jbang.actions
 
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -24,6 +26,7 @@ import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import java.io.BufferedReader
+
 
 /**
  * Sync dependencies between JBang script and Gradle dependencies
@@ -203,26 +206,35 @@ class SyncDependenciesAction : AnAction() {
             // get new dependencies from `jbang info classpath --quiet script_path`
             val fullPath = jbangScriptFile.virtualFile.path
             val jbangCmd = getJBangCmdAbsolutionPath()
-            val pb = ProcessBuilder(jbangCmd, "info", "classpath", "--quiet", fullPath)
+            val pb = ProcessBuilder(jbangCmd, "info", "classpath", fullPath)
             val process = pb.start()
-            val allText = process.inputStream.bufferedReader().use(BufferedReader::readText).trim()
-            val newDependencies = allText.split(':', ';').filter { !it.contains(".jbang") }
-            // remove stale dependencies
-            val moduleLibraries = OrderEntryUtil.getModuleLibraries(ModuleRootManager.getInstance(module));
-            val moduleRootManager = ModuleRootManager.getInstance(module)
-            if (moduleLibraries.isNotEmpty()) {
-                val modifiableModel = moduleRootManager.modifiableModel
-                val moduleLibraryTable = modifiableModel.moduleLibraryTable
-                moduleLibraries.forEach {
-                    val libName = it.name
-                    if (libName == null || !libName.endsWith("Runtime")) {
-                        moduleLibraryTable.removeLibrary(it)
+            process.waitFor()
+            if (process.exitValue() != 0) {
+                val errorText = process.errorStream.bufferedReader().use(BufferedReader::readText).trim()
+                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Sync Failed");
+                jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
+            } else {
+                val allText = process.inputStream.bufferedReader().use(BufferedReader::readText).trim()
+                val newDependencies = allText.split(':', ';').filter { !it.contains(".jbang") }
+                // remove stale dependencies
+                val moduleLibraries = OrderEntryUtil.getModuleLibraries(ModuleRootManager.getInstance(module));
+                val moduleRootManager = ModuleRootManager.getInstance(module)
+                if (moduleLibraries.isNotEmpty()) {
+                    val modifiableModel = moduleRootManager.modifiableModel
+                    val moduleLibraryTable = modifiableModel.moduleLibraryTable
+                    moduleLibraries.forEach {
+                        val libName = it.name
+                        if (libName == null || !libName.endsWith("Runtime")) {
+                            moduleLibraryTable.removeLibrary(it)
+                        }
                     }
+                    modifiableModel.commit()
                 }
-                modifiableModel.commit()
+                // Add new dependencies
+                newDependencies.forEach { ModuleRootModificationUtil.addModuleLibrary(module, "jar://${it}!/") }
+                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Sync Success")
+                jbangNotificationGroup.createNotification("Succeed to sync DEPS", "${newDependencies.size} jars synced!", NotificationType.INFORMATION).notify(module.project)
             }
-            // Add new dependencies
-            newDependencies.forEach { ModuleRootModificationUtil.addModuleLibrary(module, "jar://${it}!/") }
         }
     }
 }
