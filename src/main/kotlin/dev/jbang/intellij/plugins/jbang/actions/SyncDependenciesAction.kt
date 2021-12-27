@@ -12,6 +12,7 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.ModuleRootModificationUtil
 import com.intellij.openapi.roots.impl.OrderEntryUtil
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
@@ -23,6 +24,7 @@ import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import java.io.BufferedReader
+import java.io.File
 
 /**
  * Sync dependencies between JBang script and Gradle dependencies
@@ -201,7 +203,13 @@ class SyncDependenciesAction : AnAction() {
         ApplicationManager.getApplication().runWriteAction {
             // get new dependencies from `jbang info classpath --quiet script_path`
             val fullPath = jbangScriptFile.virtualFile.path
-            val pb = ProcessBuilder("jbang", "info", "classpath", "--quiet", fullPath)
+            val userHome = System.getProperty("user.home")
+            var jbangCmd = "jbang"
+            if (SystemInfo.isWindows) {
+                jbangCmd += ".cmd"
+            }
+            jbangCmd = File(userHome, ".jbang/bin/${jbangCmd}").absolutePath
+            val pb = ProcessBuilder(jbangCmd, "info", "classpath", "--quiet", fullPath)
             val process = pb.start()
             val allText = process.inputStream.bufferedReader().use(BufferedReader::readText).trim()
             val newDependencies = allText.split(':', ';').filter { !it.contains(".jbang") }
