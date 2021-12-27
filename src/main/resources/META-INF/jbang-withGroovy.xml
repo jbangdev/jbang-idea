@@ -1,6 +1,6 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
-        <completion.contributor language="kotlin" implementationClass="dev.jbang.intellij.plugins.jbang.completion.JbangGroovyCompletionContributor"/>
+        <completion.contributor language="Groovy" implementationClass="dev.jbang.intellij.plugins.jbang.completion.JbangGroovyCompletionContributor"/>
         <runLineMarkerContributor language="Groovy" implementationClass="dev.jbang.intellij.plugins.jbang.run.JbangRunLineMarkerContributor"/>
     </extensions>
 </idea-plugin>
