@@ -2,6 +2,12 @@
 
 # jbang-intellij-plugin Changelog
 
+## [0.5.0]
+
+### Added
+
+- Add to sync DEPS to IDEA's module:  use `idea .` to open JBang project
+
 ## [0.4.0]
 
 ### Added
