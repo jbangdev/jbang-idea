@@ -213,7 +213,12 @@ class SyncDependenciesAction : AnAction() {
             if (moduleLibraries.isNotEmpty()) {
                 val modifiableModel = moduleRootManager.modifiableModel
                 val moduleLibraryTable = modifiableModel.moduleLibraryTable
-                moduleLibraries.forEach { moduleLibraryTable.removeLibrary(it) }
+                moduleLibraries.forEach {
+                    val libName = it.name
+                    if (libName == null || !libName.endsWith("Runtime")) {
+                        moduleLibraryTable.removeLibrary(it)
+                    }
+                }
                 modifiableModel.commit()
             }
             // Add new dependencies
