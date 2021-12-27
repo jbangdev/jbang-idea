@@ -18,6 +18,7 @@
         <fileType name="JSHELL" language="JShellLanguage" extensions="jsh"/>
         <completion.contributor language="JAVA" implementationClass="dev.jbang.intellij.plugins.jbang.completion.JbangJavaCompletionContributor"/>
         <runLineMarkerContributor language="JAVA" implementationClass="dev.jbang.intellij.plugins.jbang.run.JbangRunLineMarkerContributor"/>
+        <notificationGroup id="JBang" icon="/icons/jbang-16x16.png" displayType="STICKY_BALLOON" isLogByDefault="false"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">
