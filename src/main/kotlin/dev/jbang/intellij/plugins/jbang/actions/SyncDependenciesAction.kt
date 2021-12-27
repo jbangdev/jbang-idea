@@ -7,9 +7,14 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
+import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ModuleRootManager
+import com.intellij.openapi.roots.ModuleRootModificationUtil
+import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiDocumentManager
+import com.intellij.psi.PsiFile
 import dev.jbang.intellij.plugins.jbang.JBANG_DECLARE
 import dev.jbang.intellij.plugins.jbang.isJbangScript
 import dev.jbang.intellij.plugins.jbang.isJbangScriptFile
@@ -17,6 +22,7 @@ import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
 import org.jetbrains.plugins.gradle.util.GradleConstants
+import java.io.BufferedReader
 
 /**
  * Sync dependencies between JBang script and Gradle dependencies
@@ -32,9 +38,12 @@ class SyncDependenciesAction : AnAction() {
                 val project = e.getData(CommonDataKeys.PROJECT)!!
                 val buildGradle = LocalFileSystem.getInstance().findFileByPath(project.basePath + "/build.gradle")
                 if (buildGradle != null) {
-                    e.presentation.isEnabledAndVisible = true
-                    return
+                    e.presentation.text = "Sync DEPS Between JBang and Gradle"
+                } else {
+                    e.presentation.text = "Sync JBang DEPS to Module"
                 }
+                e.presentation.isEnabledAndVisible = true
+                return
             }
         }
         e.presentation.isEnabledAndVisible = false
@@ -46,52 +55,57 @@ class SyncDependenciesAction : AnAction() {
             if (isJbangScript(jbangScriptFile.text)) {
                 val project = e.getData(CommonDataKeys.PROJECT)!!
                 val module = jbangScriptFile.module
-                var buildGradle = LocalFileSystem.getInstance().findFileByPath(project.basePath + "/build.gradle")
-                if (module != null && buildGradle != null) {
+                if (module != null) {
+                    var buildGradle = LocalFileSystem.getInstance().findFileByPath(project.basePath + "/build.gradle")
                     val buildGradleOfModule = LocalFileSystem.getInstance().findFileByPath(module.getModuleDir() + "/build.gradle")
                     if (buildGradleOfModule != null) {
                         buildGradle = buildGradleOfModule;
                     }
-                    //script file in main source set
-                    var moduleName = module.name
-                    if (moduleName.contains('.')) {
-                        moduleName = moduleName.substring(moduleName.lastIndexOf('.') + 1)
+                    if (buildGradle != null) { // sync dependencies between DEPS and gradle
+                        syncDependenciesBetweenJBangAndGradle(project, module, buildGradle.toPsiFile(project)!!, jbangScriptFile)
+                    } else { //sync DEPS to IDEA's module
+                        syncDepsToModule(module, jbangScriptFile)
                     }
-                    val sourceSetName = if (project.name == moduleName) {
-                        "main"
-                    } else {
-                        moduleName
-                    }
-                    val psiBuildGradle = buildGradle.toPsiFile(project)!!
-                    val dependenciesFromGradle = findDependenciesFromGradle(psiBuildGradle.text, sourceSetName)
-                    val dependenciesFromScript = findDependenciesFromScript(jbangScriptFile.text)
-                    val allDependencies = HashSet(dependenciesFromGradle).apply {
-                        addAll(dependenciesFromScript)
-                    }
-                    val newDependenciesForGradle = HashSet(allDependencies).apply {
-                        removeAll(dependenciesFromGradle)
-                    }
-                    val newDependenciesForScript = HashSet(allDependencies).apply {
-                        removeAll(dependenciesFromScript)
-                    }
-                    if (newDependenciesForScript.isNotEmpty()) {
-                        ApplicationManager.getApplication().runWriteAction {
-                            val documentManager = PsiDocumentManager.getInstance(project)
-                            val document = documentManager.getDocument(jbangScriptFile)!!
-                            document.setText(addDependenciesToScript(jbangScriptFile.name, jbangScriptFile.text, newDependenciesForScript))
-                        }
-                    }
-                    if (newDependenciesForGradle.isNotEmpty()) {
-                        ApplicationManager.getApplication().runWriteAction {
-                            val documentManager = PsiDocumentManager.getInstance(project)
-                            val document = documentManager.getDocument(psiBuildGradle)!!
-                            document.setText(addDependenciesToGradle(psiBuildGradle.text, newDependenciesForGradle, sourceSetName))
-                        }
-                        refreshProject(project)
-                    }
-                    println("  ")
                 }
             }
+        }
+    }
+
+    private fun syncDependenciesBetweenJBangAndGradle(project: Project, module: Module, buildGradle: PsiFile, jbangScriptFile: PsiFile) {
+        var moduleName = module.name
+        if (moduleName.contains('.')) {
+            moduleName = moduleName.substring(moduleName.lastIndexOf('.') + 1)
+        }
+        val sourceSetName = if (project.name == moduleName) {
+            "main"
+        } else {
+            moduleName
+        }
+        val dependenciesFromGradle = findDependenciesFromGradle(buildGradle.text, sourceSetName)
+        val dependenciesFromScript = findDependenciesFromScript(jbangScriptFile.text)
+        val allDependencies = HashSet(dependenciesFromGradle).apply {
+            addAll(dependenciesFromScript)
+        }
+        val newDependenciesForGradle = HashSet(allDependencies).apply {
+            removeAll(dependenciesFromGradle)
+        }
+        val newDependenciesForScript = HashSet(allDependencies).apply {
+            removeAll(dependenciesFromScript)
+        }
+        if (newDependenciesForScript.isNotEmpty()) {
+            ApplicationManager.getApplication().runWriteAction {
+                val documentManager = PsiDocumentManager.getInstance(project)
+                val document = documentManager.getDocument(jbangScriptFile)!!
+                document.setText(addDependenciesToScript(jbangScriptFile.name, jbangScriptFile.text, newDependenciesForScript))
+            }
+        }
+        if (newDependenciesForGradle.isNotEmpty()) {
+            ApplicationManager.getApplication().runWriteAction {
+                val documentManager = PsiDocumentManager.getInstance(project)
+                val document = documentManager.getDocument(buildGradle)!!
+                document.setText(addDependenciesToGradle(buildGradle.text, newDependenciesForGradle, sourceSetName))
+            }
+            refreshProject(project)
         }
     }
 
@@ -181,5 +195,27 @@ class SyncDependenciesAction : AnAction() {
         ExternalSystemUtil.refreshProject(
             project.basePath!!, ImportSpecBuilder(project, projectSystemId).withArguments("--refresh-dependencies")
         )
+    }
+
+    private fun syncDepsToModule(module: Module, jbangScriptFile: PsiFile) {
+        ApplicationManager.getApplication().runWriteAction {
+            // get new dependencies from `jbang info classpath --quiet script_path`
+            val fullPath = jbangScriptFile.virtualFile.path
+            val pb = ProcessBuilder("jbang", "info", "classpath", "--quiet", fullPath)
+            val process = pb.start()
+            val allText = process.inputStream.bufferedReader().use(BufferedReader::readText).trim()
+            val newDependencies = allText.split(':', ';').filter { !it.contains(".jbang") }
+            // remove stale dependencies
+            val moduleLibraries = OrderEntryUtil.getModuleLibraries(ModuleRootManager.getInstance(module));
+            val moduleRootManager = ModuleRootManager.getInstance(module)
+            if (moduleLibraries.isNotEmpty()) {
+                val modifiableModel = moduleRootManager.modifiableModel
+                val moduleLibraryTable = modifiableModel.moduleLibraryTable
+                moduleLibraries.forEach { moduleLibraryTable.removeLibrary(it) }
+                modifiableModel.commit()
+            }
+            // Add new dependencies
+            newDependencies.forEach { ModuleRootModificationUtil.addModuleLibrary(module, "jar://${it}!/") }
+        }
     }
 }
