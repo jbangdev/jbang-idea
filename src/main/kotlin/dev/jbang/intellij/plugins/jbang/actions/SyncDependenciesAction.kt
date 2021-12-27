@@ -17,18 +17,14 @@ import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import dev.jbang.cli.BaseScriptCommand
-import dev.jbang.cli.Info
 import dev.jbang.intellij.plugins.jbang.JBANG_DECLARE
+import dev.jbang.intellij.plugins.jbang.JBangCli.resolveScriptDependencies
 import dev.jbang.intellij.plugins.jbang.isJbangScript
 import dev.jbang.intellij.plugins.jbang.isJbangScriptFile
-import org.apache.commons.lang3.reflect.FieldUtils
-import org.apache.commons.lang3.reflect.MethodUtils
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
 import org.jetbrains.plugins.gradle.util.GradleConstants
-import picocli.CommandLine
 
 /**
  * Sync dependencies between JBang script and Gradle dependencies
@@ -225,24 +221,14 @@ class SyncDependenciesAction : AnAction() {
                 }
                 // Add new dependencies
                 newDependencies.forEach { ModuleRootModificationUtil.addModuleLibrary(module, "jar://${it}!/") }
-                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Sync Success")
+                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
                 jbangNotificationGroup.createNotification("Succeed to sync DEPS", "${newDependencies.size} jars synced!", NotificationType.INFORMATION).notify(module.project)
             } catch (e: Exception) {
                 val errorText = "Failed to resolve dependencies from " + jbangScriptFile.name + ", please check your //DEPS in your code"
-                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Sync Failed");
+                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
                 jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
             }
         }
     }
 
-    @Throws(Exception::class)
-    fun resolveScriptDependencies(scriptFilePath: String): List<String> {
-        val args = arrayOf("classpath", scriptFilePath)
-        val demo = Info()
-        val commandLine = CommandLine(demo)
-        commandLine.parseArgs(*args)
-        val baseScriptCommand = commandLine.subcommands["classpath"]!!.getCommand<BaseScriptCommand>()
-        val scriptInfo = MethodUtils.invokeMethod(baseScriptCommand, true, "getInfo")
-        return FieldUtils.readDeclaredField(scriptInfo, "resolvedDependencies", true) as List<String>
-    }
 }
