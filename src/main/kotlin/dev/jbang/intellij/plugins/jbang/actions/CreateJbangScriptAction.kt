@@ -16,7 +16,7 @@ import java.io.File
 
 class CreateJbangScriptAction : CreateFileFromTemplateAction(NAME, DESCRIPTION, jbangIcon), DumbAware {
     companion object {
-        private const val NAME = "JBang Script"
+        private const val NAME = "JBang Simple Script"
         private const val DESCRIPTION = "Create JBang script"
     }
 
