@@ -18,8 +18,8 @@
         <fileType name="JSHELL" language="JShellLanguage" extensions="jsh"/>
         <completion.contributor language="JAVA" implementationClass="dev.jbang.intellij.plugins.jbang.completion.JbangJavaCompletionContributor"/>
         <runLineMarkerContributor language="JAVA" implementationClass="dev.jbang.intellij.plugins.jbang.run.JbangRunLineMarkerContributor"/>
-        <notificationGroup id="JBang Sync Failed" icon="/icons/jbang-16x16.png" displayType="STICKY_BALLOON" isLogByDefault="false"/>
-        <notificationGroup id="JBang Sync Success" icon="/icons/jbang-16x16.png" displayType="BALLOON" isLogByDefault="false"/>
+        <notificationGroup id="JBang Failure" icon="/icons/jbang-16x16.png" displayType="STICKY_BALLOON" isLogByDefault="false"/>
+        <notificationGroup id="JBang Success" icon="/icons/jbang-16x16.png" displayType="BALLOON" isLogByDefault="false"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">
@@ -30,6 +30,12 @@
     <actions>
         <action class="dev.jbang.intellij.plugins.jbang.actions.CreateJbangScriptAction" id="CreateJbangScriptAction">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFromTemplate"/>
+        </action>
+        <action class="dev.jbang.intellij.plugins.jbang.actions.CreateFromTemplateAction"
+                id="CreateFromTemplateAction"
+                text="JBang Script from Template"
+                icon="/icons/jbang-16x16.png">
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="CreateJbangScriptAction"/>
         </action>
         <action id="jbang.SyncDependenciesAction"
                 class="dev.jbang.intellij.plugins.jbang.actions.SyncDependenciesAction"
