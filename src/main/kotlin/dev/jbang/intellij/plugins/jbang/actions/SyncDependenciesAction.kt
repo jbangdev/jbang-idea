@@ -13,11 +13,11 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.projectRoots.ProjectJdkTable
-import com.intellij.openapi.roots.LanguageLevelProjectExtension
+import com.intellij.openapi.roots.LanguageLevelModuleExtension
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.ModuleRootModificationUtil
-import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import dev.jbang.intellij.plugins.jbang.JBANG_DECLARE
@@ -28,6 +28,7 @@ import dev.jbang.intellij.plugins.jbang.isJbangScriptFile
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
+import org.jetbrains.kotlin.idea.util.projectStructure.version
 import org.jetbrains.plugins.gradle.util.GradleConstants
 import java.io.BufferedReader
 
@@ -76,7 +77,7 @@ class SyncDependenciesAction : AnAction() {
                         syncDepsToModuleWithCmd(module, jbangScriptFile)
                         val javaVersion = jbangScriptFile.text.lines().firstOrNull { it.startsWith("//JAVA") }
                         if (javaVersion != null) {
-                            syncJavaVersionToProject(project, module, javaVersion.substring(6).trim())
+                            syncJavaVersionToModule(module, javaVersion.substring(6).trim())
                         }
                     }
                 }
@@ -241,15 +242,18 @@ class SyncDependenciesAction : AnAction() {
         }
     }
 
-    private fun syncJavaVersionToProject(project: Project, module: Module, version: String) {
-        val projectRootManager = ProjectRootManager.getInstance(project)
-        val projectSdk = projectRootManager.projectSdk
-        if (projectSdk == null || projectSdk.name != version) {
+    private fun syncJavaVersionToModule(module: Module, version: String) {
+        val moduleRootManager = ModuleRootManager.getInstance(module)
+        val moduleSdk = moduleRootManager.sdk
+        if (moduleSdk == null || moduleSdk.name != version) {
             val javaSdk = ProjectJdkTable.getInstance().getSdksOfType(JavaSdk.getInstance()).firstOrNull { it.name == version }
             if (javaSdk != null) {
+                val languageLevel = LanguageLevel.valueOf(javaSdk.version?.name!!);
                 ApplicationManager.getApplication().runWriteAction {
-                    projectRootManager.projectSdk = javaSdk
-                    LanguageLevelProjectExtension.getInstance(project).default = true
+                    val modifiableRootModel = moduleRootManager.modifiableModel
+                    modifiableRootModel.sdk = javaSdk
+                    modifiableRootModel.getModuleExtension(LanguageLevelModuleExtension::class.java).languageLevel = languageLevel
+                    modifiableRootModel.commit();
                 }
             }
         }
