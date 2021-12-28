@@ -2,6 +2,12 @@
 
 # jbang-intellij-plugin Changelog
 
+## [0.7.0]
+
+### Added
+
+- Module JDK sync according to `//JAVA`
+
 ## [0.6.0]
 
 ### Added
