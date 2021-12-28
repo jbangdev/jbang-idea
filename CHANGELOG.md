@@ -2,6 +2,12 @@
 
 # jbang-intellij-plugin Changelog
 
+## [0.6.0]
+
+### Added
+
+- Add create script from JBang template
+
 ## [0.5.0]
 
 ### Added
