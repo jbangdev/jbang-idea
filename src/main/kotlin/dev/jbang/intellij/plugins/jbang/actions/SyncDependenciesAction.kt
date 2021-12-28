@@ -11,8 +11,12 @@ import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.projectRoots.JavaSdk
+import com.intellij.openapi.projectRoots.ProjectJdkTable
+import com.intellij.openapi.roots.LanguageLevelProjectExtension
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.ModuleRootModificationUtil
+import com.intellij.openapi.roots.ProjectRootManager
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
@@ -70,6 +74,10 @@ class SyncDependenciesAction : AnAction() {
                         //disable dependencies resolve by JBangBundle because of ClassLoader problem
                         //syncDepsToModule(module, jbangScriptFile)
                         syncDepsToModuleWithCmd(module, jbangScriptFile)
+                        val javaVersion = jbangScriptFile.text.lines().firstOrNull { it.startsWith("//JAVA") }
+                        if (javaVersion != null) {
+                            syncJavaVersionToProject(project, module, javaVersion.substring(6).trim())
+                        }
                     }
                 }
             }
@@ -123,17 +131,13 @@ class SyncDependenciesAction : AnAction() {
         }
         val sourceSetFound = lines.any { it.startsWith(directive) }
         return if (sourceSetFound) {
-            lines.asSequence().filter { it.startsWith(directive) }
-                .map { it.substring(it.indexOf(" ")).trim() }
-                .map { it.trim('\'').trim('"') }
-                .map {
-                    if (it.startsWith("platform")) {
-                        it.substring(8).trim().trim('(').trim(')').trim('\'').trim('"') + "@pom"
-                    } else {
-                        it
-                    }
+            lines.asSequence().filter { it.startsWith(directive) }.map { it.substring(it.indexOf(" ")).trim() }.map { it.trim('\'').trim('"') }.map {
+                if (it.startsWith("platform")) {
+                    it.substring(8).trim().trim('(').trim(')').trim('\'').trim('"') + "@pom"
+                } else {
+                    it
                 }
-                .toSet()
+            }.toSet()
         } else {
             return emptySet()
         }
@@ -233,6 +237,20 @@ class SyncDependenciesAction : AnAction() {
                 val allText = process.inputStream.bufferedReader().use(BufferedReader::readText).trim()
                 val newDependencies = allText.split(':', ';').filter { !it.contains(".jbang") }
                 replaceJbangModuleLib(module, newDependencies)
+            }
+        }
+    }
+
+    private fun syncJavaVersionToProject(project: Project, module: Module, version: String) {
+        val projectRootManager = ProjectRootManager.getInstance(project)
+        val projectSdk = projectRootManager.projectSdk
+        if (projectSdk == null || projectSdk.name != version) {
+            val javaSdk = ProjectJdkTable.getInstance().getSdksOfType(JavaSdk.getInstance()).firstOrNull { it.name == version }
+            if (javaSdk != null) {
+                ApplicationManager.getApplication().runWriteAction {
+                    projectRootManager.projectSdk = javaSdk
+                    LanguageLevelProjectExtension.getInstance(project).default = true
+                }
             }
         }
     }
