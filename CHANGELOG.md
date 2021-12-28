@@ -7,6 +7,7 @@
 ### Added
 
 - Add create script from JBang template
+- Move all DEPS to module's jbang library
 
 ## [0.5.0]
 
