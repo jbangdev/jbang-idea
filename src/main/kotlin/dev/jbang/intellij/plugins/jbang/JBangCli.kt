@@ -13,10 +13,10 @@ object JBangCli {
 
     @Throws(Exception::class)
     fun resolveScriptDependencies(scriptFilePath: String): List<String> {
-        val args = arrayOf("classpath", scriptFilePath)
+        val args = arrayOf("classpath", "--fresh", scriptFilePath)
         val demo = Info()
         val commandLine = CommandLine(demo)
-        commandLine.parseArgs(*args)
+        commandLine.execute(*args)
         val baseScriptCommand = commandLine.subcommands["classpath"]!!.getCommand<BaseScriptCommand>()
         val scriptInfo = MethodUtils.invokeMethod(baseScriptCommand, true, "getInfo")
         return FieldUtils.readDeclaredField(scriptInfo, "resolvedDependencies", true) as List<String>
