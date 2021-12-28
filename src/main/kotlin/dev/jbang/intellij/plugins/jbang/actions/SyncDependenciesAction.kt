@@ -18,12 +18,14 @@ import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
 import dev.jbang.intellij.plugins.jbang.JBANG_DECLARE
 import dev.jbang.intellij.plugins.jbang.JBangCli.resolveScriptDependencies
+import dev.jbang.intellij.plugins.jbang.getJBangCmdAbsolutionPath
 import dev.jbang.intellij.plugins.jbang.isJbangScript
 import dev.jbang.intellij.plugins.jbang.isJbangScriptFile
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
 import org.jetbrains.plugins.gradle.util.GradleConstants
+import java.io.BufferedReader
 
 /**
  * Sync dependencies between JBang script and Gradle dependencies
@@ -65,7 +67,9 @@ class SyncDependenciesAction : AnAction() {
                     if (buildGradle != null) { // sync dependencies between DEPS and gradle
                         syncDependenciesBetweenJBangAndGradle(project, module, buildGradle.toPsiFile(project)!!, jbangScriptFile)
                     } else { //sync DEPS to IDEA's module
-                        syncDepsToModule(module, jbangScriptFile)
+                        //disable dependencies resolve by JBangBundle because of ClassLoader problem
+                        //syncDepsToModule(module, jbangScriptFile)
+                        syncDepsToModuleWithCmd(module, jbangScriptFile)
                     }
                 }
             }
@@ -204,24 +208,48 @@ class SyncDependenciesAction : AnAction() {
         ApplicationManager.getApplication().runWriteAction {
             try {
                 val newDependencies = dependencies.filter { !it.contains(".jbang") }
-                // remove jbang library
-                val moduleRootManager = ModuleRootManager.getInstance(module)
-                val modifiableModel = moduleRootManager.modifiableModel
-                val jbangLib = modifiableModel.moduleLibraryTable.getLibraryByName("jbang");
-                if (jbangLib != null) {
-                    modifiableModel.moduleLibraryTable.removeLibrary(jbangLib)
-                    modifiableModel.commit()
-                }
-                // add jbang dependencies
-                ModuleRootModificationUtil.addModuleLibrary(module, "jbang", newDependencies.map { "jar://${it}!/" }.toList(), listOf())
-                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
-                jbangNotificationGroup.createNotification("Succeed to sync DEPS", "${newDependencies.size} jars synced!", NotificationType.INFORMATION).notify(module.project)
+                replaceJbangModuleLib(module, newDependencies)
             } catch (e: Exception) {
                 val errorText = "Failed to resolve dependencies from " + jbangScriptFile.name + ", please check your //DEPS in your code"
                 val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
                 jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
             }
         }
+    }
+
+    private fun syncDepsToModuleWithCmd(module: Module, jbangScriptFile: PsiFile) {
+        ApplicationManager.getApplication().runWriteAction {
+            // get new dependencies from `jbang info classpath --quiet script_path`
+            val fullPath = jbangScriptFile.virtualFile.path
+            val jbangCmd = getJBangCmdAbsolutionPath()
+            val pb = ProcessBuilder(jbangCmd, "info", "classpath", "--fresh", fullPath)
+            val process = pb.start()
+            process.waitFor()
+            if (process.exitValue() != 0) {
+                val errorText = process.errorStream.bufferedReader().use(BufferedReader::readText).trim()
+                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
+                jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
+            } else {
+                val allText = process.inputStream.bufferedReader().use(BufferedReader::readText).trim()
+                val newDependencies = allText.split(':', ';').filter { !it.contains(".jbang") }
+                replaceJbangModuleLib(module, newDependencies)
+            }
+        }
+    }
+
+    private fun replaceJbangModuleLib(module: Module, newDependencies: List<String>) {
+        // remove jbang library
+        val moduleRootManager = ModuleRootManager.getInstance(module)
+        val modifiableModel = moduleRootManager.modifiableModel
+        val jbangLib = modifiableModel.moduleLibraryTable.getLibraryByName("jbang");
+        if (jbangLib != null) {
+            modifiableModel.moduleLibraryTable.removeLibrary(jbangLib)
+            modifiableModel.commit()
+        }
+        // add jbang dependencies
+        ModuleRootModificationUtil.addModuleLibrary(module, "jbang", newDependencies.map { "jar://${it}!/" }.toList(), listOf())
+        val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
+        jbangNotificationGroup.createNotification("Succeed to sync DEPS", "${newDependencies.size} jars synced!", NotificationType.INFORMATION).notify(module.project)
     }
 
 }
