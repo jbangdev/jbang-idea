@@ -2,6 +2,9 @@
 //KOTLIN 1.6.10
 //DEPS org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10
 
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME}
+
+#end
 fun main(args: Array<String>) {
     println("Hello, world!")
 }

@@ -2,4 +2,7 @@
 //GROOVY 3.0.9
 //DEPS org.codehaus.groovy:groovy:3.0.9
 
+#if (${PACKAGE_NAME} && ${PACKAGE_NAME} != "")package ${PACKAGE_NAME}
+
+#end
 println("Hello JBang!")
