@@ -13,7 +13,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.ModuleRootModificationUtil
-import com.intellij.openapi.roots.impl.OrderEntryUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
@@ -200,27 +199,21 @@ class SyncDependenciesAction : AnAction() {
     }
 
     private fun syncDepsToModule(module: Module, jbangScriptFile: PsiFile) {
+        val fullPath = jbangScriptFile.virtualFile.path
+        val dependencies = resolveScriptDependencies(fullPath)
         ApplicationManager.getApplication().runWriteAction {
-            val fullPath = jbangScriptFile.virtualFile.path
             try {
-                val dependencies = resolveScriptDependencies(fullPath)
                 val newDependencies = dependencies.filter { !it.contains(".jbang") }
-                // remove stale dependencies
-                val moduleLibraries = OrderEntryUtil.getModuleLibraries(ModuleRootManager.getInstance(module));
+                // remove jbang library
                 val moduleRootManager = ModuleRootManager.getInstance(module)
-                if (moduleLibraries.isNotEmpty()) {
-                    val modifiableModel = moduleRootManager.modifiableModel
-                    val moduleLibraryTable = modifiableModel.moduleLibraryTable
-                    moduleLibraries.forEach {
-                        val libName = it.name
-                        if (libName == null || !libName.endsWith("Runtime")) {
-                            moduleLibraryTable.removeLibrary(it)
-                        }
-                    }
+                val modifiableModel = moduleRootManager.modifiableModel
+                val jbangLib = modifiableModel.moduleLibraryTable.getLibraryByName("jbang");
+                if (jbangLib != null) {
+                    modifiableModel.moduleLibraryTable.removeLibrary(jbangLib)
                     modifiableModel.commit()
                 }
-                // Add new dependencies
-                newDependencies.forEach { ModuleRootModificationUtil.addModuleLibrary(module, "jar://${it}!/") }
+                // add jbang dependencies
+                ModuleRootModificationUtil.addModuleLibrary(module, "jbang", newDependencies.map { "jar://${it}!/" }.toList(), listOf())
                 val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
                 jbangNotificationGroup.createNotification("Succeed to sync DEPS", "${newDependencies.size} jars synced!", NotificationType.INFORMATION).notify(module.project)
             } catch (e: Exception) {
