@@ -19,8 +19,10 @@ class CreateFromTemplateAction : AnAction(), DumbAware {
             if (scriptName.isNotEmpty()) {
                 ApplicationManager.getApplication().runWriteAction {
                     val project = e.getData(CommonDataKeys.PROJECT)!!
+                    val directory = e.getData(CommonDataKeys.VIRTUAL_FILE)
                     try {
-                        generateScriptFrommTemplate(templateName, scriptName, project.basePath!!)
+                        val destDir = directory?.path ?: project.basePath!!
+                        generateScriptFrommTemplate(templateName, scriptName, destDir)
                         LocalFileSystem.getInstance().refresh(true)
                     } catch (e: Exception) {
                         val errorText = "Failed to create script from template, please check template and script name!"
