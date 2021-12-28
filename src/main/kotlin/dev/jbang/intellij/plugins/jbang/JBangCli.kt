@@ -23,9 +23,9 @@ object JBangCli {
     }
 
     @Throws(Exception::class)
-    fun generateScriptFrommTemplate(templateName: String, scriptName: String, projectPath: String) {
+    fun generateScriptFrommTemplate(templateName: String, scriptName: String, destDir: String) {
         val args = arrayOf("--template", templateName, "--force", scriptName)
-        Util.setCwd(Path(projectPath))
+        Util.setCwd(Path(destDir))
         val commandLine = CommandLine(Init())
         commandLine.execute(*args)
     }
