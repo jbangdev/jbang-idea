@@ -3,12 +3,10 @@ package dev.jbang.intellij.plugins.jbang.actions
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.LabeledComponent
-import dev.jbang.catalog.Catalog
-import dev.jbang.catalog.Template
 import javax.swing.*
 
 
-class JbangTemplatesDialogWrapper : DialogWrapper(true) {
+class JbangTemplatesDialogWrapper(private val templates: List<String>) : DialogWrapper(true) {
     private var myScriptName: LabeledComponent<JTextField> = LabeledComponent()
     private var templateList: LabeledComponent<JComboBox<String>> = LabeledComponent()
 
@@ -31,8 +29,7 @@ class JbangTemplatesDialogWrapper : DialogWrapper(true) {
     }
 
     private fun createTemplateComboBox(): JComboBox<String> {
-        val templates = Catalog.getBuiltin().templates.map { (name: String, template: Template) -> "${name}: ${template.description}" }.toTypedArray()
-        return ComboBox(templates)
+        return ComboBox(this.templates.toTypedArray())
     }
 
     override fun getPreferredFocusedComponent(): JComponent {
@@ -45,6 +42,6 @@ class JbangTemplatesDialogWrapper : DialogWrapper(true) {
 
     fun getTemplateName(): String {
         val selectedItem = templateList.component.selectedItem!! as String
-        return selectedItem.substring(0, selectedItem.indexOf(':'))
+        return selectedItem.split('=', ':', ' ')[0]
     }
 }
