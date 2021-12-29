@@ -8,8 +8,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.vfs.LocalFileSystem
-import dev.jbang.intellij.plugins.jbang.JBangCli.generateScriptFrommTemplate
-import dev.jbang.intellij.plugins.jbang.JBangCli.listJBangTemplates
+import dev.jbang.idea.JBangCli.generateScriptFrommTemplate
+import dev.jbang.idea.JBangCli.listJBangTemplates
 import org.jetbrains.kotlin.idea.caches.project.NotUnderContentRootModuleInfo.project
 
 class CreateFromTemplateAction : AnAction(), DumbAware {

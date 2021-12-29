@@ -20,11 +20,11 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import dev.jbang.intellij.plugins.jbang.JBANG_DECLARE
-import dev.jbang.intellij.plugins.jbang.JBangCli.resolveScriptDependencies
-import dev.jbang.intellij.plugins.jbang.JBangCli.resolveScriptInfo
-import dev.jbang.intellij.plugins.jbang.isJBangScript
-import dev.jbang.intellij.plugins.jbang.isJBangScriptFile
+import dev.jbang.idea.JBANG_DECLARE
+import dev.jbang.idea.JBangCli.resolveScriptDependencies
+import dev.jbang.idea.JBangCli.resolveScriptInfo
+import dev.jbang.idea.isJBangScript
+import dev.jbang.idea.isJBangScriptFile
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir

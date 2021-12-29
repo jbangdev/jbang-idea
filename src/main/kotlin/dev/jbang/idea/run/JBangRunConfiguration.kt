@@ -9,7 +9,7 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.Factory
-import dev.jbang.intellij.plugins.jbang.jbangIcon
+import dev.jbang.idea.jbangIcon
 import java.io.File
 import javax.swing.Icon
 
