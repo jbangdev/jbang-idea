@@ -5,8 +5,8 @@ import com.intellij.execution.configurations.ConfigurationType
 import com.intellij.execution.configurations.RunConfiguration
 import com.intellij.openapi.components.BaseState
 import com.intellij.openapi.project.Project
-import dev.jbang.intellij.plugins.jbang.jbangIcon
-import dev.jbang.intellij.plugins.jbang.run.JBangConfigurationType.Companion.ID
+import dev.jbang.idea.jbangIcon
+import dev.jbang.idea.run.JBangConfigurationType.Companion.ID
 import javax.swing.Icon
 
 class JBangConfigurationFactory(type: ConfigurationType) : ConfigurationFactory(type) {

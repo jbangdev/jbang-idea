@@ -2,7 +2,7 @@ package dev.jbang.idea.run
 
 import com.intellij.execution.configurations.ConfigurationFactory
 import com.intellij.execution.configurations.ConfigurationType
-import dev.jbang.intellij.plugins.jbang.jbangIcon
+import dev.jbang.idea.jbangIcon
 import javax.swing.Icon
 
 class JBangConfigurationType : ConfigurationType {

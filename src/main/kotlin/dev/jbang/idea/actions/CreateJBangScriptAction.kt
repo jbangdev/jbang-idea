@@ -8,10 +8,10 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiFile
-import dev.jbang.intellij.plugins.jbang.groovyIcon
-import dev.jbang.intellij.plugins.jbang.jbangIcon
-import dev.jbang.intellij.plugins.jbang.jshellIcon
-import dev.jbang.intellij.plugins.jbang.kotlinIcon
+import dev.jbang.idea.groovyIcon
+import dev.jbang.idea.jbangIcon
+import dev.jbang.idea.jshellIcon
+import dev.jbang.idea.kotlinIcon
 import java.io.File
 
 class CreateJBangScriptAction : CreateFileFromTemplateAction(NAME, DESCRIPTION, jbangIcon), DumbAware {
