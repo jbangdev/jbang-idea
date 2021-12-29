@@ -5,20 +5,17 @@ import java.io.File
 
 object JBangCli {
 
-    private val colorCleanRegex = "\u001B\\[[;\\d]*m".toRegex()
-
     @Throws(Exception::class)
     fun listJbangTemplates(): List<String> {
         val jbangCmd = getJBangCmdAbsolutionPath()
         val pb = ProcessBuilder(jbangCmd, "template", "list")
+        pb.environment()["NO_COLOR"] = "true"
         val process = pb.start()
         process.waitFor()
         if (process.exitValue() != 0) {
             throw Exception(processErrorToText(process))
         } else {
-            return processOutputToText(process).lines().map {
-                it.replace(colorCleanRegex, "").toString()
-            }
+            return processOutputToText(process).lines()
         }
     }
 
