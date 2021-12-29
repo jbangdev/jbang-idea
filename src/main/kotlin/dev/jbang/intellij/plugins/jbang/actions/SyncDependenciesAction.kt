@@ -1,5 +1,6 @@
 package dev.jbang.intellij.plugins.jbang.actions
 
+import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import com.intellij.notification.NotificationGroupManager
@@ -78,9 +79,7 @@ class SyncDependenciesAction : AnAction() {
                     if (buildGradle != null) { // sync dependencies between DEPS and gradle
                         syncDependenciesBetweenJBangAndGradle(project, module, buildGradle.toPsiFile(project)!!, jbangScriptFile, moduleBuildGradle)
                     } else { //sync DEPS to IDEA's module
-                        //disable dependencies resolve by JBangBundle because of ClassLoader problem
-                        //syncDepsToModule(module, jbangScriptFile)
-                        syncDepsToModuleWithCmd(module, jbangScriptFile)
+                        syncDepsToModule(module, jbangScriptFile)
                         val javaVersion = jbangScriptFile.text.lines().firstOrNull { it.startsWith("//JAVA") }
                         if (javaVersion != null) {
                             syncJavaVersionToModule(module, javaVersion.substring(6).trim())
@@ -237,7 +236,9 @@ class SyncDependenciesAction : AnAction() {
             return null
         } else {
             val allText = process.inputStream.bufferedReader().use(BufferedReader::readText).trim()
-            val objectMapper = jacksonObjectMapper()
+            val objectMapper = jacksonObjectMapper().apply {
+                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            }
             return objectMapper.readValue<ScriptInfo>(allText)
         }
     }
@@ -257,32 +258,12 @@ class SyncDependenciesAction : AnAction() {
             try {
                 val newDependencies = dependencies.filter { !it.contains(".jbang") }
                 replaceJbangModuleLib(module, newDependencies)
+                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
+                jbangNotificationGroup.createNotification("Succeed to sync DEPS", "${newDependencies.size} jars synced!", NotificationType.INFORMATION).notify(module.project)
             } catch (e: Exception) {
                 val errorText = "Failed to resolve dependencies from " + jbangScriptFile.name + ", please check your //DEPS in your code"
                 val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
                 jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
-            }
-        }
-    }
-
-    private fun syncDepsToModuleWithCmd(module: Module, jbangScriptFile: PsiFile) {
-        ApplicationManager.getApplication().runWriteAction {
-            // get new dependencies from `jbang info classpath --quiet script_path`
-            val fullPath = jbangScriptFile.virtualFile.path
-            val jbangCmd = getJBangCmdAbsolutionPath()
-            val pb = ProcessBuilder(jbangCmd, "info", "classpath", "--fresh", fullPath)
-            val process = pb.start()
-            process.waitFor()
-            if (process.exitValue() != 0) {
-                val errorText = process.errorStream.bufferedReader().use(BufferedReader::readText).trim()
-                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
-                jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
-            } else {
-                val allText = process.inputStream.bufferedReader().use(BufferedReader::readText).trim()
-                val newDependencies = allText.split(':', ';').filter { !it.contains(".jbang") }
-                replaceJbangModuleLib(module, newDependencies)
-                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
-                jbangNotificationGroup.createNotification("Succeed to sync DEPS", "${newDependencies.size} jars synced!", NotificationType.INFORMATION).notify(module.project)
             }
         }
     }
