@@ -80,10 +80,7 @@ class SyncDependenciesAction : AnAction() {
                         syncDependenciesBetweenJBangAndGradle(project, module, buildGradle.toPsiFile(project)!!, jbangScriptFile, moduleBuildGradle)
                     } else { //sync DEPS to IDEA's module
                         syncDepsToModule(module, jbangScriptFile)
-                        val javaVersion = jbangScriptFile.text.lines().firstOrNull { it.startsWith("//JAVA") }
-                        if (javaVersion != null) {
-                            syncJavaVersionToModule(module, javaVersion.substring(6).trim())
-                        }
+                        syncJavaVersionToModule(module, findJavaVersionFromScript(jbangScriptFile.text))
                     }
                 }
             }
@@ -112,7 +109,12 @@ class SyncDependenciesAction : AnAction() {
                 ApplicationManager.getApplication().runWriteAction {
                     val documentManager = PsiDocumentManager.getInstance(project)
                     val document = documentManager.getDocument(buildGradle)!!
-                    document.setText(addDependenciesToGradle(buildGradle.text, dependenciesFromScript, sourceSetName))
+                    var buildGradleContent = addDependenciesToGradle(buildGradle.text, dependenciesFromScript, sourceSetName)
+                    if (!buildGradleContent.contains("\nsourceCompatibility")) {
+                        val javaVersion = findJavaVersionFromScript(jbangScriptFile.text)
+                        buildGradleContent = syncJavaVersionToGradle(buildGradleContent, javaVersion)
+                    }
+                    document.setText(buildGradleContent)
                 }
                 val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
                 jbangNotificationGroup.createNotification(
@@ -268,6 +270,21 @@ class SyncDependenciesAction : AnAction() {
         }
     }
 
+    private fun syncJavaVersionToGradle(buildGradleContent: String, javaVersion: String): String {
+        //sourceCompatibility = "8"
+        //targetCompatibility = "8"
+        val lines = buildGradleContent.lines()
+        val javaVersionConfiged = lines.any { it.startsWith("sourceCompatibility") }
+        return if (!javaVersionConfiged) {
+            val newLines = lines.toMutableList()
+            newLines.add("sourceCompatibility = \"${javaVersion}\"")
+            newLines.add("targetCompatibility = \"${javaVersion}\"")
+            newLines.joinToString("\n")
+        } else {
+            buildGradleContent;
+        }
+    }
+
     private fun syncJavaVersionToModule(module: Module, version: String) {
         val moduleRootManager = ModuleRootManager.getInstance(module)
         val moduleSdk = moduleRootManager.sdk
@@ -298,4 +315,11 @@ class SyncDependenciesAction : AnAction() {
         ModuleRootModificationUtil.addModuleLibrary(module, "jbang", newDependencies.map { "jar://${it}!/" }.toList(), listOf())
     }
 
+    private fun findJavaVersionFromScript(scriptText: String): String {
+        val javaVersion = scriptText.lines().firstOrNull { it.startsWith("//JAVA ") }
+        if (javaVersion != null) {
+            return javaVersion.substring(6).trim()
+        }
+        return "11"
+    }
 }
