@@ -9,28 +9,37 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.vfs.LocalFileSystem
 import dev.jbang.intellij.plugins.jbang.JBangCli.generateScriptFrommTemplate
+import dev.jbang.intellij.plugins.jbang.JBangCli.listJbangTemplates
+import org.jetbrains.kotlin.idea.caches.project.NotUnderContentRootModuleInfo.project
 
 class CreateFromTemplateAction : AnAction(), DumbAware {
     override fun actionPerformed(e: AnActionEvent) {
-        val dialogWrapper = JbangTemplatesDialogWrapper()
-        if (dialogWrapper.showAndGet()) {
-            val scriptName = dialogWrapper.getScriptFileName()
-            val templateName = dialogWrapper.getTemplateName()
-            if (scriptName.isNotEmpty()) {
-                ApplicationManager.getApplication().runWriteAction {
-                    val project = e.getData(CommonDataKeys.PROJECT)!!
-                    val directory = e.getData(CommonDataKeys.VIRTUAL_FILE)
-                    try {
-                        val destDir = directory?.path ?: project.basePath!!
-                        generateScriptFrommTemplate(templateName, scriptName, destDir)
-                        LocalFileSystem.getInstance().refresh(true)
-                    } catch (e: Exception) {
-                        val errorText = "Failed to create script from template, please check template and script name!"
-                        val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
-                        jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(project)
+        try {
+            val templates = listJbangTemplates()
+            val dialogWrapper = JbangTemplatesDialogWrapper(templates)
+            if (dialogWrapper.showAndGet()) {
+                val scriptName = dialogWrapper.getScriptFileName()
+                val templateName = dialogWrapper.getTemplateName()
+                if (scriptName.isNotEmpty()) {
+                    ApplicationManager.getApplication().runWriteAction {
+                        val project = e.getData(CommonDataKeys.PROJECT)!!
+                        val directory = e.getData(CommonDataKeys.VIRTUAL_FILE)
+                        try {
+                            val destDir = directory?.path ?: project.basePath!!
+                            generateScriptFrommTemplate(templateName, scriptName, destDir)
+                            LocalFileSystem.getInstance().refresh(true)
+                        } catch (e: Exception) {
+                            val errorText = "Failed to create script from template, please check template and script name!"
+                            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
+                            jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(project)
+                        }
                     }
                 }
             }
+        } catch (e: Exception) {
+            val errorText = e.message!!
+            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
+            jbangNotificationGroup.createNotification("Failed to get JBang templates", errorText, NotificationType.ERROR).notify(project)
         }
     }
 }
