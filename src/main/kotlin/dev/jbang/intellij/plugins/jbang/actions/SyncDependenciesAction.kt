@@ -271,11 +271,9 @@ class SyncDependenciesAction : AnAction() {
     }
 
     private fun syncJavaVersionToGradle(buildGradleContent: String, javaVersion: String): String {
-        //sourceCompatibility = "8"
-        //targetCompatibility = "8"
         val lines = buildGradleContent.lines()
-        val javaVersionConfiged = lines.any { it.startsWith("sourceCompatibility") }
-        return if (!javaVersionConfiged) {
+        val javaVersionFound = lines.any { it.startsWith("sourceCompatibility") }
+        return if (!javaVersionFound) {
             val newLines = lines.toMutableList()
             newLines.add("sourceCompatibility = \"${javaVersion}\"")
             newLines.add("targetCompatibility = \"${javaVersion}\"")
