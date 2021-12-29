@@ -101,7 +101,11 @@ class SyncDependenciesAction : AnAction() {
         //findDependenciesFromModule(project, module);
         // Resolve dependency from `jbang info tools --quiet Hello.java` and GradleManager
         val scriptInfo = resolveInfoFromCmd(module, jbangScriptFile)
-        val dependenciesFromScript = scriptInfo?.dependencies ?: arrayListOf()
+        var dependenciesFromScript = scriptInfo?.dependencies ?: listOf()
+        //add default dependency for Groovy Script
+        if (jbangScriptFile.name.endsWith(".groovy")) {
+            dependenciesFromScript = fillDefaultDependencyForGroovy(jbangScriptFile, dependenciesFromScript)
+        }
         //check last modified timestamp
         val scriptIsNew = buildGradle.virtualFile.timeStamp <= jbangScriptFile.virtualFile.timeStamp
         if (scriptIsNew) { // sync //DEPS to build.gradle
@@ -138,6 +142,27 @@ class SyncDependenciesAction : AnAction() {
                 }
             }
         }
+    }
+
+    private fun fillDefaultDependencyForGroovy(jbangScriptFile: PsiFile, dependencies: List<String>): List<String> {
+        val groovyDepsFound = dependencies.any { it.startsWith("org.codehaus.groovy") || it.startsWith("org.apache.groovy") }
+        if (!groovyDepsFound) {
+            var groovyVersion = jbangScriptFile.text.lines().firstOrNull { it.startsWith("//GROOVY ") }
+            groovyVersion = groovyVersion?.substring(groovyVersion.indexOf(' ') + 1)?.trim() ?: "3.0.9"
+            val groovyDeps = if (groovyVersion.startsWith("4.")) {
+                "org.apache.groovy:groovy:${groovyVersion}"
+            } else {
+                "org.codehaus.groovy:groovy:${groovyVersion}"
+            }
+            return if (dependencies.isEmpty()) {
+                arrayListOf(groovyDeps)
+            } else {
+                dependencies.toMutableList().apply {
+                    add(groovyDeps)
+                }
+            }
+        }
+        return dependencies;
     }
 
     private fun findDependenciesFromGradle(code: String, sourceSetName: String): List<String> {
