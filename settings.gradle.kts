@@ -1,1 +1,1 @@
-rootProject.name = "jbang-intellij-plugin"
+rootProject.name = "jbang-idea-plugin"

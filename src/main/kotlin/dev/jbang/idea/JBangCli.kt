@@ -1,4 +1,4 @@
-package dev.jbang.intellij.plugins.jbang
+package dev.jbang.idea
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper

@@ -1,4 +1,4 @@
-package dev.jbang.intellij.plugins.jbang.actions
+package dev.jbang.idea.actions
 
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType

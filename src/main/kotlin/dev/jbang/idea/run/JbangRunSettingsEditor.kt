@@ -1,4 +1,4 @@
-package dev.jbang.intellij.plugins.jbang.run
+package dev.jbang.idea.run
 
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.ui.LabeledComponent

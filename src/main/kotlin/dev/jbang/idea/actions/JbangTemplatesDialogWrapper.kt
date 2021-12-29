@@ -1,4 +1,4 @@
-package dev.jbang.intellij.plugins.jbang.actions
+package dev.jbang.idea.actions
 
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogWrapper

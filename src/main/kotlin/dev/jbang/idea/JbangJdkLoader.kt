@@ -1,4 +1,4 @@
-package dev.jbang.intellij.plugins.jbang
+package dev.jbang.idea
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.PreloadingActivity

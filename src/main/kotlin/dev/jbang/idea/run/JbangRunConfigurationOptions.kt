@@ -1,4 +1,4 @@
-package dev.jbang.intellij.plugins.jbang.run
+package dev.jbang.idea.run
 
 import com.intellij.execution.configurations.RunConfigurationOptions
 import com.intellij.openapi.components.StoredProperty

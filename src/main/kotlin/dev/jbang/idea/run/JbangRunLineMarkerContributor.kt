@@ -1,4 +1,4 @@
-package dev.jbang.intellij.plugins.jbang.run
+package dev.jbang.idea.run
 
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
 import com.intellij.psi.PsiComment

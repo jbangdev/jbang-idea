@@ -1,6 +1,6 @@
 <!-- Keep a Changelog guide -> https://keepachangelog.com -->
 
-# jbang-intellij-plugin Changelog
+# jbang-idea-plugin Changelog
 
 ## [Unreleased]
 
