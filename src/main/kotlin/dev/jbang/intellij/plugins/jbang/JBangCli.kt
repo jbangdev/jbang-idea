@@ -1,5 +1,8 @@
 package dev.jbang.intellij.plugins.jbang
 
+import com.fasterxml.jackson.databind.DeserializationFeature
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import java.io.BufferedReader
 import java.io.File
 
@@ -29,6 +32,23 @@ object JBangCli {
             throw Exception(processErrorToText(process))
         } else {
             return processOutputToText(process).split(':', ';').filter { !it.contains(".jbang") }
+        }
+    }
+
+    @Throws(Exception::class)
+    fun resolveScriptInfo(jbangScriptFilePath: String): ScriptInfo {
+        val jbangCmd = getJBangCmdAbsolutionPath()
+        val pb = ProcessBuilder(jbangCmd, "info", "tools", "--fresh", jbangScriptFilePath)
+        val process = pb.start()
+        process.waitFor()
+        if (process.exitValue() != 0) {
+            throw Exception(processErrorToText(process))
+        } else {
+            val allText = process.inputStream.bufferedReader().use(BufferedReader::readText).trim()
+            val objectMapper = jacksonObjectMapper().apply {
+                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+            }
+            return objectMapper.readValue(allText)
         }
     }
 
