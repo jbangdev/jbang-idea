@@ -1,5 +1,7 @@
 package dev.jbang.intellij.plugins.jbang.actions
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnAction
@@ -20,11 +22,8 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import dev.jbang.intellij.plugins.jbang.JBANG_DECLARE
+import dev.jbang.intellij.plugins.jbang.*
 import dev.jbang.intellij.plugins.jbang.JBangCli.resolveScriptDependencies
-import dev.jbang.intellij.plugins.jbang.getJBangCmdAbsolutionPath
-import dev.jbang.intellij.plugins.jbang.isJbangScript
-import dev.jbang.intellij.plugins.jbang.isJbangScriptFile
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
@@ -46,7 +45,12 @@ class SyncDependenciesAction : AnAction() {
                 val project = e.getData(CommonDataKeys.PROJECT)!!
                 val buildGradle = LocalFileSystem.getInstance().findFileByPath(project.basePath + "/build.gradle")
                 if (buildGradle != null) {
-                    e.presentation.text = "Sync DEPS Between JBang and Gradle"
+                    // check 
+                    if (buildGradle.timeStamp <= jbangScriptFile.virtualFile.timeStamp) {
+                        e.presentation.text = "Sync //DEPS to Gradle"
+                    } else {
+                        e.presentation.text = "Sync Gradle to //DEPS"
+                    }
                 } else {
                     e.presentation.text = "Sync JBang DEPS to Module"
                 }
@@ -65,12 +69,14 @@ class SyncDependenciesAction : AnAction() {
                 val module = jbangScriptFile.module
                 if (module != null) {
                     var buildGradle = LocalFileSystem.getInstance().findFileByPath(project.basePath + "/build.gradle")
+                    var moduleBuildGradle = false
                     val buildGradleOfModule = LocalFileSystem.getInstance().findFileByPath(module.getModuleDir() + "/build.gradle")
                     if (buildGradleOfModule != null) {
-                        buildGradle = buildGradleOfModule;
+                        buildGradle = buildGradleOfModule
+                        moduleBuildGradle = true
                     }
                     if (buildGradle != null) { // sync dependencies between DEPS and gradle
-                        syncDependenciesBetweenJBangAndGradle(project, module, buildGradle.toPsiFile(project)!!, jbangScriptFile)
+                        syncDependenciesBetweenJBangAndGradle(project, module, buildGradle.toPsiFile(project)!!, jbangScriptFile, moduleBuildGradle)
                     } else { //sync DEPS to IDEA's module
                         //disable dependencies resolve by JBangBundle because of ClassLoader problem
                         //syncDepsToModule(module, jbangScriptFile)
@@ -85,45 +91,55 @@ class SyncDependenciesAction : AnAction() {
         }
     }
 
-    private fun syncDependenciesBetweenJBangAndGradle(project: Project, module: Module, buildGradle: PsiFile, jbangScriptFile: PsiFile) {
+    private fun syncDependenciesBetweenJBangAndGradle(project: Project, module: Module, buildGradle: PsiFile, jbangScriptFile: PsiFile, moduleBuildGradle: Boolean) {
         var moduleName = module.name
         if (moduleName.contains('.')) {
             moduleName = moduleName.substring(moduleName.lastIndexOf('.') + 1)
         }
-        val sourceSetName = if (project.name == moduleName) {
+        val sourceSetName = if (moduleBuildGradle || project.name == moduleName) {
             "main"
         } else {
             moduleName
         }
         val dependenciesFromGradle = findDependenciesFromGradle(buildGradle.text, sourceSetName)
-        val dependenciesFromScript = findDependenciesFromScript(jbangScriptFile.text)
-        val allDependencies = HashSet(dependenciesFromGradle).apply {
-            addAll(dependenciesFromScript)
-        }
-        val newDependenciesForGradle = HashSet(allDependencies).apply {
-            removeAll(dependenciesFromGradle)
-        }
-        val newDependenciesForScript = HashSet(allDependencies).apply {
-            removeAll(dependenciesFromScript)
-        }
-        if (newDependenciesForScript.isNotEmpty()) {
-            ApplicationManager.getApplication().runWriteAction {
-                val documentManager = PsiDocumentManager.getInstance(project)
-                val document = documentManager.getDocument(jbangScriptFile)!!
-                document.setText(addDependenciesToScript(jbangScriptFile.name, jbangScriptFile.text, newDependenciesForScript))
+        //findDependenciesFromModule(project, module);
+        // Resolve dependency from `jbang info tools --quiet Hello.java` and GradleManager
+        val scriptInfo = resolveInfoFromCmd(module, jbangScriptFile)
+        val dependenciesFromScript = scriptInfo?.dependencies ?: arrayListOf()
+        //check last modified timestamp
+        val scriptIsNew = buildGradle.virtualFile.timeStamp <= jbangScriptFile.virtualFile.timeStamp
+        if (scriptIsNew) { // sync //DEPS to build.gradle
+            if (dependenciesFromScript.isNotEmpty()) {
+                ApplicationManager.getApplication().runWriteAction {
+                    val documentManager = PsiDocumentManager.getInstance(project)
+                    val document = documentManager.getDocument(buildGradle)!!
+                    document.setText(addDependenciesToGradle(buildGradle.text, dependenciesFromScript, sourceSetName))
+                }
+                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
+                jbangNotificationGroup.createNotification(
+                    "Succeed to sync //DEPS to Gradle",
+                    "${dependenciesFromScript.size} dependencies synced!", NotificationType.INFORMATION
+                ).notify(module.project)
+                refreshProject(project)
             }
-        }
-        if (newDependenciesForGradle.isNotEmpty()) {
-            ApplicationManager.getApplication().runWriteAction {
-                val documentManager = PsiDocumentManager.getInstance(project)
-                val document = documentManager.getDocument(buildGradle)!!
-                document.setText(addDependenciesToGradle(buildGradle.text, newDependenciesForGradle, sourceSetName))
+        } else {
+            if (dependenciesFromGradle.isNotEmpty()) {
+                ApplicationManager.getApplication().runWriteAction {
+                    val documentManager = PsiDocumentManager.getInstance(project)
+                    val document = documentManager.getDocument(jbangScriptFile)!!
+                    document.setText(addDependenciesToScript(jbangScriptFile.name, jbangScriptFile.text, dependenciesFromGradle))
+                    val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
+                    jbangNotificationGroup.createNotification(
+                        "Succeed to sync Gradle to //DEPS",
+                        "${dependenciesFromGradle.size} dependencies synced!",
+                        NotificationType.INFORMATION
+                    ).notify(module.project)
+                }
             }
-            refreshProject(project)
         }
     }
 
-    private fun findDependenciesFromGradle(code: String, sourceSetName: String): Set<String> {
+    private fun findDependenciesFromGradle(code: String, sourceSetName: String): List<String> {
         val lines = code.lines().map { it.trim() }
         val directive = if (sourceSetName == "main") {
             "implementation "
@@ -138,42 +154,43 @@ class SyncDependenciesAction : AnAction() {
                 } else {
                     it
                 }
-            }.toSet()
+            }.toList()
         } else {
-            return emptySet()
+            return emptyList()
         }
     }
 
-    private fun findDependenciesFromScript(code: String): Set<String> {
-        return code.lines().filter { it.startsWith("//DEPS ") }.map { it.substring(it.indexOf(" ")).trim() }.toSet()
-    }
-
-    private fun addDependenciesToScript(fileName: String, code: String, newDependencies: Set<String>): String {
+    private fun addDependenciesToScript(fileName: String, code: String, dependencies: List<String>): String {
         val lines = code.lines()
-        val newLines = lines.toMutableList()
-        val elements = newDependencies.map { "//DEPS $it" }
+        val elements = dependencies.map { "//DEPS $it" }
         val offset = lines.indexOfLast { it.startsWith("//DEPS ") }
         if (offset < 0) {
+            val newLines = lines.toMutableList()
             if (lines[0].startsWith(JBANG_DECLARE)) {  //append to jbang declare
                 newLines.addAll(1, elements)
             } else { // append to head of script
                 newLines.addAll(0, elements)
             }
-        } else { //append to //DEPS
-            newLines.addAll(offset + 1, elements)
+            return newLines.joinToString("\n")
+        } else { //append to last //DEPS
+            val newLines = mutableListOf<String>()
+            lines.subList(0, offset).filter { !it.startsWith("//DEPS ") }.forEach {
+                newLines.add(it)
+            }
+            newLines.addAll(elements)
+            newLines.addAll(lines.subList(offset + 1, lines.size))
+            return newLines.joinToString("\n")
         }
-        return newLines.joinToString("\n")
     }
 
-    private fun addDependenciesToGradle(code: String, newDependencies: Set<String>, sourceSetName: String): String {
+    private fun addDependenciesToGradle(code: String, dependencies: List<String>, sourceSetName: String): String {
         val lines = code.lines()
-        val newLines = lines.toMutableList()
         val directive = if (sourceSetName == "main") {
             "implementation "
         } else {
             "${sourceSetName}Implementation "
         }
-        val elements = newDependencies.map {
+        val elements = dependencies.map {
             if (it.endsWith("@pom")) {
                 "  $directive platform('${it.subSequence(0, it.length - 4)}')"
             } else {
@@ -184,19 +201,45 @@ class SyncDependenciesAction : AnAction() {
         val dependenciesOffset = lines.indexOfFirst { it.trim().startsWith("dependencies ") }
         if (dependenciesOffset >= 0) {
             val offset = lines.indexOfLast { it.trim().startsWith(directive) }
-            if (offset >= 0) { // append to implementation
-                newLines.addAll(offset + 1, elements)
-            } else {  //append to `dependencies {` block
-                newLines.add(dependenciesOffset + 1, "  //dependencies for $sourceSetName SourceSet")
-                newLines.addAll(dependenciesOffset + 2, elements)
+            if (offset >= 0) { // implementation found for source set
+                val newLines = mutableListOf<String>()
+                lines.subList(0, offset).filter { !it.trim().startsWith(directive) }.forEach {
+                    newLines.add(it)
+                }
+                newLines.addAll(elements)
+                newLines.addAll(lines.subList(offset + 1, lines.size))
+                return newLines.joinToString("\n")
+            } else {  //no dependencies found for source set, and append to `dependencies {` block
+                val newLines = lines.toMutableList()
+                newLines.addAll(dependenciesOffset + 1, elements)
+                return newLines.joinToString("\n")
             }
         } else { // add new `dependencies {}` block
+            val newLines = lines.toMutableList()
             newLines.add("dependencies {")
-            newLines.add("  //dependencies for $sourceSetName SourceSet")
             newLines.addAll(elements)
             newLines.add("}")
+            return newLines.joinToString("\n")
         }
-        return newLines.joinToString("\n")
+
+    }
+
+    private fun resolveInfoFromCmd(module: Module, jbangScriptFile: PsiFile): ScriptInfo? {
+        val fullPath = jbangScriptFile.virtualFile.path
+        val jbangCmd = getJBangCmdAbsolutionPath()
+        val pb = ProcessBuilder(jbangCmd, "info", "tools", "--fresh", fullPath)
+        val process = pb.start()
+        process.waitFor()
+        if (process.exitValue() != 0) {
+            val errorText = process.errorStream.bufferedReader().use(BufferedReader::readText).trim()
+            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
+            jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
+            return null
+        } else {
+            val allText = process.inputStream.bufferedReader().use(BufferedReader::readText).trim()
+            val objectMapper = jacksonObjectMapper()
+            return objectMapper.readValue<ScriptInfo>(allText)
+        }
     }
 
     private fun refreshProject(project: Project) {
@@ -238,6 +281,8 @@ class SyncDependenciesAction : AnAction() {
                 val allText = process.inputStream.bufferedReader().use(BufferedReader::readText).trim()
                 val newDependencies = allText.split(':', ';').filter { !it.contains(".jbang") }
                 replaceJbangModuleLib(module, newDependencies)
+                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
+                jbangNotificationGroup.createNotification("Succeed to sync DEPS", "${newDependencies.size} jars synced!", NotificationType.INFORMATION).notify(module.project)
             }
         }
     }
@@ -270,8 +315,6 @@ class SyncDependenciesAction : AnAction() {
         }
         // add jbang dependencies
         ModuleRootModificationUtil.addModuleLibrary(module, "jbang", newDependencies.map { "jar://${it}!/" }.toList(), listOf())
-        val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
-        jbangNotificationGroup.createNotification("Succeed to sync DEPS", "${newDependencies.size} jars synced!", NotificationType.INFORMATION).notify(module.project)
     }
 
 }
