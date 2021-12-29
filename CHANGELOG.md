@@ -2,6 +2,8 @@
 
 # jbang-intellij-plugin Changelog
 
+## [Unreleased]
+
 ## [0.7.0]
 
 ### Added
