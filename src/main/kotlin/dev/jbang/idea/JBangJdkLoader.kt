@@ -1,4 +1,4 @@
-package dev.jbang.intellij.plugins.jbang
+package dev.jbang.idea
 
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.PreloadingActivity
@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import java.io.File
 
 
-class JbangJdkLoader : PreloadingActivity() {
+class JBangJdkLoader : PreloadingActivity() {
     override fun preload(indicator: ProgressIndicator) {
         val jbangJdks = jbangJdks()
         if (jbangJdks.isNotEmpty()) {

@@ -1,4 +1,4 @@
-package dev.jbang.intellij.plugins.jbang.completion
+package dev.jbang.idea.completion
 
 import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.codeInsight.completion.CompletionProvider
@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-class JbangKotlinCompletionContributor : JbangBaseDirectiveCompletionContributor() {
+class JBangKotlinCompletionContributor : JBangBaseDirectiveCompletionContributor() {
     init {
         extend(CompletionType.BASIC,
             PlatformPatterns.psiElement(PsiComment::class.java).withLanguage(KotlinLanguage.INSTANCE),

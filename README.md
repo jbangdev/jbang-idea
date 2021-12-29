@@ -1,4 +1,4 @@
-jbang-intellij-plugin
+jbang-idea-plugin
 ======================
 [![Build](https://github.com/maxandersen/jbang-idea/actions/workflows/build.yml/badge.svg)](https://github.com/maxandersen/jbang-idea/actions/workflows/build.yml)
 [![Version](https://img.shields.io/jetbrains/plugin/v/18257.svg)](https://plugins.jetbrains.com/plugin/18257)
@@ -44,4 +44,4 @@ $ ./gradlew -x test patchPluginXml buildPlugin
 ```
 
 <kbd>Preferences</kbd> > <kbd>Plugins</kbd> >  <kbd>Gear Icon Right Click</kbd> > <kbd>Install Plugin from Disk</kbd> > <kbd>Choose
-$PROJECT_DIR/build/distributions/jbang-intellij-plugin-0.x.0.zip</kbd>  > <kbd>Restart IntelliJ IDEA</kbd>
+$PROJECT_DIR/build/distributions/jbang-idea-plugin-0.x.0.zip</kbd>  > <kbd>Restart IntelliJ IDEA</kbd>

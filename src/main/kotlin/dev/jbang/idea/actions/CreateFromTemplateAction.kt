@@ -1,4 +1,4 @@
-package dev.jbang.intellij.plugins.jbang.actions
+package dev.jbang.idea.actions
 
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
@@ -9,14 +9,14 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.vfs.LocalFileSystem
 import dev.jbang.intellij.plugins.jbang.JBangCli.generateScriptFrommTemplate
-import dev.jbang.intellij.plugins.jbang.JBangCli.listJbangTemplates
+import dev.jbang.intellij.plugins.jbang.JBangCli.listJBangTemplates
 import org.jetbrains.kotlin.idea.caches.project.NotUnderContentRootModuleInfo.project
 
 class CreateFromTemplateAction : AnAction(), DumbAware {
     override fun actionPerformed(e: AnActionEvent) {
         try {
-            val templates = listJbangTemplates()
-            val dialogWrapper = JbangTemplatesDialogWrapper(templates)
+            val templates = listJBangTemplates()
+            val dialogWrapper = JBangTemplatesDialogWrapper(templates)
             if (dialogWrapper.showAndGet()) {
                 val scriptName = dialogWrapper.getScriptFileName()
                 val templateName = dialogWrapper.getTemplateName()

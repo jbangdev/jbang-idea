@@ -1,9 +1,9 @@
-package dev.jbang.intellij.plugins.jbang.run
+package dev.jbang.idea.run
 
 import com.intellij.execution.configurations.RunConfigurationOptions
 import com.intellij.openapi.components.StoredProperty
 
-class JbangRunConfigurationOptions : RunConfigurationOptions() {
+class JBangRunConfigurationOptions : RunConfigurationOptions() {
     private val jbangScriptName: StoredProperty<String?> = string("").provideDelegate(this, "scriptName");
     private val jbangScriptOptions: StoredProperty<String?> = string("").provideDelegate(this, "scriptOptions");
     private val jbangScriptArgs: StoredProperty<String?> = string("").provideDelegate(this, "scriptArgs");

@@ -1,4 +1,4 @@
-package dev.jbang.intellij.plugins.jbang.actions
+package dev.jbang.idea.actions
 
 import com.intellij.openapi.ui.ComboBox
 import com.intellij.openapi.ui.DialogWrapper
@@ -6,7 +6,7 @@ import com.intellij.openapi.ui.LabeledComponent
 import javax.swing.*
 
 
-class JbangTemplatesDialogWrapper(private val templates: List<String>) : DialogWrapper(true) {
+class JBangTemplatesDialogWrapper(private val templates: List<String>) : DialogWrapper(true) {
     private var myScriptName: LabeledComponent<JTextField> = LabeledComponent()
     private var templateList: LabeledComponent<JComboBox<String>> = LabeledComponent()
 

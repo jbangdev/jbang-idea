@@ -1,4 +1,4 @@
-package dev.jbang.intellij.plugins.jbang
+package dev.jbang.idea
 
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -9,7 +9,7 @@ import java.io.File
 object JBangCli {
 
     @Throws(Exception::class)
-    fun listJbangTemplates(): List<String> {
+    fun listJBangTemplates(): List<String> {
         val jbangCmd = getJBangCmdAbsolutionPath()
         val pb = ProcessBuilder(jbangCmd, "template", "list")
         pb.environment()["NO_COLOR"] = "true"
