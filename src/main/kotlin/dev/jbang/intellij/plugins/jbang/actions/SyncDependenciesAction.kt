@@ -1,8 +1,5 @@
 package dev.jbang.intellij.plugins.jbang.actions
 
-import com.fasterxml.jackson.databind.DeserializationFeature
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import com.fasterxml.jackson.module.kotlin.readValue
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnAction
@@ -23,14 +20,16 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import dev.jbang.intellij.plugins.jbang.*
+import dev.jbang.intellij.plugins.jbang.JBANG_DECLARE
 import dev.jbang.intellij.plugins.jbang.JBangCli.resolveScriptDependencies
+import dev.jbang.intellij.plugins.jbang.JBangCli.resolveScriptInfo
+import dev.jbang.intellij.plugins.jbang.isJbangScript
+import dev.jbang.intellij.plugins.jbang.isJbangScriptFile
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
 import org.jetbrains.kotlin.idea.util.projectStructure.version
 import org.jetbrains.plugins.gradle.util.GradleConstants
-import java.io.BufferedReader
 
 /**
  * Sync dependencies between JBang script and Gradle dependencies
@@ -100,8 +99,16 @@ class SyncDependenciesAction : AnAction() {
         val dependenciesFromGradle = findDependenciesFromGradle(buildGradle.text, sourceSetName)
         //findDependenciesFromModule(project, module);
         // Resolve dependency from `jbang info tools --quiet Hello.java` and GradleManager
-        val scriptInfo = resolveInfoFromCmd(module, jbangScriptFile)
-        var dependenciesFromScript = scriptInfo?.dependencies ?: listOf()
+        var dependenciesFromScript: List<String>? = null
+        try {
+            val scriptInfo = resolveScriptInfo(jbangScriptFile.virtualFile.path)
+            dependenciesFromScript = scriptInfo.dependencies ?: listOf()
+        } catch (e: Exception) {
+            val errorText = "Failed to resolve info by `jbang info tools ${jbangScriptFile.virtualFile.path}`, and stacktrace: ${e.message}"
+            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
+            jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
+            return
+        }
         //add default dependency for Groovy Script
         if (jbangScriptFile.name.endsWith(".groovy")) {
             dependenciesFromScript = fillDefaultDependencyForGroovy(jbangScriptFile, dependenciesFromScript)
@@ -250,25 +257,6 @@ class SyncDependenciesAction : AnAction() {
 
     }
 
-    private fun resolveInfoFromCmd(module: Module, jbangScriptFile: PsiFile): ScriptInfo? {
-        val fullPath = jbangScriptFile.virtualFile.path
-        val jbangCmd = getJBangCmdAbsolutionPath()
-        val pb = ProcessBuilder(jbangCmd, "info", "tools", "--fresh", fullPath)
-        val process = pb.start()
-        process.waitFor()
-        if (process.exitValue() != 0) {
-            val errorText = process.errorStream.bufferedReader().use(BufferedReader::readText).trim()
-            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
-            jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
-            return null
-        } else {
-            val allText = process.inputStream.bufferedReader().use(BufferedReader::readText).trim()
-            val objectMapper = jacksonObjectMapper().apply {
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            }
-            return objectMapper.readValue<ScriptInfo>(allText)
-        }
-    }
 
     private fun refreshProject(project: Project) {
         FileDocumentManager.getInstance().saveAllDocuments()
@@ -280,18 +268,18 @@ class SyncDependenciesAction : AnAction() {
 
     private fun syncDepsToModule(module: Module, jbangScriptFile: PsiFile) {
         val fullPath = jbangScriptFile.virtualFile.path
-        val dependencies = resolveScriptDependencies(fullPath)
-        ApplicationManager.getApplication().runWriteAction {
-            try {
-                val newDependencies = dependencies.filter { !it.contains(".jbang") }
+        try {
+            val dependencies = resolveScriptDependencies(fullPath)
+            val newDependencies = dependencies.filter { !it.contains(".jbang") }
+            ApplicationManager.getApplication().runWriteAction {
                 replaceJbangModuleLib(module, newDependencies)
                 val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
                 jbangNotificationGroup.createNotification("Succeed to sync DEPS", "${newDependencies.size} jars synced!", NotificationType.INFORMATION).notify(module.project)
-            } catch (e: Exception) {
-                val errorText = "Failed to resolve dependencies from " + jbangScriptFile.name + ", please check your //DEPS in your code"
-                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
-                jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
             }
+        } catch (e: Exception) {
+            val errorText = "Failed to resolve dependencies from " + jbangScriptFile.name + ", please check your //DEPS in your code. Stacktrace: ${e.message}"
+            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
+            jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
         }
     }
 
@@ -335,14 +323,13 @@ class SyncDependenciesAction : AnAction() {
             modifiableModel.commit()
         }
         // add jbang dependencies
-        ModuleRootModificationUtil.addModuleLibrary(module, "jbang", newDependencies.map { "jar://${it}!/" }.toList(), listOf())
+        if (newDependencies.isNotEmpty()) {
+            ModuleRootModificationUtil.addModuleLibrary(module, "jbang", newDependencies.map { "jar://${it}!/" }.toList(), listOf())
+        }
     }
 
     private fun findJavaVersionFromScript(scriptText: String): String {
         val javaVersion = scriptText.lines().firstOrNull { it.startsWith("//JAVA ") }
-        if (javaVersion != null) {
-            return javaVersion.substring(6).trim()
-        }
-        return "11"
+        return javaVersion?.substring(6)?.trim() ?: "11"
     }
 }
