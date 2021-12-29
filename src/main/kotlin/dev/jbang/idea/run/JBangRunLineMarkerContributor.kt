@@ -6,11 +6,11 @@ import com.intellij.psi.PsiElement
 import dev.jbang.intellij.plugins.jbang.JBANG_DECLARE
 import dev.jbang.intellij.plugins.jbang.jbangIcon
 
-class JbangRunLineMarkerContributor : RunLineMarkerContributor() {
+class JBangRunLineMarkerContributor : RunLineMarkerContributor() {
     override fun getInfo(element: PsiElement): Info? {
         if (element is PsiComment) {
             if (element.text.startsWith(JBANG_DECLARE)) {
-                return Info(jbangIcon, { "Run by JBang" }, JbangRunScriptAction(element))
+                return Info(jbangIcon, { "Run by JBang" }, JBangRunScriptAction(element))
             }
         }
         return null

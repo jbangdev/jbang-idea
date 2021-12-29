@@ -10,7 +10,7 @@ import javax.swing.JPanel
 import javax.swing.JTextField
 
 
-class JbangRunSettingsEditor(factory: Factory<JbangRunConfiguration>) : SettingsEditor<JbangRunConfiguration>(factory) {
+class JBangRunSettingsEditor(factory: Factory<JBangRunConfiguration>) : SettingsEditor<JBangRunConfiguration>(factory) {
     private val myPanel: JPanel = JPanel()
     private var myScriptName: LabeledComponent<TextFieldWithBrowseButton> = LabeledComponent()
     private var myScriptOptions: LabeledComponent<JTextField> = LabeledComponent()
@@ -29,13 +29,13 @@ class JbangRunSettingsEditor(factory: Factory<JbangRunConfiguration>) : Settings
         myPanel.add(myScriptArgs)
     }
 
-    override fun resetEditorFrom(demoRunConfiguration: JbangRunConfiguration) {
+    override fun resetEditorFrom(demoRunConfiguration: JBangRunConfiguration) {
         myScriptName.component.text = demoRunConfiguration.getScriptName() ?: ""
         myScriptOptions.component.text = demoRunConfiguration.getScriptOptions() ?: ""
         myScriptArgs.component.text = demoRunConfiguration.getScriptArgs() ?: ""
     }
 
-    override fun applyEditorTo(demoRunConfiguration: JbangRunConfiguration) {
+    override fun applyEditorTo(demoRunConfiguration: JBangRunConfiguration) {
         demoRunConfiguration.setScriptName(myScriptName.component.text)
         demoRunConfiguration.setScriptOptions(myScriptOptions.component.text)
         demoRunConfiguration.setScriptArgs(myScriptArgs.component.text)

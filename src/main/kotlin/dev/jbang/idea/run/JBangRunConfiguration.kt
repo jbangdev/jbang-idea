@@ -14,9 +14,9 @@ import java.io.File
 import javax.swing.Icon
 
 
-class JbangRunConfiguration(
+class JBangRunConfiguration(
     project: Project, factory: ConfigurationFactory, name: String
-) : RunConfigurationBase<JbangRunConfigurationOptions>(project, factory, name), Factory<JbangRunConfiguration> {
+) : RunConfigurationBase<JBangRunConfigurationOptions>(project, factory, name), Factory<JBangRunConfiguration> {
 
     fun getScriptName(): String? {
         return options.getScriptName()
@@ -43,11 +43,11 @@ class JbangRunConfiguration(
     }
 
     override fun getConfigurationEditor(): SettingsEditor<out RunConfiguration> {
-        return JbangRunSettingsEditor(this)
+        return JBangRunSettingsEditor(this)
     }
 
-    override fun getOptions(): JbangRunConfigurationOptions {
-        return super.getOptions() as JbangRunConfigurationOptions
+    override fun getOptions(): JBangRunConfigurationOptions {
+        return super.getOptions() as JBangRunConfigurationOptions
     }
 
     override fun getIcon(): Icon {
@@ -82,7 +82,7 @@ class JbangRunConfiguration(
         }
     }
 
-    override fun create(): JbangRunConfiguration {
+    override fun create(): JBangRunConfiguration {
         return this
     }
 

@@ -10,7 +10,7 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import java.io.File
 
 
-class JbangJdkLoader : PreloadingActivity() {
+class JBangJdkLoader : PreloadingActivity() {
     override fun preload(indicator: ProgressIndicator) {
         val jbangJdks = jbangJdks()
         if (jbangJdks.isNotEmpty()) {

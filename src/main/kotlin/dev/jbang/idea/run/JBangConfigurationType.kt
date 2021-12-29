@@ -5,7 +5,7 @@ import com.intellij.execution.configurations.ConfigurationType
 import dev.jbang.intellij.plugins.jbang.jbangIcon
 import javax.swing.Icon
 
-class JbangConfigurationType : ConfigurationType {
+class JBangConfigurationType : ConfigurationType {
     companion object {
         const val ID = "JBangRunConfiguration"
     }
@@ -27,7 +27,7 @@ class JbangConfigurationType : ConfigurationType {
     }
 
     override fun getConfigurationFactories(): Array<ConfigurationFactory> {
-        return arrayOf(JbangConfigurationFactory(this))
+        return arrayOf(JBangConfigurationFactory(this))
     }
 
 

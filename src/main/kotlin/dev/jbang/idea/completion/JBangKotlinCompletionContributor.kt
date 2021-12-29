@@ -13,7 +13,7 @@ import org.jetbrains.kotlin.idea.KotlinLanguage
 import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
-class JbangKotlinCompletionContributor : JbangBaseDirectiveCompletionContributor() {
+class JBangKotlinCompletionContributor : JBangBaseDirectiveCompletionContributor() {
     init {
         extend(CompletionType.BASIC,
             PlatformPatterns.psiElement(PsiComment::class.java).withLanguage(KotlinLanguage.INSTANCE),

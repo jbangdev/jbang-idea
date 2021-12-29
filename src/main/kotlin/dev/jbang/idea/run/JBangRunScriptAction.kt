@@ -11,11 +11,11 @@ import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.psi.PsiElement
 
-class JbangRunScriptAction(private val target: PsiElement) : AnAction() {
+class JBangRunScriptAction(private val target: PsiElement) : AnAction() {
     override fun actionPerformed(event: AnActionEvent) {
         val dataContext = SimpleDataContext.getSimpleContext(Location.DATA_KEY, PsiLocation(target), event.dataContext)
         val context = ConfigurationContext.getFromContext(dataContext, event.place)
-        val producer = JbangRunConfigurationProducer()
+        val producer = JBangRunConfigurationProducer()
         val configuration = producer.findOrCreateConfigurationFromContext(context)?.configurationSettings ?: return
         (context.runManager as RunManagerEx).setTemporaryConfiguration(configuration)
         ExecutionUtil.runConfiguration(configuration, Executor.EXECUTOR_EXTENSION_NAME.extensionList.first())

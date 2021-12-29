@@ -7,7 +7,7 @@ import com.jetbrains.jsonSchema.extension.JsonSchemaProviderFactory
 import com.jetbrains.jsonSchema.extension.SchemaType
 
 
-class JbangCatalogJsonSchemaProviderFactory : JsonSchemaProviderFactory {
+class JBangCatalogJsonSchemaProviderFactory : JsonSchemaProviderFactory {
     override fun getProviders(project: Project): MutableList<JsonSchemaFileProvider> {
         return mutableListOf(JBangCatalogJsonSchemaFileProvider())
     }

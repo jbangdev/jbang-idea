@@ -14,7 +14,7 @@ import dev.jbang.intellij.plugins.jbang.jshellIcon
 import dev.jbang.intellij.plugins.jbang.kotlinIcon
 import java.io.File
 
-class CreateJbangScriptAction : CreateFileFromTemplateAction(NAME, DESCRIPTION, jbangIcon), DumbAware {
+class CreateJBangScriptAction : CreateFileFromTemplateAction(NAME, DESCRIPTION, jbangIcon), DumbAware {
     companion object {
         private const val NAME = "JBang Simple Script"
         private const val DESCRIPTION = "Create JBang script"

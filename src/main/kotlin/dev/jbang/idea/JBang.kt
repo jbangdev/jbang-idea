@@ -26,7 +26,7 @@ fun getJBangCmdAbsolutionPath(): String {
     }
 }
 
-fun isJbangScriptFile(fileName: String): Boolean {
+fun isJBangScriptFile(fileName: String): Boolean {
     val extName = if (fileName.contains('.')) {
         fileName.substring(fileName.lastIndexOf('.'))
     } else {
@@ -35,7 +35,7 @@ fun isJbangScriptFile(fileName: String): Boolean {
     return ALL_EXT_NAMES.contains(extName)
 }
 
-fun isJbangScript(code: String): Boolean {
+fun isJBangScript(code: String): Boolean {
     return code.contains(JBANG_DECLARE) || code.lines().any { it.startsWith("//DEPS") };
 }
 
