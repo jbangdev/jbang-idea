@@ -28,14 +28,14 @@
     </extensions>
 
     <actions>
-        <action class="dev.jbang.idea.actions.CreateJBangScriptAction" id="CreateJBangScriptAction">
+        <!--<action class="dev.jbang.idea.actions.CreateJBangScriptAction" id="CreateJBangScriptAction">
             <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFromTemplate"/>
-        </action>
+        </action>-->
         <action class="dev.jbang.idea.actions.CreateFromTemplateAction"
                 id="CreateFromTemplateAction"
-                text="JBang Script from Template"
+                text="JBang Script"
                 icon="/icons/jbang-16x16.png">
-            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="CreateJBangScriptAction"/>
+            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFromTemplate"/>
         </action>
         <action id="jbang.SyncDependenciesAction"
                 class="dev.jbang.idea.actions.SyncDependenciesAction"
