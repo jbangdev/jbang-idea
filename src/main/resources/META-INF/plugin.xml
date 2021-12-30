@@ -28,9 +28,6 @@
     </extensions>
 
     <actions>
-        <!--<action class="dev.jbang.idea.actions.CreateJBangScriptAction" id="CreateJBangScriptAction">
-            <add-to-group group-id="NewGroup" anchor="after" relative-to-action="NewFromTemplate"/>
-        </action>-->
         <action class="dev.jbang.idea.actions.CreateFromTemplateAction"
                 id="CreateFromTemplateAction"
                 text="JBang Script"
