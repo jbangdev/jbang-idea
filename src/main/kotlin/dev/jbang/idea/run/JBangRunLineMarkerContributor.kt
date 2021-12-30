@@ -9,9 +9,18 @@ import dev.jbang.idea.jbangIcon
 class JBangRunLineMarkerContributor : RunLineMarkerContributor() {
     override fun getInfo(element: PsiElement): Info? {
         if (element is PsiComment) {
-            if (element.text.startsWith(JBANG_DECLARE)) {
-                return Info(jbangIcon, { "Run by JBang" }, JBangRunScriptAction(element))
+            var info: Info? = null
+            val comment = element.text
+            if (comment.startsWith(JBANG_DECLARE)) {
+                info = Info(jbangIcon, { "Run by JBang" }, JBangRunScriptAction(element))
+            } else {
+                if (comment.startsWith("//JAVA ")) {
+                    if (!element.parent.text.startsWith(JBANG_DECLARE)) {
+                        info = Info(jbangIcon, { "Run by JBang" }, JBangRunScriptAction(element))
+                    }
+                }
             }
+            return info;
         }
         return null
     }
