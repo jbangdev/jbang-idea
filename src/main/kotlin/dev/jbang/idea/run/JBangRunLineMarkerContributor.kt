@@ -18,9 +18,21 @@ class JBangRunLineMarkerContributor : RunLineMarkerContributor() {
                     if (!element.parent.text.startsWith(JBANG_DECLARE)) {
                         info = Info(jbangIcon, { "Run by JBang" }, JBangRunScriptAction(element))
                     }
+                } else if (comment.startsWith("//DEPS ")) {
+                    val scriptText = element.parent.text
+                    if (!scriptText.startsWith(JBANG_DECLARE)) {
+                        val lines = scriptText.lines()
+                        val javaDirectiveAvailable = lines.any { it.startsWith("//JAVA ") }
+                        if (!javaDirectiveAvailable) {
+                            val firstDeps = lines.first { it.startsWith("//DEPS ") }
+                            if (comment.trim() == firstDeps) {
+                                info = Info(jbangIcon, { "Run by JBang" }, JBangRunScriptAction(element))
+                            }
+                        }
+                    }
                 }
             }
-            return info;
+            return info
         }
         return null
     }
