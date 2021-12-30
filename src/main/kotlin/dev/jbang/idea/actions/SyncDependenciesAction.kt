@@ -13,6 +13,7 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.projectRoots.ProjectJdkTable
+import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.roots.LanguageLevelModuleExtension
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.ModuleRootModificationUtil
@@ -272,7 +273,7 @@ class SyncDependenciesAction : AnAction() {
             val dependencies = resolveScriptDependencies(fullPath)
             val newDependencies = dependencies.filter { !it.contains(".jbang") }
             ApplicationManager.getApplication().runWriteAction {
-                replaceJBangModuleLib(module, newDependencies)
+                replaceJBangModuleLib(module, jbangScriptFile.name, newDependencies)
                 val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
                 jbangNotificationGroup.createNotification("Succeed to sync DEPS", "${newDependencies.size} jars synced!", NotificationType.INFORMATION).notify(module.project)
             }
@@ -313,18 +314,27 @@ class SyncDependenciesAction : AnAction() {
         }
     }
 
-    private fun replaceJBangModuleLib(module: Module, newDependencies: List<String>) {
+    private fun replaceJBangModuleLib(module: Module, scriptName: String, newDependencies: List<String>) {
+        val libName = if (scriptName.substring(0, scriptName.lastIndexOf('.')).lowercase().endsWith("test")) {
+            "jbangTest"
+        } else {
+            "jbang"
+        }
         // remove jbang library
         val moduleRootManager = ModuleRootManager.getInstance(module)
         val modifiableModel = moduleRootManager.modifiableModel
-        val jbangLib = modifiableModel.moduleLibraryTable.getLibraryByName("jbang");
+        val jbangLib = modifiableModel.moduleLibraryTable.getLibraryByName(libName);
         if (jbangLib != null) {
             modifiableModel.moduleLibraryTable.removeLibrary(jbangLib)
             modifiableModel.commit()
         }
         // add jbang dependencies
         if (newDependencies.isNotEmpty()) {
-            ModuleRootModificationUtil.addModuleLibrary(module, "jbang", newDependencies.map { "jar://${it}!/" }.toList(), listOf())
+            if (libName.endsWith("Test")) {
+                ModuleRootModificationUtil.addModuleLibrary(module, libName, newDependencies.map { "jar://${it}!/" }.toList(), listOf(), DependencyScope.TEST)
+            } else {
+                ModuleRootModificationUtil.addModuleLibrary(module, libName, newDependencies.map { "jar://${it}!/" }.toList(), listOf())
+            }
         }
     }
 
