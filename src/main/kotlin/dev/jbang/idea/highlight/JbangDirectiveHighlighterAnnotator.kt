@@ -7,6 +7,8 @@ import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiElement
+import dev.jbang.idea.JBANG_DECLARE
+import dev.jbang.idea.JBANG_DECLARE_FULL
 import dev.jbang.idea.getJBangDirective
 
 
@@ -17,7 +19,11 @@ class JbangDirectiveHighlighterAnnotator : Annotator {
             val directive = getJBangDirective(comment)
             if (directive != null) {
                 val startOffset = element.textRange.startOffset
-                val range = TextRange(startOffset+2, startOffset + 2 + directive.length)
+                var endOffset = startOffset + 2 + directive.length
+                if (directive.startsWith(JBANG_DECLARE)) {
+                    endOffset = startOffset + JBANG_DECLARE_FULL.length
+                }
+                val range = TextRange(startOffset + 2, endOffset)
                 holder.newAnnotation(HighlightSeverity.INFORMATION, "JBang directive")
                     .range(range)
                     .textAttributes(DefaultLanguageHighlighterColors.MARKUP_ENTITY)
