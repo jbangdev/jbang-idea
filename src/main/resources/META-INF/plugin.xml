@@ -20,6 +20,7 @@
         <runLineMarkerContributor language="JAVA" implementationClass="dev.jbang.idea.run.JBangRunLineMarkerContributor"/>
         <notificationGroup id="JBang Failure" icon="/icons/jbang-16x16.png" displayType="STICKY_BALLOON" isLogByDefault="false"/>
         <notificationGroup id="JBang Success" icon="/icons/jbang-16x16.png" displayType="BALLOON" isLogByDefault="false"/>
+        <annotator language="JAVA" implementationClass="dev.jbang.idea.highlight.JbangDirectiveHighlighterAnnotator"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">

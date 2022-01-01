@@ -2,5 +2,6 @@
     <extensions defaultExtensionNs="com.intellij">
         <completion.contributor language="kotlin" implementationClass="dev.jbang.idea.completion.JBangKotlinCompletionContributor"/>
         <runLineMarkerContributor language="kotlin" implementationClass="dev.jbang.idea.run.JBangRunLineMarkerContributor"/>
+        <annotator language="kotlin" implementationClass="dev.jbang.idea.highlight.JbangDirectiveHighlighterAnnotator"/>
     </extensions>
 </idea-plugin>
