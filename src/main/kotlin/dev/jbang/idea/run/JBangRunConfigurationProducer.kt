@@ -7,7 +7,7 @@ import com.intellij.execution.configurations.runConfigurationType
 import com.intellij.openapi.util.Ref
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.PsiElement
-import dev.jbang.idea.isJBangDirective
+import dev.jbang.idea.getJBangDirective
 import dev.jbang.idea.isJBangScript
 import dev.jbang.idea.isJBangScriptFile
 import org.jetbrains.kotlin.psi.psiUtil.getTextWithLocation
@@ -34,7 +34,7 @@ class JBangRunConfigurationProducer : LazyRunConfigurationProducer<JBangRunConfi
         if (!isJBangScript(psiFile.text)) return false
         val psiLocation = context.psiLocation!!
         val textWithLocation = psiLocation.getTextWithLocation()
-        if (isJBangDirective(textWithLocation.trim('\''))) {
+        if (getJBangDirective(textWithLocation.trim('\'')) != null) {
             val project = psiFile.project
             configuration.setScriptName(virtualFile.path.substring(project.basePath!!.length + 1))
             configuration.name = virtualFile.name + " by JBang"

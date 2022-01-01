@@ -39,14 +39,16 @@ fun isJBangScript(code: String): Boolean {
     return code.contains(JBANG_DECLARE) || code.lines().any { it.startsWith("//DEPS") };
 }
 
-fun isJBangDirective(line: String): Boolean {
-    if (line.startsWith(JBANG_DECLARE)) return true
+fun getJBangDirective(line: String): String? {
+    if (line.startsWith(JBANG_DECLARE)) return "///usr/bin/env jbang"
     if (line.startsWith("//")) {
         var directive = line.substring(2)
         if (directive.contains(' ')) {
             directive = directive.substring(0, directive.indexOf(' '))
         }
-        return ALL_DIRECTIVES.contains(directive);
+        if (ALL_DIRECTIVES.contains(directive)) {
+            return directive
+        }
     }
-    return false
+    return null
 }
