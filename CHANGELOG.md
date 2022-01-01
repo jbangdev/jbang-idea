@@ -10,7 +10,8 @@
 
 - Module JDK sync according to `//JAVA`
 - Remove bundle of jbang.jar
-- Dependencies sync adjusted to one way: from Gradle to DEPS or from DEPS to Gradle  
+- Dependencies sync adjusted to one way: from Gradle to DEPS or from DEPS to Gradle
+- High lighter for JBang directives
 
 ## [0.6.0]
 
