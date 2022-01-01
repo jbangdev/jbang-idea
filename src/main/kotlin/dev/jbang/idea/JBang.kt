@@ -10,6 +10,7 @@ val groovyIcon = IconLoader.findIcon("icons/groovy.svg")!!
 val jshellIcon = IconLoader.findIcon("icons/jshell-16x16.png")!!
 
 const val JBANG_DECLARE = "///usr/bin/env jbang"
+const val JBANG_DECLARE_FULL = "///usr/bin/env jbang \"\$0\" \"\$@\" ; exit \$?"
 val ALL_DIRECTIVES = listOf("JAVA", "DEPS", "GAV", "FILES", "SOURCES", "DESCRIPTION", "REPOS", "JAVAC_OPTIONS", "JAVA_OPTIONS", "JAVAAGENT", "CDS", "KOTLIN", "GROOVY")
 val ALL_EXT_NAMES = listOf(".java", ".kt", ".jsh", ".groovy")
 
