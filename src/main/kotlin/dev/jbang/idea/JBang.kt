@@ -41,7 +41,7 @@ fun isJBangScript(code: String): Boolean {
 }
 
 fun getJBangDirective(line: String): String? {
-    if (line.startsWith(JBANG_DECLARE)) return "///usr/bin/env jbang"
+    if (line.startsWith(JBANG_DECLARE)) return JBANG_DECLARE
     if (line.startsWith("//")) {
         var directive = line.substring(2)
         if (directive.contains(' ')) {
