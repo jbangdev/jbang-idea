@@ -12,6 +12,7 @@
 - Remove bundle of jbang.jar
 - Dependencies sync adjusted to one way: from Gradle to DEPS or from DEPS to Gradle
 - High lighter for JBang directives
+- JBang tool window
 
 ## [0.6.0]
 
