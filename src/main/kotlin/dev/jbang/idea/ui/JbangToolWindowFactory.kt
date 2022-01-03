@@ -28,18 +28,19 @@ class JbangToolWindowFactory : ToolWindowFactory, DumbAware {
 }
 
 class JBangToolWindowPanel(private val project: Project, val toolWindow: ToolWindow) : SimpleToolWindowPanel(true), FileEditorManagerListener {
-    //val emptyPanel = JPanel()
+    val usagePanel = UsagePanel("JBang Usage:\n")
     private val jbangToolWindow = JbangToolWindow()
     var currentScriptFile: VirtualFile? = null
         get() = field
 
     init {
-        setContent(jbangToolWindow.content)
-        createToolbar()
         val fileEditorManager = FileEditorManager.getInstance(project)
         if (fileEditorManager.selectedFiles.isNotEmpty()) {
             refreshScriptInfo(fileEditorManager.selectedFiles[0])
+        } else {
+            setContent(usagePanel)
         }
+        createToolbar()
     }
 
 
@@ -53,11 +54,21 @@ class JBangToolWindowPanel(private val project: Project, val toolWindow: ToolWin
 
     fun refreshScriptInfo(scripFile: VirtualFile) {
         if (isJBangScriptFile(scripFile.name)) {
+            if (currentScriptFile == null) {
+                switchToScriptInfoPanel();
+            }
             currentScriptFile = scripFile
             resolveScriptInfo(scripFile.path).let {
                 jbangToolWindow.update(it)
             }
         }
+    }
+
+    private fun switchToScriptInfoPanel() {
+        content?.removeAll();
+        content?.invalidate();
+        setContent(jbangToolWindow.content)
+        content?.revalidate()
     }
 
     override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
