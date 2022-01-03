@@ -65,10 +65,7 @@ class JBangToolWindowPanel(private val project: Project, val toolWindow: ToolWin
     }
 
     private fun switchToScriptInfoPanel() {
-        content?.removeAll();
-        content?.invalidate();
         setContent(jbangToolWindow.content)
-        content?.revalidate()
     }
 
     override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
