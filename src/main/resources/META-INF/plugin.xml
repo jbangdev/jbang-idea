@@ -21,6 +21,8 @@
         <notificationGroup id="JBang Failure" icon="/icons/jbang-16x16.png" displayType="STICKY_BALLOON" isLogByDefault="false"/>
         <notificationGroup id="JBang Success" icon="/icons/jbang-16x16.png" displayType="BALLOON" isLogByDefault="false"/>
         <annotator language="JAVA" implementationClass="dev.jbang.idea.highlight.JbangDirectiveHighlighterAnnotator"/>
+        <toolWindow id="JBang" icon="/icons/jbang-16x16.png" anchor="right"
+                    factoryClass="dev.jbang.idea.ui.JbangToolWindowFactory"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">
@@ -42,6 +44,17 @@
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
             <keyboard-shortcut first-keystroke="control alt S" keymap="$default"/>
         </action>
+
+        <group id="JBang.Toolbar" description="JBang tool window toolbar">
+            <action id="JBang.Reload" description="Reload JBang Script"
+                    class="dev.jbang.idea.ui.toolbar.ReloadNowAction"
+                    icon="AllIcons.Actions.Refresh" text="Reload JBang Script">
+            </action>
+            <action id="JBang.Run" description="Run JBang Script"
+                    class="dev.jbang.idea.ui.toolbar.RunScriptAction"
+                    icon="AllIcons.Actions.Run_anything" text="Run JBang Script">
+            </action>
+        </group>
     </actions>
 
 </idea-plugin>
