@@ -3,14 +3,13 @@ package dev.jbang.idea.run
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
-import com.intellij.openapi.util.Factory
 import javax.swing.BoxLayout
 import javax.swing.JComponent
 import javax.swing.JPanel
 import javax.swing.JTextField
 
 
-class JBangRunSettingsEditor(factory: Factory<JBangRunConfiguration>) : SettingsEditor<JBangRunConfiguration>(factory) {
+class JBangRunSettingsEditor : SettingsEditor<JBangRunConfiguration>() {
     private val myPanel: JPanel = JPanel()
     private var myScriptName: LabeledComponent<TextFieldWithBrowseButton> = LabeledComponent()
     private var myScriptOptions: LabeledComponent<JTextField> = LabeledComponent()
@@ -29,22 +28,21 @@ class JBangRunSettingsEditor(factory: Factory<JBangRunConfiguration>) : Settings
         myPanel.add(myScriptArgs)
     }
 
-    override fun resetEditorFrom(demoRunConfiguration: JBangRunConfiguration) {
-        myScriptName.component.text = demoRunConfiguration.getScriptName() ?: ""
-        myScriptOptions.component.text = demoRunConfiguration.getScriptOptions() ?: ""
-        myScriptArgs.component.text = demoRunConfiguration.getScriptArgs() ?: ""
+    override fun resetEditorFrom(jBangRunConfiguration: JBangRunConfiguration) {
+        myScriptName.component.text = jBangRunConfiguration.getScriptName() ?: ""
+        myScriptOptions.component.text = jBangRunConfiguration.getScriptOptions() ?: ""
+        myScriptArgs.component.text = jBangRunConfiguration.getScriptArgs() ?: ""
     }
 
-    override fun applyEditorTo(demoRunConfiguration: JBangRunConfiguration) {
-        demoRunConfiguration.setScriptName(myScriptName.component.text)
-        demoRunConfiguration.setScriptOptions(myScriptOptions.component.text)
-        demoRunConfiguration.setScriptArgs(myScriptArgs.component.text)
+    override fun applyEditorTo(jBangRunConfiguration: JBangRunConfiguration) {
+        jBangRunConfiguration.setScriptName(myScriptName.component.text)
+        jBangRunConfiguration.setScriptOptions(myScriptOptions.component.text)
+        jBangRunConfiguration.setScriptArgs(myScriptArgs.component.text)
     }
 
     override fun createEditor(): JComponent {
         return myPanel
     }
-
 
 
 }
