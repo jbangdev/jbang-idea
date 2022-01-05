@@ -12,18 +12,18 @@
         "properties": {
           "script-ref": {
             "type": "string",
-            "description": "script to run: local or HTTP Java/Jar file, GAV"
+            "description": "Script to run: local or HTTP Java/Jar file, GAV"
           },
           "description": {
             "type": "string",
-            "description": "description for alias"
+            "description": "Description for alias"
           },
           "arguments": {
             "type": "array",
             "items": {
               "type": "string"
             },
-            "description": "arguments for script"
+            "description": "Arguments for script"
           },
           "java-options": {
             "type": "array",
@@ -75,12 +75,46 @@
           },
           "mainClass": {
             "type": "string",
-            "description": "main class, such as com.example.Main"
+            "description": "Main class, such as com.example.Main"
           }
         },
         "required": [
           "script-ref"
         ]
+      }
+    },
+    "catalogs": {
+      "description": "catalogs",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "catalog-ref": {
+            "type": "string",
+            "description": "Refer other catalog's name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description for other catalog"
+          }
+        }
+      }
+    },
+    "templates": {
+      "description": "templates",
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "file-refs": {
+            "type": "object",
+            "description": "Files included by template"
+          },
+          "description": {
+            "type": "string",
+            "description": "Description for template"
+          }
+        }
       }
     }
   },
