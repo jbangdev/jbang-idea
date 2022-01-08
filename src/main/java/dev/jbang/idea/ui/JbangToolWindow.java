@@ -8,7 +8,6 @@ public class JbangToolWindow {
     private JPanel toolWindowContent;
     private JTextField originalResourceField;
     private JTextField javaField;
-    private JTextField applicationJarField;
     private JTextArea dependenciesTextArea;
 
 
@@ -22,7 +21,6 @@ public class JbangToolWindow {
             originalResourceField.setText(parts[parts.length - 1]);
         }
         javaField.setText(scriptInfo.getJavaVersion() != null ? scriptInfo.getJavaVersion() : scriptInfo.getRequestedJavaVersion());
-        applicationJarField.setText(scriptInfo.getApplicationJar());
         if (scriptInfo.getDependencies() != null) {
             dependenciesTextArea.setText(String.join("\n", scriptInfo.getDependencies()));
         }
