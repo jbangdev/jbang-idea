@@ -8,6 +8,7 @@ import com.intellij.execution.process.ProcessHandlerFactory
 import com.intellij.execution.process.ProcessTerminatedListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
+import dev.jbang.idea.getJBangCmdAbsolutionPath
 import dev.jbang.idea.jbangIcon
 import java.io.File
 import javax.swing.Icon
@@ -56,7 +57,11 @@ class JBangRunConfiguration(
     override fun getState(executor: Executor, executionEnvironment: ExecutionEnvironment): RunProfileState {
         return object : CommandLineState(executionEnvironment) {
             override fun startProcess(): ProcessHandler {
-                val command = mutableListOf("jbang", "run")
+                var jbangCmd = getJBangCmdAbsolutionPath()
+                if (!File(jbangCmd).exists()) {
+                    jbangCmd = "jbang"
+                }
+                val command = mutableListOf(jbangCmd, "run")
                 val scriptName = getScriptName()
                 val options = getScriptOptions()
                 val args = getScriptArgs()
