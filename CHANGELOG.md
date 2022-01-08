@@ -2,9 +2,7 @@
 
 # jbang-idea-plugin Changelog
 
-## [Unreleased]
-
-## [0.7.0]
+## [0.8.0]
 
 ### Added
 
