@@ -75,7 +75,7 @@ class JBangRunConfiguration(
                     }
                 } else {
                     command.clear()
-                    command.add("jbang")
+                    command.add(jbangCmd)
                 }
                 val commandLine = GeneralCommandLine(command)
                 commandLine.workDirectory = File(project.basePath!!)
