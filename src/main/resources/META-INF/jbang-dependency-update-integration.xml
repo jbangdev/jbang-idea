@@ -1,5 +1,5 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
-        <externalSystem.dependencyModifier implementation="dev.jbang.idea.packagesearch.JbangDependencyModifier"/>
+        <externalSystem.dependencyModifier implementation="dev.jbang.idea.externalSystem.JbangDependencyModifier"/>
     </extensions>
 </idea-plugin>
