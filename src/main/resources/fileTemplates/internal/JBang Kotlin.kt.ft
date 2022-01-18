@@ -1,0 +1,7 @@
+///usr/bin/env jbang "$0" "$@" ; exit $?
+//KOTLIN 1.6.10
+//DEPS org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10
+
+fun main() {
+    println("Hello, world!")
+}
