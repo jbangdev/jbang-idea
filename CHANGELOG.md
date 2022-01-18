@@ -6,7 +6,7 @@
 
 ### Added
 
-* JBang module wizard
+* JBang module wizard: create JBang module on current project
 
 ## [0.9.0]
 
