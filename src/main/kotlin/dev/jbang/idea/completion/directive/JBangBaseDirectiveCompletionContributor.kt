@@ -1,4 +1,4 @@
-package dev.jbang.idea.completion
+package dev.jbang.idea.completion.directive
 
 import com.intellij.codeInsight.completion.CompletionContributor
 import com.intellij.openapi.project.DumbAware

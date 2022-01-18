@@ -1,4 +1,4 @@
-package dev.jbang.idea.completion
+package dev.jbang.idea.completion.directive
 
 import com.intellij.codeInsight.completion.CompletionParameters
 import com.intellij.codeInsight.completion.CompletionProvider
