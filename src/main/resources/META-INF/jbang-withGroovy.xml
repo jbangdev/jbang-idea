@@ -1,6 +1,7 @@
 <idea-plugin>
     <extensions defaultExtensionNs="com.intellij">
-        <completion.contributor language="Groovy" implementationClass="dev.jbang.idea.completion.JBangGroovyCompletionContributor"/>
+        <completion.contributor language="Groovy" implementationClass="dev.jbang.idea.completion.directive.JBangGroovyCompletionContributor"/>
+        <completion.contributor language="Groovy" implementationClass="dev.jbang.idea.completion.deps.JBangGroovyDepsGavCompletionContributor"/>
         <runLineMarkerContributor language="Groovy" implementationClass="dev.jbang.idea.run.JBangRunLineMarkerContributor"/>
         <annotator language="Groovy" implementationClass="dev.jbang.idea.highlight.JbangDirectiveHighlighterAnnotator"/>
     </extensions>
