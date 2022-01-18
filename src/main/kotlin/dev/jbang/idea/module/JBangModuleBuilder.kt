@@ -42,7 +42,7 @@ class JBangModuleBuilder : JavaModuleBuilder(), ModuleBuilderListener {
         properties.putAll(FileTemplateManager.getInstance(module.project).defaultProperties)
         val javaSdkVersion = module.sdk?.versionString
         val javaVersion = if (javaSdkVersion != null) {
-            (9..19).firstOrNull { javaSdkVersion.contains("${it}.0") } ?: 8
+            (19 downTo 9).firstOrNull { javaSdkVersion.contains("${it}.0") } ?: 8
         } else {
             11
         }
