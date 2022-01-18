@@ -6,18 +6,18 @@
 
 ### Added
 
-* Code completion and navigation for `script-ref` in `jbang-catalog.json`
-* GAV completion for `//DEPS `
-* text without colon - full text search `google.guava`, and words seperated by `.` or `-`
-* text with one colon - artifact search based on groupId `com.google.guava:`
-* text with two colons - version search based on groupId and artifactId `com.google.guava:guava:`
+- Code completion and navigation for `script-ref` in `jbang-catalog.json`
+- GAV completion for `//DEPS `
+- text without colon - full text search `google.guava`, and words seperated by `.` or `-`
+- text with one colon - artifact search based on groupId `com.google.guava:`
+- text with two colons - version search based on groupId and artifactId `com.google.guava:guava:`
 
 ## [0.10.0]
 
 ### Added
 
-* JBang module wizard: create new JBang project or create JBang module on current project
-* Language detection for JBang module creation: create different script file based on Java/Groovy/Kotlin chosen
+- JBang module wizard: create new JBang project or create JBang module on current project
+- Language detection for JBang module creation: create different script file based on Java/Groovy/Kotlin chosen
 
 ## [0.9.0]
 
