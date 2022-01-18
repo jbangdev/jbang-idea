@@ -1,6 +1,6 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
 //JAVA ${JAVA_VERSION}
 //GROOVY ${GROOVY_VERSION}
-//DEPS org.codehaus.groovy:groovy:${GROOVY_VERSION}
+//DEPS org.${GROOVY_VENDOR}.groovy:groovy:${GROOVY_VERSION}
 
 println("Hello JBang!")
