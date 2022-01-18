@@ -57,7 +57,12 @@ class JBangModuleBuilder : JavaModuleBuilder(), ModuleBuilderListener {
         if (groovyJarFile != null) {
             fileTemplateName = "JBang Groovy"
             val groovyVersion = extractVersionFromJarFile(groovyJarFile.name) ?: "3.0.9"
-            properties["GROOVY_VERSION"] = groovyVersion;
+            properties["GROOVY_VERSION"] = groovyVersion
+            properties["GROOVY_VENDOR"] = if (groovyVersion.startsWith("4.")) {
+                "apache"
+            } else {
+                "codehaus"
+            }
         } else if (kotlinJarFile != null) {
             fileTemplateName = "JBang Kotlin"
             val kotlinVersion = extractVersionFromJarFile(kotlinJarFile.name) ?: "1.6.10"
