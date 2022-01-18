@@ -6,6 +6,7 @@
 
 ### Added
 
+* Code completion and navigation for `script-ref` in `jbang-catalog.json`
 * GAV completion for `//DEPS `
 * text without colon - full text search `google.guava`, and words seperated by `.` or `-`
 * text with one colon - artifact search based on groupId `com.google.guava:`
