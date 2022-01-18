@@ -19,6 +19,7 @@
         <fileType name="JSHELL" language="JShellLanguage" extensions="jsh"/>
         <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.directive.JBangJavaCompletionContributor"/>
         <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.deps.JBangJavaDepsGavCompletionContributor"/>
+        <completion.contributor language="JSON" implementationClass="dev.jbang.idea.completion.ScriptRefCompletionContributor"/>
         <runLineMarkerContributor language="JAVA" implementationClass="dev.jbang.idea.run.JBangRunLineMarkerContributor"/>
         <notificationGroup id="JBang Failure" icon="/icons/jbang-16x16.png" displayType="STICKY_BALLOON" isLogByDefault="false"/>
         <notificationGroup id="JBang Success" icon="/icons/jbang-16x16.png" displayType="BALLOON" isLogByDefault="false"/>
@@ -27,6 +28,7 @@
                     factoryClass="dev.jbang.idea.ui.JbangToolWindowFactory"/>
         <moduleType id="JBang_MODULE" implementationClass="dev.jbang.idea.module.JBangModuleType"/>
         <fileBasedIndex implementation="dev.jbang.idea.file.JBangScriptFileIndex"/>
+        <lang.directNavigationProvider implementation="dev.jbang.idea.navigation.ScriptRefNavigation"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">
