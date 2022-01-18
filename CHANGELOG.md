@@ -6,7 +6,8 @@
 
 ### Added
 
-* JBang module wizard: create JBang module on current project
+* JBang module wizard: create new JBang project or create JBang module on current project
+* Language detection for JBang module creation: create different script file based on Java/Groovy/Kotlin chosen
 
 ## [0.9.0]
 
