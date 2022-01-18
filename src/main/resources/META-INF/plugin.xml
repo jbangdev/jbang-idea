@@ -23,6 +23,7 @@
         <annotator language="JAVA" implementationClass="dev.jbang.idea.highlight.JbangDirectiveHighlighterAnnotator"/>
         <toolWindow id="JBang" icon="/icons/jbang-16x16.png" anchor="right"
                     factoryClass="dev.jbang.idea.ui.JbangToolWindowFactory"/>
+        <moduleType id="JBang_MODULE" implementationClass="dev.jbang.idea.module.JBangModuleType"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">
