@@ -28,13 +28,8 @@ class JBangModuleBuilder : JavaModuleBuilder(), ModuleBuilderListener {
         return jbangIcon
     }
 
-    @Suppress("DialogTitleCapitalization")
-    override fun getDescription(): String {
-        return "<html>jbang module builder</html>"
-    }
-
     override fun getPresentableName(): String {
-        return "JBang Module"
+        return "JBang"
     }
 
     override fun moduleCreated(module: Module) {
