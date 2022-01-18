@@ -8,6 +8,7 @@ val jbangIcon = IconLoader.findIcon("icons/jbang-16x16.png")!!
 val kotlinIcon = IconLoader.findIcon("icons/kotlin.svg")!!
 val groovyIcon = IconLoader.findIcon("icons/groovy.svg")!!
 val jshellIcon = IconLoader.findIcon("icons/jshell-16x16.png")!!
+val mavenIcon = IconLoader.findIcon("icons/maven.svg")!!
 
 const val JBANG_DECLARE = "///usr/bin/env jbang"
 const val JBANG_DECLARE_FULL = "///usr/bin/env jbang \"\$0\" \"\$@\" ; exit \$?"
@@ -36,7 +37,7 @@ fun isJBangScriptFile(fileName: String): Boolean {
     return ALL_EXT_NAMES.contains(extName)
 }
 
-fun isJBangScript(code: String): Boolean {
+fun isJBangScript(code: CharSequence): Boolean {
     return code.contains(JBANG_DECLARE) || code.lines().any { it.startsWith("//DEPS") };
 }
 
