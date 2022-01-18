@@ -2,6 +2,15 @@
 
 # jbang-idea-plugin Changelog
 
+## [0.11.0]
+
+### Added
+
+* GAV completion for `//DEPS `
+* text without colon - full text search `google.guava`, and words seperated by `.` or `-`
+* text with one colon - artifact search based on groupId `com.google.guava:`
+* text with two colons - version search based on groupId and artifactId `com.google.guava:guava:`
+
 ## [0.10.0]
 
 ### Added
