@@ -28,7 +28,7 @@ class JBangGroovyCompletionContributor : JBangBaseDirectiveCompletionContributor
                             JAVA_DIRECTIVES.forEach {
                                 result.addElement(LookupElementBuilder.create(it))
                             }
-                            result.addElement(LookupElementBuilder.create("GROOVY"))
+                            result.addElement(LookupElementBuilder.create("GROOVY "))
                         }
                     }
                 }

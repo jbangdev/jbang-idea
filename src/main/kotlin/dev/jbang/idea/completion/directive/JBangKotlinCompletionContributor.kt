@@ -28,7 +28,7 @@ class JBangKotlinCompletionContributor : JBangBaseDirectiveCompletionContributor
                             JAVA_DIRECTIVES.forEach {
                                 result.addElement(LookupElementBuilder.create(it))
                             }
-                            result.addElement(LookupElementBuilder.create("KOTLIN"))
+                            result.addElement(LookupElementBuilder.create("KOTLIN "))
                         }
                     }
                 }
