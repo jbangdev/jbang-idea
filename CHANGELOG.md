@@ -2,6 +2,12 @@
 
 # jbang-idea-plugin Changelog
 
+## [0.10.0]
+
+### Added
+
+* JBang module wizard
+
 ## [0.9.0]
 
 ### Added
