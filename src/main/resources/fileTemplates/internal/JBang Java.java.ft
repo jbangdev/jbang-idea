@@ -1,4 +1,5 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
+//JAVA ${JAVA_VERSION}
 
 class ${NAME} {
     public static void main(String[]args) {

@@ -1,6 +1,7 @@
 ///usr/bin/env jbang "$0" "$@" ; exit $?
-//KOTLIN 1.6.10
-//DEPS org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.10
+//JAVA ${JAVA_VERSION}
+//KOTLIN ${KOTLIN_VERSION}
+//DEPS org.jetbrains.kotlin:kotlin-stdlib-jdk8:${KOTLIN_VERSION}
 
 fun main() {
     println("Hello, world!")
