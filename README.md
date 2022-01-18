@@ -8,7 +8,8 @@ jbang-idea-plugin
 **JBang plugin** is a plugin for IntelliJ IDEA to integrate [JBang](https://www.jbang.dev/).
 
 The following features are available:
-
+              
+* JBang project wizard: create JBang project by IDEA project wizard
 * JSON Schema for jbang-catalog.json
 * JDKs sync with JBang: sync JDKs from JBang to IntelliJ IDEA
 * JBang script creation from file templates: New -> JBang Script
@@ -19,6 +20,10 @@ The following features are available:
 * Run Configuration support: run JBang script by right click
     * file name end with '.java', '.kt', '.groovy' or '.jsh'
     * file code should contain `///usr/bin/env jbang` or `//DEPS`
+* GAV completion for `//DEPS `
+    * text without colon - full text search `google.guava`, and words seperated by `.` or `-`
+    * text with one colon - artifact search based on groupId `com.google.guava:`
+    * text with two colons - version search based on groupId and artifactId `com.google.guava:guava:`
 
 <!-- Plugin description end -->
 
