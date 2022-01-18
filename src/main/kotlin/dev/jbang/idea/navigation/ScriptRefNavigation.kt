@@ -18,7 +18,9 @@ class ScriptRefNavigation : DirectNavigationProvider {
                 val siblingElement = element.prevSiblingOfSameType()
                 if (siblingElement != null && siblingElement.text.contains("script-ref")) {
                     val scriptRef = element.text.trim('"')
-                    if (!scriptRef.contains(":")) {
+                    if (!(scriptRef.startsWith("http://") || scriptRef.startsWith("https://"))
+                        && !scriptRef.startsWith("/")
+                    ) {
                         val directory = element.containingFile.parent as PsiDirectory
                         val realPath = directory.virtualFile.toNioPath().resolve(scriptRef)
                         return VirtualFileManager.getInstance().findFileByNioPath(realPath)?.toPsiFile(element.project)
