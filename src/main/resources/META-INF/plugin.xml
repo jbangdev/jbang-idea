@@ -9,6 +9,7 @@
     <depends optional="true" config-file="jbang-withKotlin.xml">org.jetbrains.kotlin</depends>
     <depends optional="true" config-file="jbang-withGroovy.xml">org.intellij.groovy</depends>
     <depends optional="true" config-file="jbang-withGradle.xml">com.intellij.gradle</depends>
+    <!-- <depends optional="true" config-file="jbang-dependency-update-integration.xml">com.intellij.externalSystem.dependencyUpdater</depends>-->
 
     <extensions defaultExtensionNs="com.intellij">
         <preloadingActivity implementation="dev.jbang.idea.JBangJdkLoader"/>
@@ -16,7 +17,8 @@
         <configurationType implementation="dev.jbang.idea.run.JBangConfigurationType"/>
         <runConfigurationProducer implementation="dev.jbang.idea.run.JBangRunConfigurationProducer"/>
         <fileType name="JSHELL" language="JShellLanguage" extensions="jsh"/>
-        <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.JBangJavaCompletionContributor"/>
+        <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.directive.JBangJavaCompletionContributor"/>
+        <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.deps.JBangJavaDepsGavCompletionContributor"/>
         <runLineMarkerContributor language="JAVA" implementationClass="dev.jbang.idea.run.JBangRunLineMarkerContributor"/>
         <notificationGroup id="JBang Failure" icon="/icons/jbang-16x16.png" displayType="STICKY_BALLOON" isLogByDefault="false"/>
         <notificationGroup id="JBang Success" icon="/icons/jbang-16x16.png" displayType="BALLOON" isLogByDefault="false"/>
@@ -24,6 +26,7 @@
         <toolWindow id="JBang" icon="/icons/jbang-16x16.png" anchor="right"
                     factoryClass="dev.jbang.idea.ui.JbangToolWindowFactory"/>
         <moduleType id="JBang_MODULE" implementationClass="dev.jbang.idea.module.JBangModuleType"/>
+        <fileBasedIndex implementation="dev.jbang.idea.file.JBangScriptFileIndex"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">
