@@ -1,10 +1,10 @@
 package dev.jbang.idea.ui
 
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.ActionGroup
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.openapi.fileEditor.FileEditorManager
-import com.intellij.openapi.fileEditor.FileEditorManagerEvent
-import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.SimpleToolWindowPanel
@@ -23,11 +23,10 @@ class JbangToolWindowFactory : ToolWindowFactory, DumbAware {
         val contentFactory = ContentFactory.SERVICE.getInstance()
         val content = contentFactory.createContent(jBangToolWindowPanel, "", false)
         toolWindow.contentManager.addContent(content)
-        project.messageBus.connect().subscribe(FileEditorManagerListener.FILE_EDITOR_MANAGER, jBangToolWindowPanel)
     }
 }
 
-class JBangToolWindowPanel(private val project: Project, val toolWindow: ToolWindow) : SimpleToolWindowPanel(true), FileEditorManagerListener {
+class JBangToolWindowPanel(private val project: Project, val toolWindow: ToolWindow) : SimpleToolWindowPanel(true) {
     val usagePanel = UsagePanel("JBang Usage:\n")
     private val jbangToolWindow = JbangToolWindow()
     var currentScriptFile: VirtualFile? = null
@@ -58,8 +57,18 @@ class JBangToolWindowPanel(private val project: Project, val toolWindow: ToolWin
                 switchToScriptInfoPanel();
             }
             currentScriptFile = scripFile
-            resolveScriptInfo(scripFile.path).let {
-                jbangToolWindow.update(it)
+            try {
+                resolveScriptInfo(scripFile.path).let {
+                    jbangToolWindow.update(it)
+                }
+            } catch (e: Exception) {
+                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
+                jbangNotificationGroup.createNotification(
+                    "Failed to resolve DEPS",
+                    e.message ?: "Failed to resolve dependencies for ${scripFile.name}",
+                    NotificationType.ERROR
+                ).notify(project)
+
             }
         }
     }
@@ -67,18 +76,4 @@ class JBangToolWindowPanel(private val project: Project, val toolWindow: ToolWin
     private fun switchToScriptInfoPanel() {
         setContent(jbangToolWindow.content)
     }
-
-    override fun fileOpened(source: FileEditorManager, file: VirtualFile) {
-        super.fileOpened(source, file)
-    }
-
-    override fun fileClosed(source: FileEditorManager, file: VirtualFile) {
-        super.fileClosed(source, file)
-    }
-
-    override fun selectionChanged(event: FileEditorManagerEvent) {
-        super.selectionChanged(event)
-        event.newFile?.let { refreshScriptInfo(it) }
-    }
-
 }
