@@ -10,18 +10,23 @@ import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.patterns.PlatformPatterns.psiElement
+import com.intellij.patterns.PlatformPatterns.psiFile
 import com.intellij.util.ProcessingContext
 import dev.jbang.idea.isJBangScriptFile
 import java.nio.file.Path
 
 
 class ScriptRefCompletionContributor : CompletionContributor(), DumbAware {
-    init {
-        val scriptRefValue = psiElement().afterLeaf(psiElement(JsonElementTypes.COLON).afterLeaf("\"script-ref\""))
+    companion object {
+        val scriptRefValueCapture = psiElement().afterLeaf(psiElement(JsonElementTypes.COLON).afterLeaf("\"script-ref\""))
             .withSuperParent(2, JsonProperty::class.java)
             .withLanguage(JsonLanguage.INSTANCE)
+            .inFile(psiFile().withName("jbang-catalog.json"))
+    }
+
+    init {
         extend(
-            CompletionType.BASIC, scriptRefValue,
+            CompletionType.BASIC, scriptRefValueCapture,
             object : CompletionProvider<CompletionParameters>() {
                 override fun addCompletions(parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet) {
                     val jsonStringLiteral = parameters.position.parent as JsonStringLiteral
