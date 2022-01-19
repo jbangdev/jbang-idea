@@ -2,6 +2,8 @@
 
 # jbang-idea-plugin Changelog
 
+## [Unreleased]
+
 ## [0.12.0]
 
 - Bug fix: remove file editor listener because of performance
