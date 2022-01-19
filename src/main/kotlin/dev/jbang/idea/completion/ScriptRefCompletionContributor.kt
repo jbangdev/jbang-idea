@@ -32,8 +32,7 @@ class ScriptRefCompletionContributor : CompletionContributor(), DumbAware {
                     val jsonStringLiteral = parameters.position.parent as JsonStringLiteral
                     var path = StringUtil.trim(jsonStringLiteral.text.trim('"').replace(CompletionUtil.DUMMY_IDENTIFIER, "").replace(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED, ""))
                     val jbangCatalogJsonFile = parameters.originalFile
-                    if (jbangCatalogJsonFile.name == "jbang-catalog.json"
-                        && !(path.startsWith("http://") || path.startsWith("https://"))
+                    if ( !(path.startsWith("http://") || path.startsWith("https://"))
                     ) {
                         val jsonFileDirectory = jbangCatalogJsonFile.parent!!
                         val naviDirectory = if (path.isEmpty()) {
