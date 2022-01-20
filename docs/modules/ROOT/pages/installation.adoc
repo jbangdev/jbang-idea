@@ -1,0 +1,30 @@
+= Installation
+:idprefix:
+:idseparator: -
+ifndef::env-github[]
+:icons: font
+endif::[]
+ifdef::env-github[]
+:caution-caption: :fire:
+:important-caption: :exclamation:
+:note-caption: :paperclip:
+:tip-caption: :bulb:
+:warning-caption: :warning:
+endif::[]
+
+toc::[]
+
+To install JBang Idea plugin you have two options:
+
+Install via IntelliJ's Preferences/Plugins by searching for `jbang` in marketplace.
+
+image:jbang-idea-preferences.png[]
+
+OR
+
+Visit https://plugins.jetbrains.com/plugin/18257-jbang/[JBang Idea plugin marketplace page] and use the Install button.
+
+image:jbang-idea-marketplace.png[]
+
+Once installed you can open an existing JBang script or create a new JBang script.
+

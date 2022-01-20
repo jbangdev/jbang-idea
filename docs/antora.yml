@@ -1,0 +1,5 @@
+name: jbang-idea
+title: JBang Idea Plugin
+version: latest
+nav:
+  - modules/ROOT/nav.adoc

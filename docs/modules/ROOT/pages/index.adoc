@@ -1,0 +1,38 @@
+= Intro
+:idprefix:
+:idseparator: -
+ifndef::env-github[]
+:icons: font
+endif::[]
+ifdef::env-github[]
+:caution-caption: :fire:
+:important-caption: :exclamation:
+:note-caption: :paperclip:
+:tip-caption: :bulb:
+:warning-caption: :warning:
+endif::[]
+
+JBang Idea plugin enhances the JBang experience inside Intellij IDEA.
+
+The plugin works with and without `jbang edit` command. You can create jbang scripts, get auto completion and run your script without any setup.
+
+A real game changer to get started with Java.
+
+The following features are available:
+
+* JBang project wizard: create JBang project by IDEA project wizard
+* JSON Schema for jbang-catalog.json and code completion for `script-ref`
+* JDKs sync with JBang: sync JDKs from JBang to IntelliJ IDEA
+* JBang script creation from file templates: New -> JBang Script
+* JBang directives completion:  for example `//DEPS`, `//SOURCES`
+* Sync Dependencies between JBang and Gradle
+* Sync Dependencies to IDEA's module when using `idea .` to open JBang project
+* JBang Run Line Marker for `///usr/bin/env jbang`
+* Run Configuration support: run JBang script by right click
+* file name end with '.java', '.kt', '.groovy' or '.jsh'
+* file code should contain `///usr/bin/env jbang` or `//DEPS`
+* GAV completion for `//DEPS `
+* text without colon - full text search `google.guava`, and words seperated by `.` or `-`
+* text with one colon - artifact search based on groupId `com.google.guava:`
+* text with two colons - version search based on groupId and artifactId `com.google.guava:guava:`
+
