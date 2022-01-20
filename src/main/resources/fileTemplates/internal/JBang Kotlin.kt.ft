@@ -1,8 +1,0 @@
-///usr/bin/env jbang "$0" "$@" ; exit $?
-//JAVA ${JAVA_VERSION}
-//KOTLIN ${KOTLIN_VERSION}
-//DEPS org.jetbrains.kotlin:kotlin-stdlib-jdk8:${KOTLIN_VERSION}
-
-fun main() {
-    println("Hello, world!")
-}
