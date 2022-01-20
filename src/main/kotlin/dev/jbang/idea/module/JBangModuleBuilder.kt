@@ -1,16 +1,12 @@
 package dev.jbang.idea.module
 
 import com.intellij.ide.fileTemplates.FileTemplateManager
-import com.intellij.ide.fileTemplates.FileTemplateUtil
 import com.intellij.ide.util.projectWizard.JavaModuleBuilder
 import com.intellij.ide.util.projectWizard.ModuleBuilderListener
-import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ModuleRootManager
-import com.intellij.openapi.vfs.VirtualFile
 import dev.jbang.idea.JBangCli.generateScriptFrommTemplate
 import dev.jbang.idea.jbangIcon
-import org.jetbrains.kotlin.idea.core.util.toPsiDirectory
 import org.jetbrains.kotlin.idea.util.projectStructure.sdk
 import java.util.*
 import java.util.regex.Pattern
@@ -53,11 +49,11 @@ class JBangModuleBuilder : JavaModuleBuilder(), ModuleBuilderListener {
         val kotlinJarFile = moduleRootManager.orderEntries().allLibrariesAndSdkClassesRoots.firstOrNull {
             it.name.startsWith("kotlin") && it.name.endsWith(".jar")
         }
-        var fileTemplateName = "JBang Java"
         var jbangTemplateName = "hello"
+        var jbangScriptFile = "Hello.java"
         if (groovyJarFile != null) {
-            fileTemplateName = "JBang Groovy"
             jbangTemplateName = "hello.groovy"
+            jbangScriptFile = "Hello.groovy"
             val groovyVersion = extractVersionFromJarFile(groovyJarFile.name) ?: "3.0.9"
             properties["GROOVY_VERSION"] = groovyVersion
             properties["GROOVY_VENDOR"] = if (groovyVersion.startsWith("4.")) {
@@ -66,8 +62,8 @@ class JBangModuleBuilder : JavaModuleBuilder(), ModuleBuilderListener {
                 "codehaus"
             }
         } else if (kotlinJarFile != null) {
-            fileTemplateName = "JBang Kotlin"
             jbangTemplateName = "hello.kt"
+            jbangScriptFile = "Hello.kt"
             val kotlinVersion = extractVersionFromJarFile(kotlinJarFile.name) ?: "1.6.10"
             properties["KOTLIN_VERSION"] = kotlinVersion;
         }
@@ -76,10 +72,9 @@ class JBangModuleBuilder : JavaModuleBuilder(), ModuleBuilderListener {
             val srcRoot = roots[0]
             generateScriptFrommTemplate(
                 jbangTemplateName,
-                jbangTemplateName.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() },
+                jbangScriptFile,
                 srcRoot.toNioPath().absolutePathString()
             )
-            //generateFromInternalTemplate(module, fileTemplateName, properties, srcRoot);
         }
     }
 
@@ -89,21 +84,6 @@ class JBangModuleBuilder : JavaModuleBuilder(), ModuleBuilderListener {
             return matcher.group(1)
         }
         return null
-    }
-
-    private fun generateFromInternalTemplate(module: Module, fileTemplateName: String, properties: Properties, srcRoot: VirtualFile) {
-        val template = FileTemplateManager.getInstance(module.project).getInternalTemplate(fileTemplateName)
-        ApplicationManager.getApplication().runWriteAction {
-            try {
-                FileTemplateUtil.createFromTemplate(
-                    template, "Hello",
-                    properties,
-                    srcRoot.toPsiDirectory(module.project)!!
-                )
-            } catch (ignore: Exception) {
-                // ignore IndexNotReadyException
-            }
-        }
     }
 
 }
