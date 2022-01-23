@@ -28,6 +28,7 @@
                     factoryClass="dev.jbang.idea.ui.JBangToolWindowFactory"/>
         <moduleType id="JBang_MODULE" implementationClass="dev.jbang.idea.module.JBangModuleType"/>
         <fileBasedIndex implementation="dev.jbang.idea.file.JBangScriptFileIndex"/>
+        <!--suppress PluginXmlValidity -->
         <lang.directNavigationProvider implementation="dev.jbang.idea.navigation.ScriptRefNavigation"/>
     </extensions>
 
