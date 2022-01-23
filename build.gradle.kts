@@ -1,5 +1,6 @@
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.*
 
 fun properties(key: String) = project.findProperty(key).toString()
 
@@ -97,6 +98,10 @@ tasks {
         systemProperty("ide.mac.message.dialogs.as.sheets", "false")
         systemProperty("jb.privacy.policy.text", "<!--999.999-->")
         systemProperty("jb.consents.confirmation.enabled", "false")
+    }
+
+    runPluginVerifier {
+        failureLevel.set(listOf(DEPRECATED_API_USAGES, INTERNAL_API_USAGES, NOT_DYNAMIC, INVALID_PLUGIN))
     }
 
     signPlugin {
