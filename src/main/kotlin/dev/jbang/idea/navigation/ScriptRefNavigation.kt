@@ -8,7 +8,7 @@ import dev.jbang.idea.completion.ScriptRefCompletionContributor.Companion.script
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 
-@org.jetbrains.annotations.ApiStatus.Experimental
+@Suppress("UnstableApiUsage")
 class ScriptRefNavigation : DirectNavigationProvider {
 
     override fun getNavigationElement(element: PsiElement): PsiElement? {
