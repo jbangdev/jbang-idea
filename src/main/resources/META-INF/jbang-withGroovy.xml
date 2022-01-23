@@ -3,6 +3,6 @@
         <completion.contributor language="Groovy" implementationClass="dev.jbang.idea.completion.directive.JBangGroovyCompletionContributor"/>
         <completion.contributor language="Groovy" implementationClass="dev.jbang.idea.completion.deps.JBangGroovyDepsGavCompletionContributor"/>
         <runLineMarkerContributor language="Groovy" implementationClass="dev.jbang.idea.run.JBangRunLineMarkerContributor"/>
-        <annotator language="Groovy" implementationClass="dev.jbang.idea.highlight.JbangDirectiveHighlighterAnnotator"/>
+        <annotator language="Groovy" implementationClass="dev.jbang.idea.highlight.JBangDirectiveHighlighterAnnotator"/>
     </extensions>
 </idea-plugin>

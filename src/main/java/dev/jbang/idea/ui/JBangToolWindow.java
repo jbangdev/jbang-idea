@@ -4,7 +4,7 @@ import dev.jbang.idea.ScriptInfo;
 
 import javax.swing.*;
 
-public class JbangToolWindow {
+public class JBangToolWindow {
     private JPanel toolWindowContent;
     private JTextField originalResourceField;
     private JTextField javaField;
