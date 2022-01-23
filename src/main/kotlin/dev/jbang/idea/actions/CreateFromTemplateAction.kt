@@ -30,7 +30,7 @@ class CreateFromTemplateAction : AnAction(), DumbAware {
                             LocalFileSystem.getInstance().refresh(true)
                         } catch (e: Exception) {
                             val errorText = "Failed to create script from template, please check template and script name!"
-                            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
+                            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
                             jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(project)
                         }
                     }
@@ -38,7 +38,7 @@ class CreateFromTemplateAction : AnAction(), DumbAware {
             }
         } catch (e: Exception) {
             val errorText = e.message!!
-            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
+            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
             jbangNotificationGroup.createNotification("Failed to get JBang templates", errorText, NotificationType.ERROR).notify(project)
         }
     }

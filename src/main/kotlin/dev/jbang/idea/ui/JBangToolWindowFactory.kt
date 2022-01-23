@@ -19,18 +19,17 @@ import javax.swing.SwingConstants
 
 class JBangToolWindowFactory : ToolWindowFactory, DumbAware {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
-        val jBangToolWindowPanel = JBangToolWindowPanel(project, toolWindow)
+        val jBangToolWindowPanel = JBangToolWindowPanel(project)
         val contentFactory = ContentFactory.SERVICE.getInstance()
         val content = contentFactory.createContent(jBangToolWindowPanel, "", false)
         toolWindow.contentManager.addContent(content)
     }
 }
 
-class JBangToolWindowPanel(private val project: Project, val toolWindow: ToolWindow) : SimpleToolWindowPanel(true) {
-    val usagePanel = UsagePanel("JBang Usage:\n")
+class JBangToolWindowPanel(private val project: Project) : SimpleToolWindowPanel(true) {
+    private val usagePanel = UsagePanel("JBang Usage:\n")
     private val jbangToolWindow = JBangToolWindow()
     var currentScriptFile: VirtualFile? = null
-        get() = field
 
     init {
         val fileEditorManager = FileEditorManager.getInstance(project)
@@ -54,7 +53,7 @@ class JBangToolWindowPanel(private val project: Project, val toolWindow: ToolWin
     fun refreshScriptInfo(scripFile: VirtualFile) {
         if (isJBangScriptFile(scripFile.name)) {
             if (currentScriptFile == null) {
-                switchToScriptInfoPanel();
+                switchToScriptInfoPanel()
             }
             currentScriptFile = scripFile
             try {
@@ -62,7 +61,7 @@ class JBangToolWindowPanel(private val project: Project, val toolWindow: ToolWin
                     jbangToolWindow.update(it)
                 }
             } catch (e: Exception) {
-                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
+                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
                 jbangNotificationGroup.createNotification(
                     "Failed to resolve DEPS",
                     e.message ?: "Failed to resolve dependencies for ${scripFile.name}",

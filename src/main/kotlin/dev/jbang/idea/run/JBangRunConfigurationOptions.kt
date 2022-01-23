@@ -4,9 +4,9 @@ import com.intellij.execution.configurations.RunConfigurationOptions
 import com.intellij.openapi.components.StoredProperty
 
 class JBangRunConfigurationOptions : RunConfigurationOptions() {
-    private val jbangScriptName: StoredProperty<String?> = string("").provideDelegate(this, "scriptName");
-    private val jbangScriptOptions: StoredProperty<String?> = string("").provideDelegate(this, "scriptOptions");
-    private val jbangScriptArgs: StoredProperty<String?> = string("").provideDelegate(this, "scriptArgs");
+    private val jbangScriptName: StoredProperty<String?> = string("").provideDelegate(this, "scriptName")
+    private val jbangScriptOptions: StoredProperty<String?> = string("").provideDelegate(this, "scriptOptions")
+    private val jbangScriptArgs: StoredProperty<String?> = string("").provideDelegate(this, "scriptArgs")
 
     fun getScriptName(): String? {
         return jbangScriptName.getValue(this)

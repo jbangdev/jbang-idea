@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package dev.jbang.idea
 
 import com.intellij.openapi.util.IconLoader
@@ -38,7 +40,7 @@ fun isJBangScriptFile(fileName: String): Boolean {
 }
 
 fun isJBangScript(code: CharSequence): Boolean {
-    return code.contains(JBANG_DECLARE) || code.lines().any { it.startsWith("//DEPS") };
+    return code.contains(JBANG_DECLARE) || code.lines().any { it.startsWith("//DEPS") }
 }
 
 fun getJBangDirective(line: String): String? {

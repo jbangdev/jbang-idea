@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package dev.jbang.idea
 
 class ScriptInfo {

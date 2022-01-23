@@ -24,7 +24,7 @@ class JBangCatalogJsonSchemaFileProvider : JsonSchemaFileProvider {
     }
 
     override fun getSchemaFile(): VirtualFile? {
-        return JsonSchemaProviderFactory.getResourceFile(JBangCatalogJsonSchemaFileProvider::class.java, "/jbang-catalog-schema.json");
+        return JsonSchemaProviderFactory.getResourceFile(JBangCatalogJsonSchemaFileProvider::class.java, "/jbang-catalog-schema.json")
     }
 
     override fun getSchemaType(): SchemaType {

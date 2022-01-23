@@ -43,7 +43,7 @@ class JBangModuleBuilder : JavaModuleBuilder(), ModuleBuilderListener {
             11
         }
         properties["JAVA_VERSION"] = javaVersion
-        val groovyJarFile = moduleRootManager.orderEntries().allLibrariesAndSdkClassesRoots.firstOrNull() {
+        val groovyJarFile = moduleRootManager.orderEntries().allLibrariesAndSdkClassesRoots.firstOrNull {
             it.name.startsWith("groovy") && it.name.endsWith(".jar")
         }
         val kotlinJarFile = moduleRootManager.orderEntries().allLibrariesAndSdkClassesRoots.firstOrNull {
@@ -65,7 +65,7 @@ class JBangModuleBuilder : JavaModuleBuilder(), ModuleBuilderListener {
             jbangTemplateName = "hello.kt"
             jbangScriptFile = "Hello.kt"
             val kotlinVersion = extractVersionFromJarFile(kotlinJarFile.name) ?: "1.6.10"
-            properties["KOTLIN_VERSION"] = kotlinVersion;
+            properties["KOTLIN_VERSION"] = kotlinVersion
         }
         val roots = moduleRootManager.sourceRoots
         if (roots.isNotEmpty()) {
@@ -79,7 +79,7 @@ class JBangModuleBuilder : JavaModuleBuilder(), ModuleBuilderListener {
     }
 
     private fun extractVersionFromJarFile(jarFileName: String): String? {
-        val matcher = Pattern.compile(".*-(\\d+\\..*)\\.jar").matcher(jarFileName);
+        val matcher = Pattern.compile(".*-(\\d+\\..*)\\.jar").matcher(jarFileName)
         if (matcher.find()) {
             return matcher.group(1)
         }

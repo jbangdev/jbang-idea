@@ -100,13 +100,13 @@ class SyncDependenciesAction : AnAction() {
         val dependenciesFromGradle = findDependenciesFromGradle(buildGradle.text, sourceSetName)
         //findDependenciesFromModule(project, module);
         // Resolve dependency from `jbang info tools --quiet Hello.java` and GradleManager
-        var dependenciesFromScript: List<String>? = null
+        var dependenciesFromScript: List<String>?
         try {
             val scriptInfo = resolveScriptInfo(jbangScriptFile.virtualFile.path)
             dependenciesFromScript = scriptInfo.dependencies ?: listOf()
         } catch (e: Exception) {
             val errorText = "Failed to resolve info by `jbang info tools ${jbangScriptFile.virtualFile.path}`, and stacktrace: ${e.message}"
-            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
+            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
             jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
             return
         }
@@ -170,7 +170,7 @@ class SyncDependenciesAction : AnAction() {
                 }
             }
         }
-        return dependencies;
+        return dependencies
     }
 
     private fun findDependenciesFromGradle(code: String, sourceSetName: String): List<String> {
@@ -194,7 +194,7 @@ class SyncDependenciesAction : AnAction() {
         }
     }
 
-    private fun addDependenciesToScript(fileName: String, code: String, dependencies: List<String>): String {
+    private fun addDependenciesToScript(@Suppress("UNUSED_PARAMETER") fileName: String, code: String, dependencies: List<String>): String {
         val lines = code.lines()
         val elements = dependencies.map { "//DEPS $it" }
         val offset = lines.indexOfLast { it.startsWith("//DEPS ") }
@@ -235,18 +235,18 @@ class SyncDependenciesAction : AnAction() {
         val dependenciesOffset = lines.indexOfFirst { it.trim().startsWith("dependencies ") }
         if (dependenciesOffset >= 0) {
             val offset = lines.indexOfLast { it.trim().startsWith(directive) }
-            if (offset >= 0) { // implementation found for source set
+            return if (offset >= 0) { // implementation found for source set
                 val newLines = mutableListOf<String>()
                 lines.subList(0, offset).filter { !it.trim().startsWith(directive) }.forEach {
                     newLines.add(it)
                 }
                 newLines.addAll(elements)
                 newLines.addAll(lines.subList(offset + 1, lines.size))
-                return newLines.joinToString("\n")
+                newLines.joinToString("\n")
             } else {  //no dependencies found for source set, and append to `dependencies {` block
                 val newLines = lines.toMutableList()
                 newLines.addAll(dependenciesOffset + 1, elements)
-                return newLines.joinToString("\n")
+                newLines.joinToString("\n")
             }
         } else { // add new `dependencies {}` block
             val newLines = lines.toMutableList()
@@ -279,7 +279,7 @@ class SyncDependenciesAction : AnAction() {
             }
         } catch (e: Exception) {
             val errorText = "Failed to resolve dependencies from " + jbangScriptFile.name + ", please check your //DEPS in your code. Stacktrace: ${e.message}"
-            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure");
+            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
             jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
         }
     }
@@ -293,7 +293,7 @@ class SyncDependenciesAction : AnAction() {
             newLines.add("targetCompatibility = \"${javaVersion}\"")
             newLines.joinToString("\n")
         } else {
-            buildGradleContent;
+            buildGradleContent
         }
     }
 
@@ -303,12 +303,12 @@ class SyncDependenciesAction : AnAction() {
         if (moduleSdk == null || moduleSdk.name != version) {
             val javaSdk = ProjectJdkTable.getInstance().getSdksOfType(JavaSdk.getInstance()).firstOrNull { it.name == version }
             if (javaSdk != null) {
-                val languageLevel = LanguageLevel.valueOf(javaSdk.version?.name!!);
+                val languageLevel = LanguageLevel.valueOf(javaSdk.version?.name!!)
                 ApplicationManager.getApplication().runWriteAction {
                     val modifiableRootModel = moduleRootManager.modifiableModel
                     modifiableRootModel.sdk = javaSdk
                     modifiableRootModel.getModuleExtension(LanguageLevelModuleExtension::class.java).languageLevel = languageLevel
-                    modifiableRootModel.commit();
+                    modifiableRootModel.commit()
                 }
             }
         }
@@ -323,10 +323,9 @@ class SyncDependenciesAction : AnAction() {
         // remove jbang library
         val moduleRootManager = ModuleRootManager.getInstance(module)
         val modifiableModel = moduleRootManager.modifiableModel
-        val jbangLib = modifiableModel.moduleLibraryTable.getLibraryByName(libName);
+        val jbangLib = modifiableModel.moduleLibraryTable.getLibraryByName(libName)
         if (jbangLib != null) {
             modifiableModel.moduleLibraryTable.removeLibrary(jbangLib)
-            modifiableModel.commit()
         }
         // add jbang dependencies
         if (newDependencies.isNotEmpty()) {
@@ -336,6 +335,7 @@ class SyncDependenciesAction : AnAction() {
                 ModuleRootModificationUtil.addModuleLibrary(module, libName, newDependencies.map { "jar://${it}!/" }.toList(), listOf())
             }
         }
+        modifiableModel.commit()
     }
 
     private fun findJavaVersionFromScript(scriptText: String): String {

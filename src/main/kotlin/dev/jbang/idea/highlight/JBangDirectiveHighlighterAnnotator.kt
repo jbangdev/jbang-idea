@@ -27,7 +27,7 @@ class JBangDirectiveHighlighterAnnotator : Annotator {
                 holder.newAnnotation(HighlightSeverity.INFORMATION, "JBang directive")
                     .range(range)
                     .textAttributes(DefaultLanguageHighlighterColors.MARKUP_ENTITY)
-                    .create();
+                    .create()
             }
 
         }
