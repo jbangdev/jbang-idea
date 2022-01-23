@@ -12,6 +12,7 @@ import dev.jbang.idea.file.JBangScriptFileIndex
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.psi.psiUtil.getChildrenOfType
 
+@Suppress("UnstableApiUsage")
 class JBangDependencyModifier : ExternalDependencyModificator {
 
     override fun supports(module: Module): Boolean {
