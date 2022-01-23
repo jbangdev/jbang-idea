@@ -17,7 +17,7 @@ import dev.jbang.idea.isJBangScriptFile
 import javax.swing.SwingConstants
 
 
-class JbangToolWindowFactory : ToolWindowFactory, DumbAware {
+class JBangToolWindowFactory : ToolWindowFactory, DumbAware {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val jBangToolWindowPanel = JBangToolWindowPanel(project, toolWindow)
         val contentFactory = ContentFactory.SERVICE.getInstance()
@@ -28,7 +28,7 @@ class JbangToolWindowFactory : ToolWindowFactory, DumbAware {
 
 class JBangToolWindowPanel(private val project: Project, val toolWindow: ToolWindow) : SimpleToolWindowPanel(true) {
     val usagePanel = UsagePanel("JBang Usage:\n")
-    private val jbangToolWindow = JbangToolWindow()
+    private val jbangToolWindow = JBangToolWindow()
     var currentScriptFile: VirtualFile? = null
         get() = field
 

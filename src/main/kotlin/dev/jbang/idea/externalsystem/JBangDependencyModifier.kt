@@ -1,4 +1,4 @@
-package dev.jbang.idea.externalSystem
+package dev.jbang.idea.externalsystem
 
 import com.intellij.buildsystem.model.DeclaredDependency
 import com.intellij.buildsystem.model.unified.UnifiedDependency
@@ -12,7 +12,7 @@ import dev.jbang.idea.file.JBangScriptFileIndex
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.psi.psiUtil.getChildrenOfType
 
-class JbangDependencyModifier : ExternalDependencyModificator {
+class JBangDependencyModifier : ExternalDependencyModificator {
 
     override fun supports(module: Module): Boolean {
         return JBangScriptFileIndex.findJbangScriptFiles(module).isNotEmpty()

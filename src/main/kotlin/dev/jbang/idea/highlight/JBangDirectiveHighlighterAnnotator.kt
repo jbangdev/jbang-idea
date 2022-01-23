@@ -12,7 +12,7 @@ import dev.jbang.idea.JBANG_DECLARE_FULL
 import dev.jbang.idea.getJBangDirective
 
 
-class JbangDirectiveHighlighterAnnotator : Annotator {
+class JBangDirectiveHighlighterAnnotator : Annotator {
     override fun annotate(element: PsiElement, holder: AnnotationHolder) {
         if (element is PsiComment) {
             val comment: String = element.text
