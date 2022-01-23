@@ -2,4 +2,5 @@
     <extensions defaultExtensionNs="com.intellij">
         <externalSystem.dependencyModifier implementation="dev.jbang.idea.externalSystem.JbangDependencyModifier"/>
     </extensions>
+    <depends>com.intellij.externalSystem.dependencyUpdater</depends>
 </idea-plugin>

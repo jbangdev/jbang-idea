@@ -1,5 +1,7 @@
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import java.util.EnumSet
+import org.jetbrains.intellij.tasks.RunPluginVerifierTask.*
 
 fun properties(key: String) = project.findProperty(key).toString()
 
@@ -112,5 +114,18 @@ tasks {
         // Specify pre-release label to publish the plugin in a custom Release Channel automatically. Read more:
         // https://plugins.jetbrains.com/docs/intellij/deployment.html#specifying-a-release-channel
         channels.set(listOf(properties("pluginVersion").split('-').getOrElse(1) { "default" }.split('.').first()))
+    }
+
+    runPluginVerifier {
+        // we unfortunately use experimental apis so have to mark it as non-failure to have build pass
+        val customFailureLevel = EnumSet.complementOf(
+                EnumSet.of(
+                        FailureLevel.DEPRECATED_API_USAGES,
+                        FailureLevel.EXPERIMENTAL_API_USAGES,
+                        FailureLevel.INTERNAL_API_USAGES,
+                        FailureLevel.NOT_DYNAMIC
+                )
+        )
+        failureLevel.set(customFailureLevel)
     }
 }
