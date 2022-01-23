@@ -16,6 +16,7 @@ import org.jetbrains.idea.reposearch.SearchParameters
 import java.util.concurrent.ConcurrentLinkedDeque
 import java.util.function.Consumer
 
+@Suppress("UnstableApiUsage")
 open class JBangDepsGavBaseCompletionContributor : CompletionContributor(), DumbAware {
 
     protected fun completionProvider() = object : CompletionProvider<CompletionParameters>() {
@@ -60,7 +61,7 @@ open class JBangDepsGavBaseCompletionContributor : CompletionContributor(), Dumb
                                     val document = insertionContext.document
                                     val currentOffset = editor.caretModel.offset
                                     document.deleteString(startOffset, currentOffset)
-                                    document.insertString(startOffset, selectedText);
+                                    document.insertString(startOffset, selectedText)
                                     editor.caretModel.moveToOffset(startOffset + selectedText.length)
                                 }
                         )
