@@ -46,7 +46,11 @@ open class JBangDepsGavBaseCompletionContributor : CompletionContributor(), Dumb
                         val lookupString = if (searchVersion) {
                             item.version.toString()
                         } else {
-                            item.key
+                            if (item.version != null) {
+                                "${item.key}:${item.version}"
+                            } else {
+                                item.key
+                            }
                         }
                         result.addElement(
                             LookupElementBuilder.create(searchText, lookupString).withIcon(mavenIcon)
