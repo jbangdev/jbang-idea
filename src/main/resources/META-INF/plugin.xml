@@ -2,10 +2,11 @@
 <idea-plugin>
     <id>dev.jbang.intellij.JBangPlugin</id>
     <name>JBang</name>
-    <vendor email="libing.chen@gmail.com" url="https://www.jbang.dev/">jbang.dev</vendor>
+    <vendor email="libing.chen@gmail.com" url="https://www.jbang.dev/">jbangdev</vendor>
     <category>Tool</category>
 
     <depends>com.intellij.modules.java</depends>
+    <depends>org.jetbrains.idea.reposearch</depends>
     <depends optional="true" config-file="jbang-withKotlin.xml">org.jetbrains.kotlin</depends>
     <depends optional="true" config-file="jbang-withGroovy.xml">org.intellij.groovy</depends>
     <depends optional="true" config-file="jbang-withGradle.xml">com.intellij.gradle</depends>
