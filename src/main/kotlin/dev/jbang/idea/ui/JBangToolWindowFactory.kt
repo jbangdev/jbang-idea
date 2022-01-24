@@ -11,8 +11,10 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.wm.ToolWindow
 import com.intellij.openapi.wm.ToolWindowFactory
+import com.intellij.psi.PsiManager
 import com.intellij.ui.content.ContentFactory
 import dev.jbang.idea.JBangCli.resolveScriptInfo
+import dev.jbang.idea.isJBangScript
 import dev.jbang.idea.isJBangScriptFile
 import javax.swing.SwingConstants
 
@@ -34,7 +36,7 @@ class JBangToolWindowPanel(private val project: Project) : SimpleToolWindowPanel
     init {
         val fileEditorManager = FileEditorManager.getInstance(project)
         if (fileEditorManager.selectedFiles.isNotEmpty()) {
-            refreshScriptInfo(fileEditorManager.selectedFiles[0])
+            refreshScriptInfo(project, fileEditorManager.selectedFiles[0])
         } else {
             setContent(usagePanel)
         }
@@ -50,24 +52,27 @@ class JBangToolWindowPanel(private val project: Project) : SimpleToolWindowPanel
         toolbar = actionToolbar.component
     }
 
-    fun refreshScriptInfo(scripFile: VirtualFile) {
+    fun refreshScriptInfo(project: Project, scripFile: VirtualFile) {
         if (isJBangScriptFile(scripFile.name)) {
             if (currentScriptFile == null) {
                 switchToScriptInfoPanel()
             }
-            currentScriptFile = scripFile
-            try {
-                resolveScriptInfo(scripFile.path).let {
-                    jbangToolWindow.update(it)
-                }
-            } catch (e: Exception) {
-                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
-                jbangNotificationGroup.createNotification(
-                    "Failed to resolve DEPS",
-                    e.message ?: "Failed to resolve dependencies for ${scripFile.name}",
-                    NotificationType.ERROR
-                ).notify(project)
+            val scriptPsiFile = PsiManager.getInstance(project).findFile(scripFile)
+            if (scriptPsiFile != null && isJBangScript(scriptPsiFile.text)) {
+                currentScriptFile = scripFile
+                try {
+                    resolveScriptInfo(scripFile.path).let {
+                        jbangToolWindow.update(it)
+                    }
+                } catch (e: Exception) {
+                    val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
+                    jbangNotificationGroup.createNotification(
+                        "Failed to resolve DEPS",
+                        e.message ?: "Failed to resolve dependencies for ${scripFile.name}",
+                        NotificationType.ERROR
+                    ).notify(project)
 
+                }
             }
         }
     }

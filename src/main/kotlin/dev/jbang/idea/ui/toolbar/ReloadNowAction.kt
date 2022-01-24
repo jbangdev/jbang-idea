@@ -10,7 +10,7 @@ class ReloadNowAction : BaseToolbarAction() {
         if (jBangToolWindowPanel != null) {
             val fileEditorManager = FileEditorManager.getInstance(project)
             if (fileEditorManager.selectedFiles.isNotEmpty()) {
-                jBangToolWindowPanel.refreshScriptInfo(fileEditorManager.selectedFiles[0])
+                jBangToolWindowPanel.refreshScriptInfo(project, fileEditorManager.selectedFiles[0])
             }
         }
     }
