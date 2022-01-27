@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 
+- No changes, just verifying Automated released process is working.
 
 ## [0.13.0]
 
