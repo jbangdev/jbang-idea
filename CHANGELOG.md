@@ -2,10 +2,8 @@
 
 # jbang-idea-plugin Changelog
 
-## [Unreleased]
-
 ## [0.14.0]
-- No changes, just verifying Automated released process is working.
+- Added: Support 2022.1 EAP
 
 ## [0.13.0]
 - GAV completion with last version support
