@@ -2,6 +2,9 @@
 
 # jbang-idea-plugin Changelog
 
+## [Unreleased]
+
+
 ## [0.13.0]
 
 - GAV completion with last version support
