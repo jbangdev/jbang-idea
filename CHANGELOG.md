@@ -2,6 +2,7 @@
 
 # jbang-idea-plugin Changelog
 
+## [Unreleased]
 
 ## [0.15.0]
 - Added: Support 2022.1 EAP
