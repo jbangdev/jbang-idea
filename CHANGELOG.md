@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+- Fix: added descriptions to directive completions
+
 ## [0.15.0]
 - Added: Support 2022.1 EAP
 

@@ -14,25 +14,11 @@ import org.jetbrains.kotlin.psi.KtClass
 import org.jetbrains.kotlin.psi.KtNamedFunction
 
 class JBangKotlinCompletionContributor : JBangBaseDirectiveCompletionContributor() {
-    init {
-        extend(CompletionType.BASIC,
-            PlatformPatterns.psiElement(PsiComment::class.java).withLanguage(KotlinLanguage.INSTANCE),
-            object : CompletionProvider<CompletionParameters>() {
-                override fun addCompletions(
-                    parameters: CompletionParameters, context: ProcessingContext, result: CompletionResultSet
-                ) {
-                    val comment = parameters.position as PsiComment
-                    val commentParent = comment.parent
-                    if (commentParent is KtNamedFunction || commentParent is KtClass || commentParent is PsiFile) {
-                        if (shouldCompleteForDirective(comment.text)) {
-                            JAVA_DIRECTIVES.forEach {
-                                result.addElement(LookupElementBuilder.create(it))
-                            }
-                            result.addElement(LookupElementBuilder.create("KOTLIN "))
-                        }
-                    }
-                }
-            })
+    override fun _addCompletions(parameters: CompletionParameters,
+                                context: ProcessingContext,
+                                result: CompletionResultSet) {
+        super._addCompletions(parameters, context, result)
+        result.addElement(LookupElementBuilder.create("KOTLIN").withTailText("Kotlin version", true))
     }
 
 }  

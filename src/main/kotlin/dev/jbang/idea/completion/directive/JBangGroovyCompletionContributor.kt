@@ -12,28 +12,12 @@ import com.intellij.util.ProcessingContext
 import org.jetbrains.plugins.groovy.GroovyLanguage
 
 class JBangGroovyCompletionContributor : JBangBaseDirectiveCompletionContributor() {
-    init {
-        extend(
-            CompletionType.BASIC, PlatformPatterns.psiElement(PsiComment::class.java).withLanguage(GroovyLanguage),
-            object : CompletionProvider<CompletionParameters>() {
-                override fun addCompletions(
-                    parameters: CompletionParameters,
-                    context: ProcessingContext,
-                    result: CompletionResultSet
-                ) {
-                    val comment = parameters.position as PsiComment
-                    val commentParent = comment.parent
-                    if (commentParent is PsiFile) {
-                        if (shouldCompleteForDirective(comment.text)) {
-                            JAVA_DIRECTIVES.forEach {
-                                result.addElement(LookupElementBuilder.create(it))
-                            }
-                            result.addElement(LookupElementBuilder.create("GROOVY "))
-                        }
-                    }
-                }
-            }
-        )
+    override fun _addCompletions(parameters: CompletionParameters,
+                                context: ProcessingContext,
+                                result: CompletionResultSet) {
+        super._addCompletions(parameters, context, result)
+        result.addElement(LookupElementBuilder.create("GROOVY").withTailText("Groovy version", true))
     }
+
 
 }  

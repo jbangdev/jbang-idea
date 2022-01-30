@@ -1,4 +1,5 @@
 = Usage
+:experimental:
 :idprefix:
 :idseparator: -
 ifndef::env-github[]
@@ -15,3 +16,21 @@ endif::[]
 toc::[]
 
 TBD - sections for each major feature
+
+
+
+== Completion
+
+The following completions are available in JBang. If they do not open up automatically then do an explicit completion using kbd:[Alt+Space] or kbd:[^+Space] dependent on your platform.
+
+=== Basic directive completion
+
+Completion for JBang directives like `//JAVA` and  `//DEPS` are available at start of comments (`//`).
+
+image:jbang-idea-completion-directives.png[]
+
+=== Dependency completion
+
+`//DEPS` has completion of Maven artifacts using JBang/Gradle syntax. You can use fully qualified names or just type a substring of the Group and artifact version to get a list of possible matches from Maven Central.
+
+image:jbang-idea-deps-completion.png[]]

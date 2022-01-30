@@ -14,27 +14,6 @@ import com.intellij.util.ProcessingContext
 
 
 class JBangJavaCompletionContributor : JBangBaseDirectiveCompletionContributor() {
-    init {
-        extend(
-            CompletionType.BASIC, PlatformPatterns.psiElement(PsiComment::class.java).withLanguage(JavaLanguage.INSTANCE),
-            object : CompletionProvider<CompletionParameters>() {
-                override fun addCompletions(
-                    parameters: CompletionParameters,
-                    context: ProcessingContext,
-                    result: CompletionResultSet
-                ) {
-                    val comment = parameters.position as PsiComment
-                    val commentParent = comment.parent
-                    if (commentParent is PsiClass || commentParent is PsiFile) {
-                        if (shouldCompleteForDirective(comment.text)) {
-                            JAVA_DIRECTIVES.forEach {
-                                result.addElement(LookupElementBuilder.create(it))
-                            }
-                        }
-                    }
-                }
-            }
-        )
-    }
+
 
 }  
