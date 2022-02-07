@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+## [0.16.0]
+         
+- Added: introduce zt-exec to call JBang command
+- Added: introduce ProgressManager and Task.Backgroundable to sync dependencies asynchronously
+
 ## [0.15.0]
 - Added: Support 2022.1 EAP
 
