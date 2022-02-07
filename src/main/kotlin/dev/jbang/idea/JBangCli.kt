@@ -22,17 +22,17 @@ object JBangCli {
     @Throws(Exception::class)
     fun resolveScriptDependencies(scriptFilePath: String): List<String> {
         val jbangCmd = getJBangCmdAbsolutionPath()
-        val output = ProcessExecutor().command(jbangCmd, "info", "classpath", "--fresh", scriptFilePath)
+        val output = ProcessExecutor().command(jbangCmd, "info", "classpath", "--quiet", "--fresh", scriptFilePath)
             .readOutput(true)
             .execute()
             .outputUTF8()
-        return output.split(File.pathSeparator).filter { !it.contains(".jbang") }
+        return output.split(File.pathSeparator).filter { !it.contains(".jbang") }.map { it.trim() }
     }
 
     @Throws(Exception::class)
     fun resolveScriptInfo(jbangScriptFilePath: String): ScriptInfo {
         val jbangCmd = getJBangCmdAbsolutionPath()
-        val allText = ProcessExecutor().command(jbangCmd, "info", "tools", "--fresh", jbangScriptFilePath)
+        val allText = ProcessExecutor().command(jbangCmd, "info", "tools", "--quiet", "--fresh", jbangScriptFilePath)
             .readOutput(true)
             .execute()
             .outputUTF8()
