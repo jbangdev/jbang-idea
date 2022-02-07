@@ -5,7 +5,7 @@ import com.intellij.ide.util.projectWizard.JavaModuleBuilder
 import com.intellij.ide.util.projectWizard.ModuleBuilderListener
 import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ModuleRootManager
-import dev.jbang.idea.JBangCli.generateScriptFrommTemplate
+import dev.jbang.idea.JBangCli.generateScriptFromTemplate
 import dev.jbang.idea.jbangIcon
 import org.jetbrains.kotlin.idea.util.projectStructure.sdk
 import java.util.*
@@ -70,7 +70,7 @@ class JBangModuleBuilder : JavaModuleBuilder(), ModuleBuilderListener {
         val roots = moduleRootManager.sourceRoots
         if (roots.isNotEmpty()) {
             val srcRoot = roots[0]
-            generateScriptFrommTemplate(
+            generateScriptFromTemplate(
                 jbangTemplateName,
                 jbangScriptFile,
                 srcRoot.toNioPath().absolutePathString()

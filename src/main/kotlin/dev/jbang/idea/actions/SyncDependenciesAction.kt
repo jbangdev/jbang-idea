@@ -10,6 +10,9 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.openapi.progress.ProgressManager
+import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.projectRoots.ProjectJdkTable
@@ -31,6 +34,7 @@ import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
 import org.jetbrains.kotlin.idea.util.projectStructure.version
 import org.jetbrains.plugins.gradle.util.GradleConstants
+
 
 /**
  * Sync dependencies between JBang script and Gradle dependencies
@@ -269,19 +273,32 @@ class SyncDependenciesAction : AnAction() {
 
     private fun syncDepsToModule(module: Module, jbangScriptFile: PsiFile) {
         val fullPath = jbangScriptFile.virtualFile.path
-        try {
-            val dependencies = resolveScriptDependencies(fullPath)
-            val newDependencies = dependencies.filter { !it.contains(".jbang") }
-            ApplicationManager.getApplication().runWriteAction {
-                replaceJBangModuleLib(module, jbangScriptFile.name, newDependencies)
-                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
-                jbangNotificationGroup.createNotification("Succeed to sync DEPS", "${newDependencies.size} jars synced!", NotificationType.INFORMATION).notify(module.project)
+        ProgressManager.getInstance().run(object : Task.Backgroundable(module.project, "JBang DEPS Syncing") {
+            var newDependencies: List<String>? = null;
+            override fun run(progressIndicator: ProgressIndicator) {
+                try {
+                    newDependencies = resolveScriptDependencies(fullPath)
+                    progressIndicator.fraction = 1.0;
+                    progressIndicator.text = "Sync finished!"
+                } catch (e: Exception) {
+                    val errorText = "Failed to resolve dependencies from " + jbangScriptFile.name + ", please check your //DEPS in your code. Stacktrace: ${e.message}"
+                    val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
+                    jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
+                }
             }
-        } catch (e: Exception) {
-            val errorText = "Failed to resolve dependencies from " + jbangScriptFile.name + ", please check your //DEPS in your code. Stacktrace: ${e.message}"
-            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
-            jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
-        }
+
+            override fun onSuccess() {
+                if (newDependencies != null) {
+                    val dependencies = newDependencies!!
+                    ApplicationManager.getApplication().runWriteAction {
+                        replaceJBangModuleLib(module, jbangScriptFile.name, dependencies)
+                        val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
+                        jbangNotificationGroup.createNotification("Succeed to sync DEPS", "${dependencies.size} jars synced!", NotificationType.INFORMATION)
+                            .notify(project)
+                    }
+                }
+            }
+        })
     }
 
     private fun syncJavaVersionToGradle(buildGradleContent: String, javaVersion: String): String {
@@ -326,6 +343,7 @@ class SyncDependenciesAction : AnAction() {
         val jbangLib = modifiableModel.moduleLibraryTable.getLibraryByName(libName)
         if (jbangLib != null) {
             modifiableModel.moduleLibraryTable.removeLibrary(jbangLib)
+            modifiableModel.commit()
         }
         // add jbang dependencies
         if (newDependencies.isNotEmpty()) {
@@ -335,7 +353,6 @@ class SyncDependenciesAction : AnAction() {
                 ModuleRootModificationUtil.addModuleLibrary(module, libName, newDependencies.map { "jar://${it}!/" }.toList(), listOf())
             }
         }
-        modifiableModel.commit()
     }
 
     private fun findJavaVersionFromScript(scriptText: String): String {

@@ -3,7 +3,7 @@ package dev.jbang.idea
 import com.fasterxml.jackson.databind.DeserializationFeature
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
-import java.io.BufferedReader
+import org.zeroturnaround.exec.ProcessExecutor
 import java.io.File
 
 object JBangCli {
@@ -11,61 +11,44 @@ object JBangCli {
     @Throws(Exception::class)
     fun listJBangTemplates(): List<String> {
         val jbangCmd = getJBangCmdAbsolutionPath()
-        val pb = ProcessBuilder(jbangCmd, "template", "list")
-        pb.environment()["NO_COLOR"] = "true"
-        val process = pb.start()
-        process.waitFor()
-        if (process.exitValue() != 0) {
-            throw Exception(processErrorToText(process))
-        } else {
-            return processOutputToText(process).lines()
-        }
+        return ProcessExecutor().command(jbangCmd, "template", "list")
+            .environment("NO_COLOR", "true")
+            .readOutput(true)
+            .execute()
+            .outputUTF8()
+            .lines()
     }
 
     @Throws(Exception::class)
     fun resolveScriptDependencies(scriptFilePath: String): List<String> {
         val jbangCmd = getJBangCmdAbsolutionPath()
-        val pb = ProcessBuilder(jbangCmd, "info", "classpath", "--fresh", scriptFilePath)
-        val process = pb.start()
-        process.waitFor()
-        if (process.exitValue() != 0) {
-            throw Exception(processErrorToText(process))
-        } else {
-            return processOutputToText(process).split(':', ';').filter { !it.contains(".jbang") }
-        }
+        val output = ProcessExecutor().command(jbangCmd, "info", "classpath", "--quiet", "--fresh", scriptFilePath)
+            .readOutput(true)
+            .execute()
+            .outputUTF8()
+        return output.split(File.pathSeparator).filter { !it.contains(".jbang") }.map { it.trim() }
     }
 
     @Throws(Exception::class)
     fun resolveScriptInfo(jbangScriptFilePath: String): ScriptInfo {
         val jbangCmd = getJBangCmdAbsolutionPath()
-        val pb = ProcessBuilder(jbangCmd, "info", "tools", "--fresh", jbangScriptFilePath)
-        val process = pb.start()
-        process.waitFor()
-        if (process.exitValue() != 0) {
-            throw Exception(processErrorToText(process))
-        } else {
-            val allText = process.inputStream.bufferedReader().use(BufferedReader::readText).trim()
-            val objectMapper = jacksonObjectMapper().apply {
-                configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
-            }
-            return objectMapper.readValue(allText)
+        val allText = ProcessExecutor().command(jbangCmd, "info", "tools", "--quiet", "--fresh", jbangScriptFilePath)
+            .readOutput(true)
+            .execute()
+            .outputUTF8()
+        val objectMapper = jacksonObjectMapper().apply {
+            configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
         }
+        return objectMapper.readValue(allText)
     }
 
     @Throws(Exception::class)
-    fun generateScriptFrommTemplate(templateName: String, scriptName: String, destDir: String) {
+    fun generateScriptFromTemplate(templateName: String, scriptName: String, destDir: String) {
         val jbangCmd = getJBangCmdAbsolutionPath()
         val filePath = File(destDir, scriptName).absolutePath
-        val pb = ProcessBuilder(jbangCmd, "init", "--template", templateName, "--force", filePath)
-        val process = pb.start()
-        process.waitFor()
+        ProcessExecutor()
+            .command(jbangCmd, "init", "--template", templateName, "--force", filePath)
+            .execute()
     }
 
-    private fun processOutputToText(process: Process): String {
-        return process.inputStream.bufferedReader().use(BufferedReader::readText).trim()
-    }
-
-    private fun processErrorToText(process: Process): String {
-        return process.errorStream.bufferedReader().use(BufferedReader::readText).trim()
-    }
 }
