@@ -8,6 +8,7 @@
          
 - Added: introduce zt-exec to call JBang command
 - Added: introduce ProgressManager and Task.Backgroundable to sync dependencies asynchronously
+- Fix: added descriptions to directive completions
 
 ## [0.15.0]
 - Added: Support 2022.1 EAP
