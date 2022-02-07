@@ -1,6 +1,6 @@
 import org.jetbrains.changelog.markdownToHTML
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.*
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 fun properties(key: String) = project.findProperty(key).toString()
 
@@ -23,6 +23,15 @@ version = properties("pluginVersion")
 // Configure project's dependencies
 repositories {
     mavenCentral()
+}
+
+dependencies {
+    implementation("org.zeroturnaround:zt-exec:1.12")
+}
+
+configurations.implementation {
+    exclude(group = "org.slf4j", module = "slf4j-api")
+    exclude(group = "org.jetbrains", module = "annotations")
 }
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
