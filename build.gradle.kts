@@ -31,7 +31,6 @@ dependencies {
 
 configurations.implementation {
     exclude(group = "org.slf4j", module = "slf4j-api")
-    exclude(group = "org.jetbrains", module = "annotations")
 }
 
 // Configure Gradle IntelliJ Plugin - read more: https://github.com/JetBrains/gradle-intellij-plugin
