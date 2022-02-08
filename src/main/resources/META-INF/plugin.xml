@@ -65,4 +65,9 @@
         </group>
     </actions>
 
+    <projectListeners>
+        <listener class="dev.jbang.idea.ui.JBangToolWindowListener"
+                  topic="com.intellij.openapi.wm.ex.ToolWindowManagerListener"/>
+    </projectListeners>
+
 </idea-plugin>
