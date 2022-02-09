@@ -6,8 +6,9 @@ import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.vfs.LocalFileSystem
+import com.intellij.openapi.vfs.VfsUtil
 import dev.jbang.idea.JBangCli.generateScriptFromTemplate
 import dev.jbang.idea.JBangCli.listJBangTemplates
 import org.jetbrains.kotlin.idea.caches.project.NotUnderContentRootModuleInfo.project
@@ -23,11 +24,20 @@ class CreateFromTemplateAction : AnAction(), DumbAware {
                 if (scriptName.isNotEmpty()) {
                     ApplicationManager.getApplication().runWriteAction {
                         val project = e.getData(CommonDataKeys.PROJECT)!!
-                        val directory = e.getData(CommonDataKeys.VIRTUAL_FILE)
+                        val directory = e.getData(CommonDataKeys.VIRTUAL_FILE)!!
                         try {
-                            val destDir = directory?.path ?: project.basePath!!
+                            val currentFileNames = directory.children.map { it.name }
+                            val destDir = directory.path
                             generateScriptFromTemplate(templateName, scriptName, destDir)
-                            LocalFileSystem.getInstance().refresh(true)
+                            // refresh directory
+                            VfsUtil.markDirtyAndRefresh(false, true, true, directory)
+                            val fileEditorManager = FileEditorManager.getInstance(project)
+                            // open new files
+                            directory.children.forEach {
+                                if (!currentFileNames.contains(it.name) && !it.isDirectory) {
+                                    fileEditorManager.openFile(it, true)
+                                }
+                            }
                         } catch (e: Exception) {
                             val errorText = "Failed to create script from template, please check template and script name!"
                             val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
