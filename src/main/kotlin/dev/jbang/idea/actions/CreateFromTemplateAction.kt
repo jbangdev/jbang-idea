@@ -9,6 +9,8 @@ import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.vfs.VfsUtil
+import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.vfs.VirtualFileFilter
 import dev.jbang.idea.JBangCli.generateScriptFromTemplate
 import dev.jbang.idea.JBangCli.listJBangTemplates
 import org.jetbrains.kotlin.idea.caches.project.NotUnderContentRootModuleInfo.project
@@ -26,17 +28,31 @@ class CreateFromTemplateAction : AnAction(), DumbAware {
                         val project = e.getData(CommonDataKeys.PROJECT)!!
                         val directory = e.getData(CommonDataKeys.VIRTUAL_FILE)!!
                         try {
-                            val currentFileNames = directory.children.map { it.name }
-                            val destDir = directory.path
-                            generateScriptFromTemplate(templateName, scriptName, destDir)
+                            val currentFiles = mutableListOf<VirtualFile>()
+                            //iterate all current files
+                            VfsUtil.iterateChildrenRecursively(
+                                directory,
+                                VirtualFileFilter.ALL
+                            ) {
+                                if (!it.isDirectory) {
+                                    currentFiles.add(it)
+                                }
+                                true
+                            }
+                            // generate script from JBang CLI
+                            generateScriptFromTemplate(templateName, scriptName, directory.path)
                             // refresh directory
                             VfsUtil.markDirtyAndRefresh(false, true, true, directory)
                             val fileEditorManager = FileEditorManager.getInstance(project)
-                            // open new files
-                            directory.children.forEach {
-                                if (!currentFileNames.contains(it.name) && !it.isDirectory) {
+                            //iterate all files and open new files
+                            VfsUtil.iterateChildrenRecursively(
+                                directory,
+                                VirtualFileFilter.ALL
+                            ) {
+                                if (!it.isDirectory && !currentFiles.contains(it)) {
                                     fileEditorManager.openFile(it, true)
                                 }
+                                true
                             }
                         } catch (e: Exception) {
                             val errorText = "Failed to create script from template, please check template and script name!"
