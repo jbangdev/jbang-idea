@@ -272,14 +272,16 @@ class SyncDependenciesAction : AnAction() {
     }
 
     private fun syncDepsToModule(module: Module, jbangScriptFile: PsiFile) {
+        //save all documents first when to call JBang CLI
+        ApplicationManager.getApplication().runWriteAction {
+            FileDocumentManager.getInstance().saveAllDocuments()
+        }
         val fullPath = jbangScriptFile.virtualFile.path
         ProgressManager.getInstance().run(object : Task.Backgroundable(module.project, "JBang DEPS Syncing") {
-            var newDependencies: List<String>? = null;
+            var newDependencies: List<String>? = null
             override fun run(progressIndicator: ProgressIndicator) {
                 try {
                     newDependencies = resolveScriptDependencies(fullPath)
-                    progressIndicator.fraction = 1.0;
-                    progressIndicator.text = "Sync finished!"
                 } catch (e: Exception) {
                     val errorText = "Failed to resolve dependencies from " + jbangScriptFile.name + ", please check your //DEPS in your code. Stacktrace: ${e.message}"
                     val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
