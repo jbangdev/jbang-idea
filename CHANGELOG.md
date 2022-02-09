@@ -5,7 +5,8 @@
 ## [Unreleased]
 
 - Added: JBang ToolWindow listener to make load JBang script info automatically
-- Added: Open new JBang script files after creation
+- Added: open new JBang script files after creation from template
+- Fix: save all documents when to sync DEPS
 
 ## [0.16.0]
 
