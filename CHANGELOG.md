@@ -5,6 +5,7 @@
 ## [Unreleased]
 
 - Added: JBang ToolWindow listener to make load JBang script info automatically
+- Added: Open new JBang script files after creation
 
 ## [0.16.0]
 
