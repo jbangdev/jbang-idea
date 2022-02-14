@@ -19,6 +19,7 @@
         <runConfigurationProducer implementation="dev.jbang.idea.run.JBangRunConfigurationProducer"/>
         <fileType name="JSHELL" language="JShellLanguage" extensions="jsh"/>
         <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.directive.JBangJavaCompletionContributor"/>
+        <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.sources.JBangJavaSourcesCompletionContributor"/>
         <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.deps.JBangJavaDepsGavCompletionContributor"/>
         <completion.contributor language="JSON" implementationClass="dev.jbang.idea.completion.ScriptRefCompletionContributor"/>
         <runLineMarkerContributor language="JAVA" implementationClass="dev.jbang.idea.run.JBangRunLineMarkerContributor"/>
@@ -31,6 +32,8 @@
         <fileBasedIndex implementation="dev.jbang.idea.file.JBangScriptFileIndex"/>
         <!--suppress PluginXmlValidity -->
         <lang.directNavigationProvider implementation="dev.jbang.idea.navigation.ScriptRefNavigation"/>
+        <!--suppress PluginXmlValidity -->
+        <lang.directNavigationProvider implementation="dev.jbang.idea.navigation.SourcesRefNavigation"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">
