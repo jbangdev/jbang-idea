@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+- Added: code completion/navigation for //SOURCES
+
 ## [0.17.0]
 - Added: JBang ToolWindow listener to make load JBang script info automatically
 - Added: open new JBang script files after creation from template
