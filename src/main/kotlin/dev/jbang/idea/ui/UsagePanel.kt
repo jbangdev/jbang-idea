@@ -5,8 +5,8 @@ import javax.swing.JTextArea
 class UsagePanel constructor(prefix: String) : JTextArea() {
     private val jbangUsage = """- Create a JBang file, such as Kotlin, Java, or Groovy file.
 - You might need to install JBang from https://www.jbang.dev/download/
-- A new file can be created from template (File | New | JBang Script)
-- JBang script should contains `///usr/bin/env jbang "${'$'}0" "${'$'}@" ; exit ${'$'}?`
+- A new file can be created from a template (File | New | JBang Script)
+- JBang script should contain `///usr/bin/env jbang "${'$'}0" "${'$'}@" ; exit ${'$'}?`
 - JBang script code can be placed anywhere
 
 Features:
