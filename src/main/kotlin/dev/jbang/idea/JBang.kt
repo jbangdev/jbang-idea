@@ -11,6 +11,9 @@ val kotlinIcon = IconLoader.findIcon("icons/kotlin.svg")!!
 val groovyIcon = IconLoader.findIcon("icons/groovy.svg")!!
 val jshellIcon = IconLoader.findIcon("icons/jshell-16x16.png")!!
 val mavenIcon = IconLoader.findIcon("icons/maven.svg")!!
+val NOTIFICATION_GROUP_INFO = "JBang Info"
+val NOTIFICATION_GROUP_SUCCESS = "JBang Success"
+val NOTIFICATION_GROUP_FAILURE = "JBang Failure"
 
 const val JBANG_DECLARE = "///usr/bin/env jbang"
 const val JBANG_DECLARE_FULL = "///usr/bin/env jbang \"\$0\" \"\$@\" ; exit \$?"
