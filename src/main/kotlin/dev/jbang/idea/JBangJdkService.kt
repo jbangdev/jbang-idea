@@ -10,6 +10,7 @@ import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.impl.SdkConfigurationUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import java.io.File
+import com.intellij.openapi.util.SystemInfo
 
 
 /**
@@ -92,7 +93,12 @@ class JBangJdkService {
                 jdks.list()?.forEach {
                     val jdkVersion = it
                     val jdkDir = File(jdks, jdkVersion)
-                    if (File(jdkDir, "bin/java").exists()) {
+                    val java = if (SystemInfo.isWindows) {
+                        "bin/java.exe"
+                    } else {
+                        "bin/java"
+                    }
+                    if (File(jdkDir, java).exists()) {
                         jdkMap[jdkVersion] = jdkDir
                     }
                 }
