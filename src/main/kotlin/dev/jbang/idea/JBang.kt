@@ -6,11 +6,11 @@ import com.intellij.openapi.util.IconLoader
 import com.intellij.openapi.util.SystemInfo
 import java.io.File
 
-val jbangIcon = IconLoader.findIcon("icons/jbang-16x16.png")!!
-val kotlinIcon = IconLoader.findIcon("icons/kotlin.svg")!!
-val groovyIcon = IconLoader.findIcon("icons/groovy.svg")!!
-val jshellIcon = IconLoader.findIcon("icons/jshell-16x16.png")!!
-val mavenIcon = IconLoader.findIcon("icons/maven.svg")!!
+val jbangIcon = IconLoader.getIcon("icons/jbang-16x16.png", JBangCli::class.java)
+val kotlinIcon = IconLoader.getIcon("icons/kotlin.svg", JBangCli::class.java)
+val groovyIcon = IconLoader.getIcon("icons/groovy.svg", JBangCli::class.java)
+val jshellIcon = IconLoader.getIcon("icons/jshell-16x16.png",JBangCli::class.java)
+val mavenIcon = IconLoader.getIcon("icons/maven.svg",JBangCli::class.java)
 val NOTIFICATION_GROUP_INFO = "JBang Info"
 val NOTIFICATION_GROUP_SUCCESS = "JBang Success"
 val NOTIFICATION_GROUP_FAILURE = "JBang Failure"
