@@ -10,7 +10,7 @@
     <depends optional="true" config-file="jbang-withKotlin.xml">org.jetbrains.kotlin</depends>
     <depends optional="true" config-file="jbang-withGroovy.xml">org.intellij.groovy</depends>
     <depends optional="true" config-file="jbang-withGradle.xml">com.intellij.gradle</depends>
-    <!-- <depends optional="true" config-file="jbang-dependency-update-integration.xml">com.intellij.externalsystem.dependencyUpdater</depends>-->
+    <depends optional="true" config-file="jbang-dependency-update-integration.xml">com.intellij.externalSystem.dependencyUpdater</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <preloadingActivity implementation="dev.jbang.idea.JBangJdkLoader"/>
