@@ -4,9 +4,12 @@
 
 ## [Unreleased]
 
+## [0.18.0]
+- Added: code completion/navigation for //SOURCES
+- Added: Java version synced within module
+- Fixed: external library name always as jbang, and now is `${moduelName}-jbang`
 
 ## [0.18.0]
-
 - Added: code completion/navigation for //SOURCES
 - Added: Java version synced within module
 - Fixed: external library name always as jbang, and now is `${moduelName}-jbang`
