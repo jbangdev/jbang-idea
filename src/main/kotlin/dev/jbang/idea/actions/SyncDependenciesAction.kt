@@ -42,8 +42,6 @@ import org.jetbrains.plugins.gradle.util.GradleConstants
  */
 class SyncDependenciesAction : AnAction() {
 
-    val jbangJdkService = JBangJdkService()
-
     override fun update(e: AnActionEvent) {
         val jbangScriptFile = e.getData(CommonDataKeys.PSI_FILE)
         if (jbangScriptFile != null && isJBangScriptFile(jbangScriptFile.name)) {
@@ -351,10 +349,10 @@ class SyncDependenciesAction : AnAction() {
     private fun checkIfSdkExistsIfNotSyncWithJbang(version: String, module: Module): Sdk? {
         var javaSdk = getFirstSdkThatMatchesVersion(version)
         if (javaSdk == null) {
-            val jbangJdkPath = jbangJdkService.getJbangJdkPath(version)
+            val jbangJdkPath = JBangJdkService.getJbangJdkPath(version)
             if (jbangJdkPath != null) {
                 //If IDEA does not have the requested JDK then just sync with JBang
-                jbangJdkService.syncJdkWithIdeaWithProject(jbangJdkPath, version, module.project)
+                JBangJdkService.syncJdkWithIdeaWithProject(jbangJdkPath, version, module.project)
                 javaSdk = getFirstSdkThatMatchesVersion(version)
             }
         }
