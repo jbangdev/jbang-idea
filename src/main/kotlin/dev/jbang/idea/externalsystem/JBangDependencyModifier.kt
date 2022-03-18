@@ -16,7 +16,8 @@ import org.jetbrains.kotlin.psi.psiUtil.getChildrenOfType
 class JBangDependencyModifier : ExternalDependencyModificator {
 
     override fun supports(module: Module): Boolean {
-        return JBangScriptFileIndex.findJbangScriptFiles(module).isNotEmpty()
+        return false
+        //return JBangScriptFileIndex.findJbangScriptFiles(module).isNotEmpty()
     }
 
     override fun addDependency(module: Module, descriptor: UnifiedDependency) {
