@@ -16,15 +16,15 @@ import com.intellij.openapi.util.SystemInfo
 /**
  * Service that deals with JBang managed JDKs and IDEA based SDKs.
  */
-class JBangJdkService {
+object JBangJdkService {
 
-    val LOGGER: Logger = Logger.getInstance(JBangJdkService::class.java)
+    private val log: Logger = Logger.getInstance(JBangJdkService::class.java)
 
     /**
      * Synchronizes JBang managed JDKs with IDEA.
      */
-    fun synchJBangJdksWithIdea() {
-        LOGGER.info("Synchronizing JBang managed JDKs with IDEA.")
+    fun syncJBangJdksWithIdea() {
+        log.info("Synchronizing JBang managed JDKs with IDEA.")
         val jbangJdks = jbangJdks()
         if (jbangJdks.isNotEmpty()) {
             val javaSdkVersions = ProjectJdkTable.getInstance()
@@ -42,7 +42,7 @@ class JBangJdkService {
     /**
      * Synchronizes a given JDK path with IDEA in the background.
      */
-    fun syncJdkWithIdeaInBackground(jdkPath: File, jdkVersion: String) {
+    private fun syncJdkWithIdeaInBackground(jdkPath: File, jdkVersion: String) {
         syncJdkWithIdea(jdkPath, jdkVersion, true)
     }
 
@@ -69,7 +69,7 @@ class JBangJdkService {
     }
 
     private fun syncJdkWithIdea(jdkPath: File, jdkVersion: String, inBackground: Boolean, project: Project? = null) {
-        LOGGER.info("Synchronizing JBang managed JDK at ${jdkPath.path} with version: $jdkVersion")
+        log.info("Synchronizing JBang managed JDK at ${jdkPath.path} with version: $jdkVersion")
         val sdkHome = LocalFileSystem.getInstance().findFileByIoFile(jdkPath)!!
         val newSdk =
             SdkConfigurationUtil.setupSdk(arrayOf(), sdkHome, JavaSdk.getInstance(), true, null, jdkVersion)
