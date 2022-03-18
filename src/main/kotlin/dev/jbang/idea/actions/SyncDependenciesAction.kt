@@ -16,6 +16,7 @@ import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.projectRoots.ProjectJdkTable
+import com.intellij.openapi.projectRoots.Sdk
 import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.roots.LanguageLevelModuleExtension
 import com.intellij.openapi.roots.ModuleRootManager
@@ -24,11 +25,9 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
-import dev.jbang.idea.JBANG_DECLARE
+import dev.jbang.idea.*
 import dev.jbang.idea.JBangCli.resolveScriptDependencies
 import dev.jbang.idea.JBangCli.resolveScriptInfo
-import dev.jbang.idea.isJBangScript
-import dev.jbang.idea.isJBangScriptFile
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
@@ -42,6 +41,8 @@ import org.jetbrains.plugins.gradle.util.GradleConstants
  * @author linux_china
  */
 class SyncDependenciesAction : AnAction() {
+
+    val jbangJdkService = JBangJdkService()
 
     override fun update(e: AnActionEvent) {
         val jbangScriptFile = e.getData(CommonDataKeys.PSI_FILE)
@@ -84,7 +85,6 @@ class SyncDependenciesAction : AnAction() {
                         syncDependenciesBetweenJBangAndGradle(project, module, buildGradle.toPsiFile(project)!!, jbangScriptFile, moduleBuildGradle)
                     } else { //sync DEPS to IDEA's module
                         syncDepsToModule(module, jbangScriptFile)
-                        syncJavaVersionToModule(module, findJavaVersionFromScript(jbangScriptFile.text))
                     }
                 }
             }
@@ -110,7 +110,7 @@ class SyncDependenciesAction : AnAction() {
             dependenciesFromScript = scriptInfo.dependencies ?: listOf()
         } catch (e: Exception) {
             val errorText = "Failed to resolve info by `jbang info tools ${jbangScriptFile.virtualFile.path}`, and stacktrace: ${e.message}"
-            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
+            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup(NOTIFICATION_GROUP_FAILURE)
             jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
             return
         }
@@ -132,7 +132,7 @@ class SyncDependenciesAction : AnAction() {
                     }
                     document.setText(buildGradleContent)
                 }
-                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
+                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup(NOTIFICATION_GROUP_SUCCESS)
                 jbangNotificationGroup.createNotification(
                     "Succeed to sync //DEPS to Gradle",
                     "${dependenciesFromScript.size} dependencies synced!", NotificationType.INFORMATION
@@ -145,7 +145,7 @@ class SyncDependenciesAction : AnAction() {
                     val documentManager = PsiDocumentManager.getInstance(project)
                     val document = documentManager.getDocument(jbangScriptFile)!!
                     document.setText(addDependenciesToScript(jbangScriptFile.name, jbangScriptFile.text, dependenciesFromGradle))
-                    val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
+                    val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup(NOTIFICATION_GROUP_SUCCESS)
                     jbangNotificationGroup.createNotification(
                         "Succeed to sync Gradle to //DEPS",
                         "${dependenciesFromGradle.size} dependencies synced!",
@@ -277,14 +277,14 @@ class SyncDependenciesAction : AnAction() {
             FileDocumentManager.getInstance().saveAllDocuments()
         }
         val fullPath = jbangScriptFile.virtualFile.path
-        ProgressManager.getInstance().run(object : Task.Backgroundable(module.project, "JBang DEPS Syncing") {
+        ProgressManager.getInstance().run(object : Task.Backgroundable(module.project, "Syncing JBang dependencies and Java version") {
             var newDependencies: List<String>? = null
             override fun run(progressIndicator: ProgressIndicator) {
                 try {
                     newDependencies = resolveScriptDependencies(fullPath)
                 } catch (e: Exception) {
                     val errorText = "Failed to resolve dependencies from " + jbangScriptFile.name + ", please check your //DEPS in your code. Stacktrace: ${e.message}"
-                    val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
+                    val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup(NOTIFICATION_GROUP_FAILURE)
                     jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(module.project)
                 }
             }
@@ -294,11 +294,24 @@ class SyncDependenciesAction : AnAction() {
                     val dependencies = newDependencies!!
                     ApplicationManager.getApplication().runWriteAction {
                         replaceJBangModuleLib(module, jbangScriptFile.name, dependencies)
-                        val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Success")
-                        jbangNotificationGroup.createNotification("Succeed to sync DEPS", "${dependencies.size} jars synced!", NotificationType.INFORMATION)
-                            .notify(project)
+                        syncJavaVersionAndNotifyUser(dependencies)
                     }
                 }
+            }
+
+            private fun syncJavaVersionAndNotifyUser(dependencies: List<String>) {
+                val javaVersion = findJavaVersionFromScript(jbangScriptFile.text)
+                val jdkChange = syncJavaVersionToModule(module, javaVersion)
+                val jbangNotificationGroup = NotificationGroupManager.getInstance()
+                    .getNotificationGroup(NOTIFICATION_GROUP_SUCCESS)
+                var content = "${dependencies.size} jars synced"
+                content = if (jdkChange) {
+                    content.plus(", module's (${module.name}) Java version set to $javaVersion.")
+                } else {
+                    content.plus(".");
+                }
+                jbangNotificationGroup.createNotification("Succeed to sync DEPS", content, NotificationType.INFORMATION)
+                    .notify(project)
             }
         })
     }
@@ -316,11 +329,11 @@ class SyncDependenciesAction : AnAction() {
         }
     }
 
-    private fun syncJavaVersionToModule(module: Module, version: String) {
+    private fun syncJavaVersionToModule(module: Module, version: String): Boolean {
         val moduleRootManager = ModuleRootManager.getInstance(module)
         val moduleSdk = moduleRootManager.sdk
         if (moduleSdk == null || moduleSdk.name != version) {
-            val javaSdk = ProjectJdkTable.getInstance().getSdksOfType(JavaSdk.getInstance()).firstOrNull { it.name == version }
+            val javaSdk = checkIfSdkExistsIfNotSyncWithJbang(version, module)
             if (javaSdk != null) {
                 val languageLevel = LanguageLevel.valueOf(javaSdk.version?.name!!)
                 ApplicationManager.getApplication().runWriteAction {
@@ -329,15 +342,33 @@ class SyncDependenciesAction : AnAction() {
                     modifiableRootModel.getModuleExtension(LanguageLevelModuleExtension::class.java).languageLevel = languageLevel
                     modifiableRootModel.commit()
                 }
+                return true
             }
         }
+        return false
     }
+
+    private fun checkIfSdkExistsIfNotSyncWithJbang(version: String, module: Module): Sdk? {
+        var javaSdk = getFirstSdkThatMatchesVersion(version)
+        if (javaSdk == null) {
+            val jbangJdkPath = jbangJdkService.getJbangJdkPath(version)
+            if (jbangJdkPath != null) {
+                //If IDEA does not have the requested JDK then just sync with JBang
+                jbangJdkService.syncJdkWithIdeaWithProject(jbangJdkPath, version, module.project)
+                javaSdk = getFirstSdkThatMatchesVersion(version)
+            }
+        }
+        return javaSdk
+    }
+
+    private fun getFirstSdkThatMatchesVersion(version: String) =
+        ProjectJdkTable.getInstance().getSdksOfType(JavaSdk.getInstance()).firstOrNull { it.name == version }
 
     private fun replaceJBangModuleLib(module: Module, scriptName: String, newDependencies: List<String>) {
         val libName = if (scriptName.substring(0, scriptName.lastIndexOf('.')).lowercase().endsWith("test")) {
-            "jbangTest"
+            "${module.name}-jbangTest"
         } else {
-            "jbang"
+            "${module.name}-jbang"
         }
         // remove jbang library
         val moduleRootManager = ModuleRootManager.getInstance(module)

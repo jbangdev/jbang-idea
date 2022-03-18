@@ -10,7 +10,7 @@
     <depends optional="true" config-file="jbang-withKotlin.xml">org.jetbrains.kotlin</depends>
     <depends optional="true" config-file="jbang-withGroovy.xml">org.intellij.groovy</depends>
     <depends optional="true" config-file="jbang-withGradle.xml">com.intellij.gradle</depends>
-    <!-- <depends optional="true" config-file="jbang-dependency-update-integration.xml">com.intellij.externalsystem.dependencyUpdater</depends>-->
+    <depends optional="true" config-file="jbang-dependency-update-integration.xml">com.intellij.externalSystem.dependencyUpdater</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <preloadingActivity implementation="dev.jbang.idea.JBangJdkLoader"/>
@@ -23,8 +23,9 @@
         <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.deps.JBangJavaDepsGavCompletionContributor"/>
         <completion.contributor language="JSON" implementationClass="dev.jbang.idea.completion.ScriptRefCompletionContributor"/>
         <runLineMarkerContributor language="JAVA" implementationClass="dev.jbang.idea.run.JBangRunLineMarkerContributor"/>
-        <notificationGroup id="JBang Failure" icon="/icons/jbang-16x16.png" displayType="STICKY_BALLOON" isLogByDefault="false"/>
-        <notificationGroup id="JBang Success" icon="/icons/jbang-16x16.png" displayType="BALLOON" isLogByDefault="false"/>
+        <notificationGroup id="JBang Failure" icon="/icons/jbang-16x16.png" displayType="STICKY_BALLOON" isLogByDefault="true"/>
+        <notificationGroup id="JBang Success" icon="/icons/jbang-16x16.png" displayType="BALLOON" isLogByDefault="true"/>
+        <notificationGroup id="JBang Info" icon="/icons/jbang-16x16.png" displayType="BALLOON" isLogByDefault="true"/>
         <annotator language="JAVA" implementationClass="dev.jbang.idea.highlight.JBangDirectiveHighlighterAnnotator"/>
         <toolWindow id="JBang" icon="/icons/jbang-16x16.png" anchor="right"
                     factoryClass="dev.jbang.idea.ui.JBangToolWindowFactory"/>
