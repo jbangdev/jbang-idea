@@ -6,6 +6,6 @@ import com.intellij.openapi.progress.ProgressIndicator
 
 class JBangJdkLoader : PreloadingActivity() {
     override fun preload(indicator: ProgressIndicator) {
-        JBangJdkService().synchJBangJdksWithIdea();
+        JBangJdkService.syncJBangJdksWithIdea()
     }
 }
