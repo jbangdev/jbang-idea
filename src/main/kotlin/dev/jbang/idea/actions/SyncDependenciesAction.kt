@@ -363,11 +363,8 @@ class SyncDependenciesAction : AnAction() {
         ProjectJdkTable.getInstance().getSdksOfType(JavaSdk.getInstance()).firstOrNull { it.name == version }
 
     private fun replaceJBangModuleLib(module: Module, scriptName: String, newDependencies: List<String>) {
-        val libName = if (scriptName.substring(0, scriptName.lastIndexOf('.')).lowercase().endsWith("test")) {
-            "${module.name}-jbangTest"
-        } else {
-            "${module.name}-jbang"
-        }
+        val libName = "${module.name}-jbang"
+
         // remove jbang library
         val moduleRootManager = ModuleRootManager.getInstance(module)
         val modifiableModel = moduleRootManager.modifiableModel
@@ -378,11 +375,7 @@ class SyncDependenciesAction : AnAction() {
         }
         // add jbang dependencies
         if (newDependencies.isNotEmpty()) {
-            if (libName.endsWith("Test")) {
-                ModuleRootModificationUtil.addModuleLibrary(module, libName, newDependencies.map { "jar://${it}!/" }.toList(), listOf(), DependencyScope.TEST)
-            } else {
-                ModuleRootModificationUtil.addModuleLibrary(module, libName, newDependencies.map { "jar://${it}!/" }.toList(), listOf())
-            }
+            ModuleRootModificationUtil.addModuleLibrary(module, libName, newDependencies.map { "jar://${it}!/" }.toList(), listOf())
         }
     }
 
