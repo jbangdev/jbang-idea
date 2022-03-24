@@ -14,7 +14,10 @@ class JBangRunLineMarkerContributor : RunLineMarkerContributor() {
             if (comment.startsWith(JBANG_DECLARE)) {
                 info = Info(jbangIcon, { "Run by JBang" }, JBangRunScriptAction(element))
             } else {
-                if (comment.startsWith("//JAVA ")) {
+                if (comment.startsWith("//JAVA ")
+                    || comment.startsWith("//GROOVY ")
+                    || comment.startsWith("//KOTLIN ")
+                ) {
                     if (!element.parent.text.startsWith(JBANG_DECLARE)) {
                         info = Info(jbangIcon, { "Run by JBang" }, JBangRunScriptAction(element))
                     }
