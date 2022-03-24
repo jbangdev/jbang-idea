@@ -25,7 +25,9 @@ class JBangRunLineMarkerContributor : RunLineMarkerContributor() {
                     val scriptText = element.parent.text
                     if (!scriptText.startsWith(JBANG_DECLARE)) {
                         val lines = scriptText.lines()
-                        val javaDirectiveAvailable = lines.any { it.startsWith("//JAVA ") }
+                        val javaDirectiveAvailable = lines.any {
+                            it.startsWith("//JAVA ") || it.startsWith("//GROOVY ") || it.startsWith("//KOTLIN ")
+                        }
                         if (!javaDirectiveAvailable) {
                             val firstDeps = lines.first { it.startsWith("//DEPS ") }
                             if (comment.trim() == firstDeps) {
