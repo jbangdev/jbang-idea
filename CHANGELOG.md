@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 
+- Added: Java 18 Snippet support with `java`, `groovy`, `kotlin` lang attribute
 
 ## [0.18.0]
 
