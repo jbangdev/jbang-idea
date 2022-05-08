@@ -42,6 +42,14 @@ class JBangRunConfiguration(
         options.setScriptArgs(scriptArgs)
     }
 
+    fun getEnvVariables(): String? {
+        return options.getEnvVariables()
+    }
+
+    fun setEnvVariables(envVariables: String) {
+        options.setEnvVariables(envVariables)
+    }
+
     override fun getConfigurationEditor(): JBangRunSettingsEditor {
         return JBangRunSettingsEditor()
     }
