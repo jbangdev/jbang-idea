@@ -92,7 +92,7 @@ class JBangRunConfiguration(
         val scriptName = getScriptName()
         if (scriptName == null || scriptName.isEmpty()) {
             throw RuntimeConfigurationException("Script name is empty")
-        } else {
+        } else if (!scriptName.contains('@')) {
             val scriptFile = File(project.basePath!!, scriptName)
             if (!scriptFile.exists()) {
                 throw RuntimeConfigurationException("Script file does not exist: $scriptName")
