@@ -7,6 +7,7 @@ class JBangRunConfigurationOptions : RunConfigurationOptions() {
     private val jbangScriptName: StoredProperty<String?> = string("").provideDelegate(this, "scriptName")
     private val jbangScriptOptions: StoredProperty<String?> = string("").provideDelegate(this, "scriptOptions")
     private val jbangScriptArgs: StoredProperty<String?> = string("").provideDelegate(this, "scriptArgs")
+    private val jbangEnvVariables: StoredProperty<String?> = string("").provideDelegate(this, "envVariables")
 
     fun getScriptName(): String? {
         return jbangScriptName.getValue(this)
@@ -30,6 +31,14 @@ class JBangRunConfigurationOptions : RunConfigurationOptions() {
 
     fun setScriptArgs(scriptArgs: String?) {
         jbangScriptArgs.setValue(this, scriptArgs ?: "")
+    }
+
+    fun getEnvVariables(): String? {
+        return jbangEnvVariables.getValue(this)
+    }
+
+    fun setEnvVariables(envVariables: String?) {
+        jbangEnvVariables.setValue(this, envVariables ?: "")
     }
 
 }
