@@ -35,7 +35,7 @@
         <lang.directNavigationProvider implementation="dev.jbang.idea.navigation.ScriptRefNavigation"/>
         <!--suppress PluginXmlValidity -->
         <lang.directNavigationProvider implementation="dev.jbang.idea.navigation.SourcesRefNavigation"/>
-        <codeInsight.lineMarkerProvider language="JAVA" implementationClass="dev.jbang.idea.run.JavaSnippetLineMarkerProvider"/>
+        <!-- <codeInsight.lineMarkerProvider language="JAVA" implementationClass="dev.jbang.idea.run.JavaSnippetLineMarkerProvider"/>-->
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">
