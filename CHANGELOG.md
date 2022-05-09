@@ -6,6 +6,12 @@
 
 - Added: Java 18 Snippet support with `java`, `groovy`, `kotlin` lang attribute
 
+## [0.19.0]
+                                                                  
+- Added: Catalog alias support for JBang run configuration 
+- Added: environment variables support for JBang run configuration 
+- Fixed: Force to refresh script info when click refresh button in JBang tool window
+
 ## [0.18.0]
 
 - Added: code completion/navigation for //SOURCES
