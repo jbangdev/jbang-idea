@@ -21,6 +21,7 @@ class JBangRunSettingsEditor : SettingsEditor<JBangRunConfiguration>() {
         myScriptName.component = TextFieldWithBrowseButton()
         myScriptOptions.component = JTextField()
         myScriptArgs.component = JTextField()
+        myEnvVariables.component = JTextField()
         myScriptName.label.text = "Script file"
         myScriptOptions.label.text = "Script options"
         myScriptArgs.label.text = "Script args"
