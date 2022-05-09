@@ -22,7 +22,7 @@ class JBangRunSettingsEditor : SettingsEditor<JBangRunConfiguration>() {
         myScriptOptions.component = JTextField()
         myScriptArgs.component = JTextField()
         myEnvVariables.component = JTextField()
-        myScriptName.label.text = "Script file"
+        myScriptName.label.text = "Script file or Catalog alias"
         myScriptOptions.label.text = "Script options"
         myScriptArgs.label.text = "Script args"
         myEnvVariables.label.text = "Env variables"
