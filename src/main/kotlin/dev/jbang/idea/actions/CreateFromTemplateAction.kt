@@ -21,7 +21,10 @@ class CreateFromTemplateAction : AnAction(), DumbAware {
             val templates = listJBangTemplates()
             val dialogWrapper = JBangTemplatesDialogWrapper(templates)
             if (dialogWrapper.showAndGet()) {
-                val scriptName = dialogWrapper.getScriptFileName()
+                var scriptName = dialogWrapper.getScriptFileName()
+                if (!scriptName.contains('.')) {
+                    scriptName = "${scriptName}.java"
+                }
                 val templateName = dialogWrapper.getTemplateName()
                 if (scriptName.isNotEmpty()) {
                     ApplicationManager.getApplication().runWriteAction {

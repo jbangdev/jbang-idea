@@ -14,30 +14,36 @@ class JBangRunSettingsEditor : SettingsEditor<JBangRunConfiguration>() {
     private var myScriptName: LabeledComponent<TextFieldWithBrowseButton> = LabeledComponent()
     private var myScriptOptions: LabeledComponent<JTextField> = LabeledComponent()
     private var myScriptArgs: LabeledComponent<JTextField> = LabeledComponent()
+    private var myEnvVariables: LabeledComponent<JTextField> = LabeledComponent()
 
     init {
         myPanel.layout = BoxLayout(myPanel, BoxLayout.Y_AXIS)
         myScriptName.component = TextFieldWithBrowseButton()
         myScriptOptions.component = JTextField()
         myScriptArgs.component = JTextField()
-        myScriptName.label.text = "Script file"
+        myEnvVariables.component = JTextField()
+        myScriptName.label.text = "Script file or Catalog alias"
         myScriptOptions.label.text = "Script options"
         myScriptArgs.label.text = "Script args"
+        myEnvVariables.label.text = "Env variables"
         myPanel.add(myScriptName)
         myPanel.add(myScriptOptions)
         myPanel.add(myScriptArgs)
+        myPanel.add(myEnvVariables)
     }
 
     override fun resetEditorFrom(jBangRunConfiguration: JBangRunConfiguration) {
         myScriptName.component.text = jBangRunConfiguration.getScriptName() ?: ""
         myScriptOptions.component.text = jBangRunConfiguration.getScriptOptions() ?: ""
         myScriptArgs.component.text = jBangRunConfiguration.getScriptArgs() ?: ""
+        myEnvVariables.component.text = jBangRunConfiguration.getEnvVariables() ?: ""
     }
 
     override fun applyEditorTo(jBangRunConfiguration: JBangRunConfiguration) {
         jBangRunConfiguration.setScriptName(myScriptName.component.text)
         jBangRunConfiguration.setScriptOptions(myScriptOptions.component.text)
         jBangRunConfiguration.setScriptArgs(myScriptArgs.component.text)
+        jBangRunConfiguration.setEnvVariables(myEnvVariables.component.text)
     }
 
     override fun createEditor(): JComponent {

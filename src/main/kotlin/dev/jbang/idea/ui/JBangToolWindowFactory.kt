@@ -57,23 +57,21 @@ class JBangToolWindowPanel(private val project: Project) : SimpleToolWindowPanel
     }
 
     fun refreshJBangScript(project: Project, scriptFile: VirtualFile) {
-        if (currentScriptFile == null || this.mode == "help" || (currentScriptFile!!.path != scriptFile.path)) {
-            if (this.mode == "help") {
-                switchToScriptInfoPanel()
+        if (this.mode == "help") {
+            switchToScriptInfoPanel()
+        }
+        currentScriptFile = scriptFile
+        try {
+            resolveScriptInfo(scriptFile.path).let {
+                jbangToolWindow.update(it)
             }
-            currentScriptFile = scriptFile
-            try {
-                resolveScriptInfo(scriptFile.path).let {
-                    jbangToolWindow.update(it)
-                }
-            } catch (e: Exception) {
-                val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
-                jbangNotificationGroup.createNotification(
-                    "Failed to resolve DEPS",
-                    e.message ?: "Failed to resolve dependencies for ${scriptFile.name}",
-                    NotificationType.ERROR
-                ).notify(project)
-            }
+        } catch (e: Exception) {
+            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
+            jbangNotificationGroup.createNotification(
+                "Failed to resolve DEPS",
+                e.message ?: "Failed to resolve dependencies for ${scriptFile.name}",
+                NotificationType.ERROR
+            ).notify(project)
         }
     }
 
