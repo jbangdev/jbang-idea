@@ -1,3 +1,4 @@
+import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.exclude
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -109,7 +110,8 @@ tasks {
     }
 
     runPluginVerifier {
-        failureLevel.set(listOf(DEPRECATED_API_USAGES, INTERNAL_API_USAGES, NOT_DYNAMIC, INVALID_PLUGIN))
+        // DEPRECATED_API_USAGES
+        failureLevel.set(listOf(INTERNAL_API_USAGES, NOT_DYNAMIC, INVALID_PLUGIN))
     }
 
     signPlugin {
