@@ -13,10 +13,10 @@ import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.VirtualFileFilter
 import dev.jbang.idea.JBangCli.generateScriptFromTemplate
 import dev.jbang.idea.JBangCli.listJBangTemplates
-import org.jetbrains.kotlin.idea.caches.project.NotUnderContentRootModuleInfo.project
 
 class CreateFromTemplateAction : AnAction(), DumbAware {
     override fun actionPerformed(e: AnActionEvent) {
+        val project = e.getData(CommonDataKeys.PROJECT)!!
         try {
             val templates = listJBangTemplates()
             val dialogWrapper = JBangTemplatesDialogWrapper(templates)
@@ -28,7 +28,6 @@ class CreateFromTemplateAction : AnAction(), DumbAware {
                 val templateName = dialogWrapper.getTemplateName()
                 if (scriptName.isNotEmpty()) {
                     ApplicationManager.getApplication().runWriteAction {
-                        val project = e.getData(CommonDataKeys.PROJECT)!!
                         val directory = e.getData(CommonDataKeys.VIRTUAL_FILE)!!
                         try {
                             val currentFiles = mutableListOf<VirtualFile>()
