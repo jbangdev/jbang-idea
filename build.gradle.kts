@@ -1,3 +1,4 @@
+import org.gradle.internal.impldep.org.junit.experimental.categories.Categories.CategoryFilter.exclude
 import org.jetbrains.changelog.markdownToHTML
 import org.jetbrains.intellij.tasks.RunPluginVerifierTask.FailureLevel.*
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
@@ -10,7 +11,7 @@ plugins {
     // Kotlin support
     id("org.jetbrains.kotlin.jvm") version "1.6.10"
     // Gradle IntelliJ Plugin
-    id("org.jetbrains.intellij") version "1.5.2"
+    id("org.jetbrains.intellij") version "1.6.0"
     // Gradle Changelog Plugin
     id("org.jetbrains.changelog") version "1.3.1"
     // Gradle Qodana Plugin
@@ -109,7 +110,8 @@ tasks {
     }
 
     runPluginVerifier {
-        failureLevel.set(listOf(DEPRECATED_API_USAGES, INTERNAL_API_USAGES, NOT_DYNAMIC, INVALID_PLUGIN))
+        // DEPRECATED_API_USAGES
+        failureLevel.set(listOf(INTERNAL_API_USAGES, NOT_DYNAMIC, INVALID_PLUGIN))
     }
 
     signPlugin {

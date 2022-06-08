@@ -4,7 +4,23 @@
 
 ## [Unreleased]
 
+## [0.20.0]
+
 - Added: Java 18 Snippet support with `java`, `groovy`, `kotlin` lang attribute
+
+```
+/**
+ * {@snippet lang = java:
+ * public class Demo {
+ *    public static void main(String[] args) {
+ *         System.out.println("Hello Snippet!");
+ *     }
+ * }
+ *}
+ */
+public class SnippetApp {
+}
+```
 
 ## [0.19.0]
                                                                   
