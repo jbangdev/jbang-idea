@@ -1,0 +1,29 @@
+<templateSet group="JBang">
+    <template name="jbang" value="///usr/bin/env jbang &quot;$0&quot; &quot;$@&quot; ; exit $?&#10;//JAVA 17&#10;$END$" description="JBang declaration" toReformat="false"
+              toShortenFQNames="true">
+        <context>
+            <option name="GROOVY_DECLARATION" value="true"/>
+            <option name="JAVA_DECLARATION" value="true"/>
+            <option name="KOTLIN_TOPLEVEL" value="true"/>
+        </context>
+    </template>
+    <template name="jbang-build"
+              value="///usr/bin/env jbang &quot;$0&quot; &quot;$@&quot; ; exit $?&#10;//JAVA 17&#10;//DEPS com.google.guava:guava:31.1-jre&#10;//SOURCES **$EXT$&#10;//FILES **.json **.xml&#10;$END$"
+              description="JBang declaration with build" toReformat="false" toShortenFQNames="true">
+        <variable name="EXT" expression="groovyScript(&quot;def result = _1[_1.lastIndexOf('.')..-1]; return result;&quot;, fileName())" defaultValue="java" alwaysStopAt="false"/>
+        <context>
+            <option name="GROOVY_DECLARATION" value="true"/>
+            <option name="JAVA_DECLARATION" value="true"/>
+            <option name="KOTLIN_TOPLEVEL" value="true"/>
+        </context>
+    </template>
+    <template name="jbang-sb"
+              value="///usr/bin/env jbang &quot;$0&quot; &quot;$@&quot; ; exit $?&#10;//JAVA 17&#10;//DEPS org.springframework.boot:spring-boot-dependencies:2.7.0@pom&#10;//DEPS org.springframework.boot:spring-boot-starter&#10;$END$"
+              description="JBang declaration for Spring Boot" toReformat="false" toShortenFQNames="true">
+        <context>
+            <option name="GROOVY_DECLARATION" value="true"/>
+            <option name="JAVA_DECLARATION" value="true"/>
+            <option name="KOTLIN_TOPLEVEL" value="true"/>
+        </context>
+    </template>
+</templateSet>
