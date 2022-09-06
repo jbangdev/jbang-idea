@@ -7,7 +7,7 @@ import javax.swing.Icon
 
 class JBangIconProvider : FileIconProvider {
     companion object {
-        val JBANG_FILES = listOf("jbang-catalog.json", "build.java", "build.kt", "build.groovy")
+        val JBANG_FILES = listOf("jbang-catalog.json", "build.jbang")
     }
 
     override fun getIcon(file: VirtualFile, flags: Int, project: Project?): Icon? {
