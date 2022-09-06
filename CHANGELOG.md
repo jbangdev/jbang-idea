@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.22.0]
+
 - Added: new `//MANIFEST` keyword to allow writing entries to `META-INF/manifest.mf`
 - Added: `JBANG_HOME` environment variable support
 - Added: icon for `build.jbang`
