@@ -23,9 +23,15 @@ val ALL_EXT_NAMES = listOf(".java", ".kt", ".jsh", ".groovy")
 fun getJBangCmdAbsolutionPath(): String {
     val userHome = System.getProperty("user.home")
     return if (SystemInfo.isWindows) {
-        File(userHome, ".jbang/bin/jbang.cmd").absolutePath
+        if (File(System.getenv("JBANG_HOME") ?: "", "bin/jbang.cmd").exists()) {
+            File(System.getenv("JBANG_HOME") ?: "", "bin/jbang.cmd").absolutePath
+        } else {
+            File(userHome, ".jbang/bin/jbang.cmd").absolutePath
+        }
     } else {
-        if (File("/usr/local/bin/jbang").exists()) {
+        if (File(System.getenv("JBANG_HOME") ?: "", "bin/jbang").exists()) {
+            File(System.getenv("JBANG_HOME") ?: "", "bin/jbang").absolutePath
+        } else if (File("/usr/local/bin/jbang").exists()) {
             "/usr/local/bin/jbang"
         } else {
             File(userHome, ".jbang/bin/jbang").absolutePath
