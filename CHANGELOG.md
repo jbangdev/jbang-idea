@@ -4,6 +4,9 @@
 
 ## [Unreleased]
 
+- Added: new `//MANIFEST` keyword to allow writing entries to `META-INF/manifest.mf`
+- Added: `JBANG_HOME` environment variable support
+
 ## [0.21.0]
 
 - Added: JBang icon for build.java, build.kt and build.groovy files
