@@ -17,6 +17,7 @@ The following features are available:
 * Sync Dependencies between JBang and Gradle
 * Sync Dependencies to IDEA's module when using `idea .` to open JBang project
 * JBang Run Line Marker for `///usr/bin/env jbang`
+* Java scratch file support
 * Run Configuration support: run JBang script by right click
     * file name end with '.java', '.kt', '.groovy' or '.jsh'
     * file code should contain `///usr/bin/env jbang` or `//DEPS`
