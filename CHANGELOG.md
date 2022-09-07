@@ -9,6 +9,7 @@
 - Added: new `//MANIFEST` keyword to allow writing entries to `META-INF/manifest.mf`
 - Added: `JBANG_HOME` environment variable support
 - Added: icon for `build.jbang`
+- Added: Java Scratch file support - https://github.com/jbangdev/jbang-idea/issues/68
 
 ## [0.21.0]
 
