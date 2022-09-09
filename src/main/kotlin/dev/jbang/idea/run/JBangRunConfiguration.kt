@@ -92,12 +92,12 @@ class JBangRunConfiguration(
                 val scriptName = getScriptName()
                 val options = getScriptOptions()
                 val args = getScriptArgs()
-                if (scriptName != null && scriptName.isNotEmpty()) {
-                    if (options != null && options.isNotEmpty()) {
+                if (!scriptName.isNullOrEmpty()) {
+                    if (!options.isNullOrEmpty()) {
                         command.addAll(options.split("\\s+".toRegex()).filter { it.isNotEmpty() })
                     }
                     command.add(scriptName)
-                    if (args != null && args.isNotEmpty()) {
+                    if (!args.isNullOrEmpty()) {
                         command.addAll(args.split("\\s+".toRegex()).filter { it.isNotEmpty() })
                     }
                 } else {
@@ -118,10 +118,14 @@ class JBangRunConfiguration(
     @Throws(RuntimeConfigurationException::class)
     override fun checkConfiguration() {
         val scriptName = getScriptName()
-        if (scriptName == null || scriptName.isEmpty()) {
+        if (scriptName.isNullOrEmpty()) {
             throw RuntimeConfigurationException("Script name is empty")
         } else if (!scriptName.contains('@')) {
-            val scriptFile = File(project.basePath!!, scriptName)
+            val scriptFile = if (scriptName.startsWith("/") || scriptName.contains(":")) {
+                File(scriptName)
+            } else {
+                File(project.basePath!!, "/$scriptName")
+            }
             if (!scriptFile.exists()) {
                 throw RuntimeConfigurationException("Script file does not exist: $scriptName")
             }

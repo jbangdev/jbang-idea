@@ -18,6 +18,7 @@
         <configurationType implementation="dev.jbang.idea.run.JBangConfigurationType"/>
         <runConfigurationProducer implementation="dev.jbang.idea.run.JBangRunConfigurationProducer"/>
         <fileType name="JSHELL" language="JShellLanguage" extensions="jsh"/>
+        <fileType name="JAVA" language="JAVA" extensions="jbang"/>
         <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.directive.JBangJavaCompletionContributor"/>
         <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.sources.JBangJavaSourcesCompletionContributor"/>
         <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.deps.JBangJavaDepsGavCompletionContributor"/>
@@ -35,7 +36,8 @@
         <lang.directNavigationProvider implementation="dev.jbang.idea.navigation.ScriptRefNavigation"/>
         <!--suppress PluginXmlValidity -->
         <lang.directNavigationProvider implementation="dev.jbang.idea.navigation.SourcesRefNavigation"/>
-         <codeInsight.lineMarkerProvider language="JAVA" implementationClass="dev.jbang.idea.run.JavaSnippetLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="JAVA" implementationClass="dev.jbang.idea.run.JavaSnippetLineMarkerProvider"/>
+        <defaultLiveTemplates file="/liveTemplates/JBang.xml"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">

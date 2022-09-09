@@ -36,7 +36,13 @@ class JBangRunConfigurationProducer : LazyRunConfigurationProducer<JBangRunConfi
         val textWithLocation = psiLocation.getTextWithLocation()
         if (getJBangDirective(textWithLocation.trim('\'')) != null) {
             val project = psiFile.project
-            configuration.setScriptName(virtualFile.path.substring(project.basePath!!.length + 1))
+            val scriptPath = virtualFile.path
+            val projectBasePath = project.basePath!!
+            if (scriptPath.startsWith(projectBasePath)) {
+                configuration.setScriptName(scriptPath.substring(projectBasePath.length + 1))
+            } else {
+                configuration.setScriptName(scriptPath)
+            }
             configuration.name = virtualFile.name + " by JBang"
             return true
         }

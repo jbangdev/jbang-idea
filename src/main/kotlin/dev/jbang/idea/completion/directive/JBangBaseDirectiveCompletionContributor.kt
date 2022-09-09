@@ -17,6 +17,7 @@ abstract class JBangBaseDirectiveCompletionContributor(language: Language) : Com
             "JAVA" to "Java version to use",
             "DEPS" to "Add dependency",
             "GAV" to "Set Group, Artifact and Version",
+            "MANIFEST" to "Write entries to META-INF/manifest.mf",
             "FILES" to "Mount files to build",
             "SOURCES" to "Pattern to include as sources",
             "DESCRIPTION" to "Markdown description for the application/script",

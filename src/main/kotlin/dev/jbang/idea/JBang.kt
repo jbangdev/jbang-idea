@@ -7,6 +7,7 @@ import com.intellij.openapi.util.SystemInfo
 import java.io.File
 
 val jbangIcon = IconLoader.getIcon("icons/jbang-16x16.png", JBangCli::class.java)
+val jbangIcon12 = IconLoader.getIcon("icons/jbang-12x12.png", JBangCli::class.java)
 val kotlinIcon = IconLoader.getIcon("icons/kotlin.svg", JBangCli::class.java)
 val groovyIcon = IconLoader.getIcon("icons/groovy.svg", JBangCli::class.java)
 val jshellIcon = IconLoader.getIcon("icons/jshell-16x16.png",JBangCli::class.java)

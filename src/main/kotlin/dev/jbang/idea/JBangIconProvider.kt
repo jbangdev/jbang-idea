@@ -6,10 +6,13 @@ import com.intellij.openapi.vfs.VirtualFile
 import javax.swing.Icon
 
 class JBangIconProvider : FileIconProvider {
+    companion object {
+        val JBANG_FILES = listOf("jbang-catalog.json", "build.jbang")
+    }
 
     override fun getIcon(file: VirtualFile, flags: Int, project: Project?): Icon? {
-        return if (file.name == "jbang-catalog.json") {
-            jbangIcon
+        return if (JBANG_FILES.contains(file.name)) {
+            jbangIcon12
         } else {
             null
         }
