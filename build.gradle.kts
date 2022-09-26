@@ -111,7 +111,7 @@ tasks {
 
     runPluginVerifier {
         // DEPRECATED_API_USAGES
-        failureLevel.set(listOf(INTERNAL_API_USAGES, NOT_DYNAMIC, INVALID_PLUGIN))
+        failureLevel.set(listOf(NOT_DYNAMIC, INVALID_PLUGIN))
     }
 
     signPlugin {
