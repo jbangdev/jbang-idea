@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.23.0]
+
+- Fixed: Compatible with IntelliJ IDEA 2022.3
+
 ## [0.22.0]
 
 - Added: new `//MANIFEST` keyword to allow writing entries to `META-INF/manifest.mf`
