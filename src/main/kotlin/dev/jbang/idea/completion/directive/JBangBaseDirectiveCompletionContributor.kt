@@ -24,6 +24,7 @@ abstract class JBangBaseDirectiveCompletionContributor(language: Language) : Com
             "REPOS" to "Which repositories to use",
             "JAVAC_OPTIONS" to "Options passed to javac",
             "JAVA_OPTIONS" to "Options passed to java",
+            "NATIVE_OPTIONS" to "Options passed to native-image",
             "JAVAAGENT" to "Activate agent packaging",
             "CDS" to "Activate Class Data Sharing"
         )
