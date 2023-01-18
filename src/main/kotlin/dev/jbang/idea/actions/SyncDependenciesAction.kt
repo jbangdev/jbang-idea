@@ -17,7 +17,6 @@ import com.intellij.openapi.project.Project
 import com.intellij.openapi.projectRoots.JavaSdk
 import com.intellij.openapi.projectRoots.ProjectJdkTable
 import com.intellij.openapi.projectRoots.Sdk
-import com.intellij.openapi.roots.DependencyScope
 import com.intellij.openapi.roots.LanguageLevelModuleExtension
 import com.intellij.openapi.roots.ModuleRootManager
 import com.intellij.openapi.roots.ModuleRootModificationUtil
@@ -375,7 +374,10 @@ class SyncDependenciesAction : AnAction() {
         }
         // add jbang dependencies
         if (newDependencies.isNotEmpty()) {
-            ModuleRootModificationUtil.addModuleLibrary(module, libName, newDependencies.map { "jar://${it}!/" }.toList(), listOf())
+            ModuleRootModificationUtil.addModuleLibrary(module, libName,
+                newDependencies.map { "jar://${it}!/" }.toList(),
+                newDependencies.map { "jar://${it}!/" }.map { it.replace(".jar", "-sources.jar") }.toList()
+            )
         }
     }
 
