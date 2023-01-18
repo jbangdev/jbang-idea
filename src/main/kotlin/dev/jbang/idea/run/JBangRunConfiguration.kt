@@ -8,6 +8,7 @@ import com.intellij.execution.process.ProcessHandlerFactory
 import com.intellij.execution.process.ProcessTerminatedListener
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.openapi.project.Project
+import com.intellij.util.execution.ParametersListUtil
 import dev.jbang.idea.getJBangCmdAbsolutionPath
 import dev.jbang.idea.jbangIcon
 import java.io.File
@@ -94,11 +95,11 @@ class JBangRunConfiguration(
                 val args = getScriptArgs()
                 if (!scriptName.isNullOrEmpty()) {
                     if (!options.isNullOrEmpty()) {
-                        command.addAll(options.split("\\s+".toRegex()).filter { it.isNotEmpty() })
+                        command.addAll(ParametersListUtil.parse(options, false, true, false))
                     }
                     command.add(scriptName)
                     if (!args.isNullOrEmpty()) {
-                        command.addAll(args.split("\\s+".toRegex()).filter { it.isNotEmpty() })
+                        command.addAll(ParametersListUtil.parse(args, false, true, false))
                     }
                 } else {
                     command.clear()
