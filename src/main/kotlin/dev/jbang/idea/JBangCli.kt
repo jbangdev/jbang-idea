@@ -22,7 +22,7 @@ object JBangCli {
     @Throws(Exception::class)
     fun resolveScriptDependencies(scriptFilePath: String): List<String> {
         val jbangCmd = getJBangCmdAbsolutionPath()
-        val output = ProcessExecutor().command(jbangCmd, "info", "classpath", "--quiet", "--fresh", scriptFilePath)
+        val output = ProcessExecutor().environment("JBANG_DOWNLOAD_SOURCES", "true").command(jbangCmd, "info", "classpath", "--quiet", "--fresh", scriptFilePath)
             .readOutput(true)
             .execute()
             .outputUTF8()
@@ -32,7 +32,7 @@ object JBangCli {
     @Throws(Exception::class)
     fun resolveScriptInfo(jbangScriptFilePath: String): ScriptInfo {
         val jbangCmd = getJBangCmdAbsolutionPath()
-        val allText = ProcessExecutor().command(jbangCmd, "info", "tools", "--quiet", "--fresh", jbangScriptFilePath)
+        val allText = ProcessExecutor().environment("JBANG_DOWNLOAD_SOURCES", "true").command(jbangCmd, "info", "tools", "--quiet", "--fresh", jbangScriptFilePath)
             .readOutput(true)
             .execute()
             .outputUTF8()
