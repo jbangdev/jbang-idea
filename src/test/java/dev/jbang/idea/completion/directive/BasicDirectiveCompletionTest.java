@@ -21,7 +21,7 @@ public class BasicDirectiveCompletionTest extends LightJavaCodeInsightFixtureTes
         myFixture.complete(CompletionType.BASIC);
         List<String> lookupElementStrings = myFixture.getLookupElementStrings();
         assertNotNull(lookupElementStrings);
-        assertSameElements(lookupElementStrings, "CDS ", "DEPS ", "DESCRIPTION ","FILES ", "GAV ", "JAVA ", "JAVA_OPTIONS ", "JAVAAGENT ", "JAVAC_OPTIONS ", "MANIFEST ", "REPOS ", "SOURCES ");
+        assertSameElements(lookupElementStrings, "CDS ", "DEPS ", "DESCRIPTION ","FILES ", "GAV ", "JAVA ", "JAVA_OPTIONS ", "JAVAAGENT ", "JAVAC_OPTIONS ", "MANIFEST ", "NATIVE_OPTIONS ", "REPOS ", "SOURCES ");
     }
 
    // @Test disabled unttil can figure out why kotlin and groovy are not activated intests
