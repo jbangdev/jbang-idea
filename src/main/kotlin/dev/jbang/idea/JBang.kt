@@ -10,8 +10,8 @@ val jbangIcon = IconLoader.getIcon("icons/jbang-16x16.png", JBangCli::class.java
 val jbangIcon12 = IconLoader.getIcon("icons/jbang-12x12.png", JBangCli::class.java)
 val kotlinIcon = IconLoader.getIcon("icons/kotlin.svg", JBangCli::class.java)
 val groovyIcon = IconLoader.getIcon("icons/groovy.svg", JBangCli::class.java)
-val jshellIcon = IconLoader.getIcon("icons/jshell-16x16.png",JBangCli::class.java)
-val mavenIcon = IconLoader.getIcon("icons/maven.svg",JBangCli::class.java)
+val jshellIcon = IconLoader.getIcon("icons/jshell-16x16.png", JBangCli::class.java)
+val mavenIcon = IconLoader.getIcon("icons/maven.svg", JBangCli::class.java)
 val NOTIFICATION_GROUP_INFO = "JBang Info"
 val NOTIFICATION_GROUP_SUCCESS = "JBang Success"
 val NOTIFICATION_GROUP_FAILURE = "JBang Failure"
@@ -26,6 +26,8 @@ fun getJBangCmdAbsolutionPath(): String {
     return if (SystemInfo.isWindows) {
         if (File(System.getenv("JBANG_HOME") ?: "", "bin/jbang.cmd").exists()) {
             File(System.getenv("JBANG_HOME") ?: "", "bin/jbang.cmd").absolutePath
+        } else if (File(userHome, ".sdkman/candidates/jbang/current/bin/jbang.cmd").exists()) {
+            File(userHome, ".sdkman/candidates/jbang/current/bin/jbang.cmd").absolutePath
         } else {
             File(userHome, ".jbang/bin/jbang.cmd").absolutePath
         }
@@ -34,6 +36,8 @@ fun getJBangCmdAbsolutionPath(): String {
             File(System.getenv("JBANG_HOME") ?: "", "bin/jbang").absolutePath
         } else if (File("/usr/local/bin/jbang").exists()) {
             "/usr/local/bin/jbang"
+        } else if (File(userHome, ".sdkman/candidates/jbang/current/bin/jbang").exists()) {
+            File(userHome, ".sdkman/candidates/jbang/current/bin/jbang").absolutePath
         } else {
             File(userHome, ".jbang/bin/jbang").absolutePath
         }

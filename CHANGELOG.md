@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [0.24.0]
+
+- Added: enable download sources
+- Added: attach sources for jbang lib when syncing dependencies
+- Added: NATIVE_OPTIONS support
+- Fixed: support for quoted arguments in the build configuration
+
 ## [0.23.0]
 
 - Fixed: Compatible with IntelliJ IDEA 2022.3
