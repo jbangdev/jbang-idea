@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.24.1]
+
+- Fixed: Compatible with IntelliJ IDEA 2023.1
+
 ## [0.24.0]
 
 - Added: enable download sources
