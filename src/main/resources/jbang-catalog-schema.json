@@ -32,6 +32,27 @@
             },
             "description": "//JAVA_OPTIONS, such as '-Xms256m -Xmx2048m'. Use `java -X` to list options"
           },
+          "runtime-options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "//JAVA_OPTIONS, such as '-Xms256m -Xmx2048m'. Use `java -X` to list options"
+          },
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "source files"
+          },
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "resource files"
+          },
           "dependencies": {
             "type": "array",
             "items": {
@@ -73,9 +94,76 @@
             ],
             "description": "Java version, such as 8, 11, 17"
           },
-          "mainClass": {
+          "main": {
             "type": "string",
             "description": "Main class, such as com.example.Main"
+          },
+          "module": {
+            "type": "string",
+            "description": "Module name"
+          },
+          "compile-options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Compile options"
+          },
+          "native-image": {
+            "type": "boolean",
+            "description": "native-image or not"
+          },
+          "native-options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "native-image options"
+          },
+          "jfr": {
+            "type": "string",
+            "description": "Java Flight Record"
+          },
+          "debug": {
+            "type": "string",
+            "description": "Java Flight Record"
+          },
+          "cds": {
+            "type": "boolean",
+            "description": "Java CDS"
+          },
+          "interactive": {
+            "type": "boolean",
+            "description": "interactive"
+          },
+          "enable-assertions": {
+            "type": "boolean",
+            "description": "Enable assertions"
+          },
+          "enable-system-assertions": {
+            "type": "boolean",
+            "description": "Enable system assertions"
+          },
+          "manifest-options": {
+            "type": "object",
+            "description": "custom options in the MANIFEST.MF "
+          },
+          "java-agents": {
+            "type": "array",
+            "description": "java-agents",
+            "items": {
+              "type": "object",
+              "properties": {
+                "agent-ref": {
+                  "type": "string",
+                  "description": "agent ref"
+                },
+                "options": {
+                  "type": "string",
+                  "description": "agent options"
+                }
+              }
+            }
           }
         },
         "required": [
