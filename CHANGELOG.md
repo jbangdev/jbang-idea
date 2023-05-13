@@ -4,6 +4,7 @@
 
 ## [Unreleased]
 
+- Fixed: honor JBANG_HOME, PATH and ~/.jbang/bin in that order when searching for jbang command
 ## [0.24.1]
 
 - Fixed: Compatible with IntelliJ IDEA 2023.1
