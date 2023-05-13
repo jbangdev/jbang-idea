@@ -8,6 +8,7 @@
 
 - Fixed: honor JBANG_HOME, PATH and ~/.jbang/bin in that order when searching for jbang command
 - Fixed: Compatible with IntelliJ IDEA 2023.2
+- Fixed: Add more properties for alias object in `jbang-catalog-schema.json`
 
 ## [0.24.1]
 
