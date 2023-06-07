@@ -13,7 +13,7 @@ class JBangGroovyCompletionContributor : JBangBaseDirectiveCompletionContributor
         result: CompletionResultSet
     ) {
         super.addCompletions(parameters, context, result)
-        result.addElement(LookupElementBuilder.create("GROOVY").withTailText("Groovy version", true))
+        result.addElement(LookupElementBuilder.create("GROOVY").withTailText(" Groovy version", true))
     }
 
 

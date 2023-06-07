@@ -13,7 +13,7 @@ class JBangKotlinCompletionContributor : JBangBaseDirectiveCompletionContributor
         result: CompletionResultSet
     ) {
         super.addCompletions(parameters, context, result)
-        result.addElement(LookupElementBuilder.create("KOTLIN").withTailText("Kotlin version", true))
+        result.addElement(LookupElementBuilder.create("KOTLIN").withTailText(" Kotlin version", true))
     }
 
 }  
