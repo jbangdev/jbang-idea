@@ -6,9 +6,13 @@
 
 ## [0.24.3]
 
+### Added
+
 - Feat: Add `//PREVIEW` support
 
 ## [0.24.2]
+
+### Fixed
 
 - Fixed: honor JBANG_HOME, PATH and ~/.jbang/bin in that order when searching for jbang command
 - Fixed: Compatible with IntelliJ IDEA 2023.2
@@ -16,9 +20,13 @@
 
 ## [0.24.1]
 
+### Fixed
+
 - Fixed: Compatible with IntelliJ IDEA 2023.1
 
 ## [0.24.0]
+
+### Added
 
 - Added: enable download sources
 - Added: attach sources for jbang lib when syncing dependencies
@@ -27,9 +35,13 @@
 
 ## [0.23.0]
 
+### Fixed
+
 - Fixed: Compatible with IntelliJ IDEA 2022.3
 
 ## [0.22.0]
+
+### Added
 
 - Added: new `//MANIFEST` keyword to allow writing entries to `META-INF/manifest.mf`
 - Added: `JBANG_HOME` environment variable support
@@ -38,6 +50,8 @@
 
 ## [0.21.0]
 
+### Added
+
 - Added: JBang icon for build.java, build.kt and build.groovy files
 - Added: JBang live templates
     * jbang: generate JBang declaration
@@ -45,6 +59,8 @@
     * jbang-sb: generate JBang declaration with Spring Boot dependencies
 
 ## [0.20.0]
+
+### Added
 
 - Added: Java 18 Snippet support with `java`, `groovy`, `kotlin` lang attribute
 
@@ -64,11 +80,15 @@ public class SnippetApp {
 
 ## [0.19.0]
 
+### Added
+
 - Added: Catalog alias support for JBang run configuration
 - Added: environment variables support for JBang run configuration
 - Fixed: Force to refresh script info when click refresh button in JBang tool window
 
 ## [0.18.0]
+
+### Added
 
 - Added: code completion/navigation for //SOURCES
 - Added: Java version synced within module
@@ -76,11 +96,15 @@ public class SnippetApp {
 
 ## [0.17.0]
 
+### Added
+
 - Added: JBang ToolWindow listener to make load JBang script info automatically
 - Added: open new JBang script files after creation from template
 - Fix: save all documents when to sync DEPS
 
 ## [0.17.0]
+
+### Added
 
 - Added: JBang ToolWindow listener to make load JBang script info automatically
 - Added: open new JBang script files after creation from template
@@ -88,19 +112,27 @@ public class SnippetApp {
 
 ## [0.16.0]
 
+### Added
+
 - Added: introduce zt-exec to call JBang command
 - Added: introduce ProgressManager and Task.Backgroundable to sync dependencies asynchronously
 - Fix: added descriptions to directive completions
 
 ## [0.15.0]
 
+### Added
+
 - Added: Support 2022.1 EAP
 
 ## [0.13.0]
 
+### Added
+
 - GAV completion with last version support
 
 ## [0.12.0]
+
+### Added
 
 - Bug fix: remove file editor listener because of performance
 
