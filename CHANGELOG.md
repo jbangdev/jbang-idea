@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+## [0.24.3]
+
+- Feat: Add `//PREVIEW` support
+
 ## [0.24.2]
 
 - Fixed: honor JBANG_HOME, PATH and ~/.jbang/bin in that order when searching for jbang command
