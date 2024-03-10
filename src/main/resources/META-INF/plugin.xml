@@ -10,7 +10,6 @@
     <depends optional="true" config-file="jbang-withKotlin.xml">org.jetbrains.kotlin</depends>
     <depends optional="true" config-file="jbang-withGroovy.xml">org.intellij.groovy</depends>
     <depends optional="true" config-file="jbang-withGradle.xml">com.intellij.gradle</depends>
-    <depends optional="true" config-file="jbang-dependency-update-integration.xml">com.intellij.externalSystem.dependencyUpdater</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <preloadingActivity implementation="dev.jbang.idea.JBangJdkLoader"/>
@@ -38,6 +37,7 @@
         <lang.directNavigationProvider implementation="dev.jbang.idea.navigation.SourcesRefNavigation"/>
         <codeInsight.lineMarkerProvider language="JAVA" implementationClass="dev.jbang.idea.run.JavaSnippetLineMarkerProvider"/>
         <defaultLiveTemplates file="/liveTemplates/JBang.xml"/>
+        <externalSystem.dependencyModifier implementation="dev.jbang.idea.externalsystem.JBangDependencyModifier"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">
