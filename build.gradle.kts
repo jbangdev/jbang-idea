@@ -14,7 +14,7 @@ plugins {
     // Gradle Changelog Plugin
     id("org.jetbrains.changelog") version "1.3.1"
     // Gradle Qodana Plugin
-    id("org.jetbrains.qodana") version "2023.3.1"
+    //id("org.jetbrains.qodana") version "2023.3.1"
 }
 
 group = properties("pluginGroup")
