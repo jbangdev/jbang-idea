@@ -2,6 +2,7 @@ package dev.jbang.idea.actions
 
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
+import com.intellij.openapi.actionSystem.ActionUpdateThread
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
@@ -384,5 +385,9 @@ class SyncDependenciesAction : AnAction() {
     private fun findJavaVersionFromScript(scriptText: String): String {
         val javaVersion = scriptText.lines().firstOrNull { it.startsWith("//JAVA ") }
         return javaVersion?.substring(6)?.trim() ?: "11"
+    }
+
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return ActionUpdateThread.BGT
     }
 }
