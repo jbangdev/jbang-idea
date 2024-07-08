@@ -100,11 +100,11 @@ tasks {
         systemProperty("jb.consents.confirmation.enabled", "false")
     }
 
-    runPluginVerifier {
+    /*runPluginVerifier {
         verifierVersion.set("1.307")
         // DEPRECATED_API_USAGES
         failureLevel.set(listOf(NOT_DYNAMIC, INVALID_PLUGIN))
-    }
+    }*/
 
     signPlugin {
         certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
