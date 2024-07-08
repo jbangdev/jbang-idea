@@ -101,6 +101,7 @@ tasks {
     }
 
     runPluginVerifier {
+        verifierVersion.set("1.307")
         // DEPRECATED_API_USAGES
         failureLevel.set(listOf(NOT_DYNAMIC, INVALID_PLUGIN))
     }
