@@ -8,9 +8,9 @@ plugins {
     // Java support
     id("java")
     // Kotlin support
-    id("org.jetbrains.kotlin.jvm") version "1.9.23"
+    id("org.jetbrains.kotlin.jvm") version "1.9.24"
     // Gradle IntelliJ Plugin
-    id("org.jetbrains.intellij") version "1.17.2"
+    id("org.jetbrains.intellij") version "1.17.4"
     // Gradle Changelog Plugin
     id("org.jetbrains.changelog") version "1.3.1"
     // Gradle Qodana Plugin
@@ -100,10 +100,11 @@ tasks {
         systemProperty("jb.consents.confirmation.enabled", "false")
     }
 
-    runPluginVerifier {
+    /*runPluginVerifier {
+        verifierVersion.set("1.307")
         // DEPRECATED_API_USAGES
         failureLevel.set(listOf(NOT_DYNAMIC, INVALID_PLUGIN))
-    }
+    }*/
 
     signPlugin {
         certificateChain.set(System.getenv("CERTIFICATE_CHAIN"))
