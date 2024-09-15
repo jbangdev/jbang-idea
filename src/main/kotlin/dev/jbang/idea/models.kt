@@ -31,3 +31,9 @@ class ResourceFile {
     var backingResource: String? = null
     var target: String? = null
 }
+
+class TemplateInfo {
+    var name: String? = null
+    var fullName: String? = null
+    var description: String? = null
+}

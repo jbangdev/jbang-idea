@@ -7,7 +7,6 @@ import com.intellij.openapi.util.SystemInfo
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
-import java.nio.file.Paths
 
 val jbangIcon = IconLoader.getIcon("icons/jbang-16x16.png", JBangCli::class.java)
 val jbangIcon12 = IconLoader.getIcon("icons/jbang-12x12.png", JBangCli::class.java)
@@ -25,7 +24,7 @@ val ALL_DIRECTIVES = listOf("JAVA", "DEPS", "GAV", "FILES", "SOURCES", "DESCRIPT
 val ALL_EXT_NAMES = listOf(".java", ".kt", ".jsh", ".groovy")
 
 fun findCommandInPath(command: String): Path? {
-    val path = System.getenv("PATH") ?: return null
+    val path = PARENT_ENV_VAR["PATH"] ?: return null
     val pathElements = path.split(File.pathSeparator)
 
     for (pathElement in pathElements) {
@@ -39,7 +38,7 @@ fun findCommandInPath(command: String): Path? {
 }
 fun getJBangCmdAbsolutionPath(): String {
     val userHome = System.getProperty("user.home")
-    val jbangHome = System.getenv("JBANG_HOME")
+    val jbangHome = PARENT_ENV_VAR["JBANG_HOME"]
     val jbangScript = if (SystemInfo.isWindows) "jbang.cmd" else "jbang"
     var actualJBangScript: Path?
 
