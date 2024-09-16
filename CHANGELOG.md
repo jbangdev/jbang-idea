@@ -2,40 +2,40 @@
 
 # jbang-idea-plugin Changelog
 
-## [Unreleased]
+## Unreleased
 
-## [0.24.8]
+## 0.24.8
 
 ### Added
-                      
+
 - Fix #73: cannot create jbang script in intellij idea
 - Fixed: Compatible with IntelliJ IDEA 2024.3
 
-## [0.24.6]
+## 0.24.6
 
 ### Added
 
 - Fixed: Compatible with IntelliJ IDEA 2024.2
 
-## [0.24.5]
+## 0.24.5
 
 ### Added
 
 - Fixed: Compatible with IntelliJ IDEA 2024.1
 
-## [0.24.4]
+## 0.24.4
 
 ### Added
 
 - Fixed: Compatible with IntelliJ IDEA 2023.3
 
-## [0.24.3]
+## 0.24.3
 
 ### Added
 
 - Feat: Add `//PREVIEW` support
 
-## [0.24.2]
+## 0.24.2
 
 ### Fixed
 
@@ -43,13 +43,13 @@
 - Fixed: Compatible with IntelliJ IDEA 2023.2
 - Fixed: Add more properties for alias object in `jbang-catalog-schema.json`
 
-## [0.24.1]
+## 0.24.1
 
 ### Fixed
 
 - Fixed: Compatible with IntelliJ IDEA 2023.1
 
-## [0.24.0]
+## 0.24.0
 
 ### Added
 
@@ -58,13 +58,13 @@
 - Added: NATIVE_OPTIONS support
 - Fixed: support for quoted arguments in the build configuration
 
-## [0.23.0]
+## 0.23.0
 
 ### Fixed
 
 - Fixed: Compatible with IntelliJ IDEA 2022.3
 
-## [0.22.0]
+## 0.22.0
 
 ### Added
 
@@ -73,7 +73,7 @@
 - Added: icon for `build.jbang`
 - Added: Java Scratch file support - https://github.com/jbangdev/jbang-idea/issues/68
 
-## [0.21.0]
+## 0.21.0
 
 ### Added
 
@@ -83,27 +83,13 @@
     * jbang-build: generate JBang declaration with build info
     * jbang-sb: generate JBang declaration with Spring Boot dependencies
 
-## [0.20.0]
+## 0.20.0
 
 ### Added
 
 - Added: Java 18 Snippet support with `java`, `groovy`, `kotlin` lang attribute
 
-```
-/**
- * {@snippet lang = java:
- * public class Demo {
- *    public static void main(String[] args) {
- *         System.out.println("Hello Snippet!");
- *     }
- * }
- *}
- */
-public class SnippetApp {
-}
-```
-
-## [0.19.0]
+## 0.19.0
 
 ### Added
 
@@ -111,7 +97,7 @@ public class SnippetApp {
 - Added: environment variables support for JBang run configuration
 - Fixed: Force to refresh script info when click refresh button in JBang tool window
 
-## [0.18.0]
+## 0.18.0
 
 ### Added
 
@@ -119,7 +105,7 @@ public class SnippetApp {
 - Added: Java version synced within module
 - Fixed: external library name always as jbang, and now is `${moduelName}-jbang`
 
-## [0.17.0]
+## 0.17.0
 
 ### Added
 
@@ -127,15 +113,7 @@ public class SnippetApp {
 - Added: open new JBang script files after creation from template
 - Fix: save all documents when to sync DEPS
 
-## [0.17.0]
-
-### Added
-
-- Added: JBang ToolWindow listener to make load JBang script info automatically
-- Added: open new JBang script files after creation from template
-- Fix: save all documents when to sync DEPS
-
-## [0.16.0]
+## 0.16.0
 
 ### Added
 
@@ -143,25 +121,25 @@ public class SnippetApp {
 - Added: introduce ProgressManager and Task.Backgroundable to sync dependencies asynchronously
 - Fix: added descriptions to directive completions
 
-## [0.15.0]
+## 0.15.0
 
 ### Added
 
 - Added: Support 2022.1 EAP
 
-## [0.13.0]
+## 0.13.0
 
 ### Added
 
 - GAV completion with last version support
 
-## [0.12.0]
+## 0.12.0
 
 ### Added
 
 - Bug fix: remove file editor listener because of performance
 
-## [0.11.0]
+## 0.11.0
 
 ### Added
 
@@ -171,14 +149,14 @@ public class SnippetApp {
 - text with one colon - artifact search based on groupId `com.google.guava:`
 - text with two colons - version search based on groupId and artifactId `com.google.guava:guava:`
 
-## [0.10.0]
+## 0.10.0
 
 ### Added
 
 - JBang module wizard: create new JBang project or create JBang module on current project
 - Language detection for JBang module creation: create different script file based on Java/Groovy/Kotlin chosen
 
-## [0.9.0]
+## 0.9.0
 
 ### Added
 
@@ -188,27 +166,27 @@ public class SnippetApp {
 - High lighter for JBang directives
 - JBang tool window
 
-## [0.6.0]
+## 0.6.0
 
 ### Added
 
 - Add create script from JBang template
 - Move all DEPS to module's jbang library
 
-## [0.5.0]
+## 0.5.0
 
 ### Added
 
 - Add to sync DEPS to IDEA's module:  use `idea .` to open JBang project
 
-## [0.4.0]
+## 0.4.0
 
 ### Added
 
 - JBang Run Line Marker for `///usr/bin/env jbang`
 - `//GROOVY` directive completion for JBang Groovy script
 
-## [0.3.0]
+## 0.3.0
 
 ### Added
 
@@ -216,14 +194,14 @@ public class SnippetApp {
 - Add icon for `JBang run` in editor popup menu
 - Append ` by JBang` to JBang run configuration to indicate it run by JBang
 
-## [0.2.0]
+## 0.2.0
 
 ### Added
 
 - GAV directive added for completion
 - Run configuration for Groovy: run Groovy by JBang
 
-## [0.1.0]
+## 0.1.0
 
 ### Added
 
