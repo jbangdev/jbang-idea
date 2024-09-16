@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+## [0.24.7]
+
+### Added
+                      
+- Fix #73: cannot create jbang script in intellij idea
+- Fixed: Compatible with IntelliJ IDEA 2024.3
+
 ## [0.24.6]
 
 ### Added
