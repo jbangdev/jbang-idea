@@ -22,10 +22,11 @@ class CreateFromTemplateAction : AnAction(), DumbAware {
             val dialogWrapper = JBangTemplatesDialogWrapper(templates)
             if (dialogWrapper.showAndGet()) {
                 var scriptName = dialogWrapper.getScriptFileName()
-                if (!scriptName.contains('.')) {
-                    scriptName = "${scriptName}.java"
-                }
                 val templateName = dialogWrapper.getTemplateName()
+                if (!scriptName.contains('.')) {
+                    val ext = inferExtension(templateName)
+                    scriptName = "${scriptName}.${ext}"
+                }
                 if (scriptName.isNotEmpty()) {
                     ApplicationManager.getApplication().runWriteAction {
                         val directory = e.getData(CommonDataKeys.VIRTUAL_FILE)!!
@@ -69,5 +70,14 @@ class CreateFromTemplateAction : AnAction(), DumbAware {
             val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
             jbangNotificationGroup.createNotification("Failed to get JBang templates", errorText, NotificationType.ERROR).notify(project)
         }
+    }
+
+    private fun inferExtension(name: String): String {
+        val extension = if (name.contains('.')) {
+            name.substringAfterLast('.')
+        } else {
+            "java"
+        }
+        return extension
     }
 }
