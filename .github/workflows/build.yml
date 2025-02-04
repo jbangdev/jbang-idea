@@ -21,7 +21,6 @@ on:
   pull_request:
 
 jobs:
-
   # Run Gradle Wrapper Validation Action to verify the wrapper's checksum
   # Run verifyPlugin, IntelliJ Plugin Verifier, and test Gradle tasks
   # Build plugin and provide the artifact for the next workflow jobs
@@ -32,7 +31,6 @@ jobs:
       version: ${{ steps.properties.outputs.version }}
       changelog: ${{ steps.properties.outputs.changelog }}
     steps:
-
       # Check out current repository
       - name: Fetch Sources
         uses: actions/checkout@v4
@@ -76,7 +74,7 @@ jobs:
       # Collect Tests Result of failed tests
       - name: Collect Tests Result
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: tests-result
           path: ${{ github.workspace }}/build/reports/tests
@@ -93,16 +91,16 @@ jobs:
           key: plugin-verifier-${{ hashFiles('build/listProductsReleases.txt') }}
 
       # Run Verify Plugin task and IntelliJ Plugin Verifier tool
-#      - name: Run Plugin Verification tasks
-#        run: ./gradlew runPluginVerifier -Pplugin.verifier.home.dir=${{ steps.properties.outputs.pluginVerifierHomeDir }}
+      #      - name: Run Plugin Verification tasks
+      #        run: ./gradlew runPluginVerifier -Pplugin.verifier.home.dir=${{ steps.properties.outputs.pluginVerifierHomeDir }}
 
       # Collect Plugin Verifier Result
-#      - name: Collect Plugin Verifier Result
-#        if: ${{ always() }}
-#        uses: actions/upload-artifact@v4
-#        with:
-#          name: pluginVerifier-result
-#          path: ${{ github.workspace }}/build/reports/pluginVerifier
+      #      - name: Collect Plugin Verifier Result
+      #        if: ${{ always() }}
+      #        uses: actions/upload-artifact@v4
+      #        with:
+      #          name: pluginVerifier-result
+      #          path: ${{ github.workspace }}/build/reports/pluginVerifier
 
       # Prepare plugin archive content for creating artifact
       - name: Prepare Plugin Artifact
@@ -130,7 +128,6 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
-
       # Check out current repository
       - name: Fetch Sources
         uses: actions/checkout@v4

@@ -12,8 +12,7 @@ import com.intellij.util.execution.ParametersListUtil
 import dev.jbang.idea.getJBangCmdAbsolutionPath
 import dev.jbang.idea.jbangIcon
 import java.io.File
-import java.util.regex.Matcher
-import java.util.regex.Pattern
+import java.util.*
 import javax.swing.Icon
 
 
@@ -55,19 +54,12 @@ class JBangRunConfiguration(
 
     fun getEnvVariablesAsMap(): Map<String, String> {
         val variables = getEnvVariables()
-        if (variables != null && variables.contains('=')) {
-            val variablesMap = mutableMapOf<String, String>()
-            //pairs like NAME=xxx or NAME="a b c d"
-            val p = Pattern.compile("(\\w+)=\"*((?<=\")[^\"]+(?=\")|(\\S+))\"*")
-            val m: Matcher = p.matcher(variables)
-            while (m.find()) {
-                val name = m.group(1)
-                val value = m.group(2)
-                variablesMap[name.uppercase()] = value
-            }
-            return variablesMap
+        if (variables.isNullOrEmpty()) {
+            return emptyMap()
         }
-        return emptyMap()
+        val properties = Properties()
+        properties.load(variables.reader())
+        return properties.map { it.key.toString().uppercase() to it.value.toString() }.toMap()
     }
 
     override fun getConfigurationEditor(): JBangRunSettingsEditor {
@@ -107,8 +99,12 @@ class JBangRunConfiguration(
                 }
                 val commandLine = GeneralCommandLine(command)
                 commandLine.workDirectory = File(project.basePath!!)
-                commandLine.environment.putAll(getEnvVariablesAsMap())
-                val processHandler = ProcessHandlerFactory.getInstance().createColoredProcessHandler(commandLine) as ColoredProcessHandler
+                val envVariables = getEnvVariablesAsMap()
+                if (envVariables.isNotEmpty()) {
+                    commandLine.environment.putAll(envVariables)
+                }
+                val processHandler = ProcessHandlerFactory.getInstance()
+                    .createColoredProcessHandler(commandLine) as ColoredProcessHandler
                 processHandler.setShouldKillProcessSoftly(true)
                 ProcessTerminatedListener.attach(processHandler)
                 return processHandler
