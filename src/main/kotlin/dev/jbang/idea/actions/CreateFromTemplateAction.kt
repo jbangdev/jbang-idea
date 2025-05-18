@@ -5,6 +5,7 @@ import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
+import com.intellij.openapi.actionSystem.LangDataKeys
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
@@ -28,8 +29,11 @@ class CreateFromTemplateAction : AnAction(), DumbAware {
                     scriptName = "${scriptName}.${ext}"
                 }
                 if (scriptName.isNotEmpty()) {
+                    val view = LangDataKeys.IDE_VIEW.getData(e.dataContext) ?: return;
+                    val dir = view.getOrChooseDirectory();
+
                     ApplicationManager.getApplication().runWriteAction {
-                        val directory = e.getData(CommonDataKeys.VIRTUAL_FILE)!!
+                        val directory = dir!!.virtualFile;
                         try {
                             val currentFiles = mutableListOf<VirtualFile>()
                             //iterate all current files
@@ -60,7 +64,7 @@ class CreateFromTemplateAction : AnAction(), DumbAware {
                         } catch (e: Exception) {
                             val errorText = "Failed to create script from template, please check template and script name!"
                             val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
-                            jbangNotificationGroup.createNotification("Failed to resolve DEPS", errorText, NotificationType.ERROR).notify(project)
+                            jbangNotificationGroup.createNotification("Failed to create JBang script", errorText, NotificationType.ERROR).notify(project)
                         }
                     }
                 }
