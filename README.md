@@ -30,7 +30,7 @@ The following features are available:
 
 ## Sync Dependencies between JBang and Gradle
 
-Right lick JBang script and Choose `Sync JBang DEPS` and sync dependencies between JBang script and build.gradle.
+Right click JBang script and Choose `Sync JBang DEPS` and sync dependencies between JBang script and build.gradle.
 
 **Limitations**:
 
@@ -47,6 +47,12 @@ Right lick JBang script and Choose `Sync JBang DEPS` and sync dependencies betwe
 ```
 $ # JDK 11 required
 $ ./gradlew -x test patchPluginXml buildPlugin
+```
+
+or if using just:
+
+```
+$ just build
 ```
 
 <kbd>Preferences</kbd> > <kbd>Plugins</kbd> >  <kbd>Gear Icon Right Click</kbd> > <kbd>Install Plugin from Disk</kbd> > <kbd>Choose
