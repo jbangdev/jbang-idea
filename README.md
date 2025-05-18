@@ -9,7 +9,6 @@ jbang-idea-plugin
 
 The following features are available:
               
-* JBang project wizard: create JBang project by IDEA project wizard
 * JSON Schema for jbang-catalog.json and code completion for `script-ref`
 * JDKs sync with JBang: sync JDKs from JBang to IntelliJ IDEA
 * JBang script creation from file templates: New -> JBang Script
