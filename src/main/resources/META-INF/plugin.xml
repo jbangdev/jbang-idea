@@ -38,6 +38,8 @@
         <codeInsight.lineMarkerProvider language="JAVA" implementationClass="dev.jbang.idea.run.JavaSnippetLineMarkerProvider"/>
         <defaultLiveTemplates file="/liveTemplates/JBang.xml"/>
         <externalSystem.dependencyModifier implementation="dev.jbang.idea.externalsystem.JBangDependencyModifier"/>
+        <applicationConfigurable parentId="tools" instance="dev.jbang.idea.settings.JBangConfigurable" id="dev.jbang.intellij.JBangConfigurable" displayName="JBang"/>
+        <applicationService serviceImplementation="dev.jbang.idea.settings.JBangSettings"/>
     </extensions>
 
     <extensions defaultExtensionNs="JavaScript">
