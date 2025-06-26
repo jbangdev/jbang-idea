@@ -8,13 +8,14 @@ jbang-idea-plugin
 **JBang plugin** is a plugin for IntelliJ IDEA to integrate [JBang](https://www.jbang.dev/).
 
 The following features are available:
-              
+
+* Sync Dependencies to IDEA's module when using `idea .` to open JBang project 
+* Define JBang location if not found in PATH or JBANG_HOME
 * JSON Schema for jbang-catalog.json and code completion for `script-ref`
 * JDKs sync with JBang: sync JDKs from JBang to IntelliJ IDEA
 * JBang script creation from file templates: New -> JBang Script
 * JBang directives completion:  for example `//DEPS`, `//SOURCES`
 * Sync Dependencies between JBang and Gradle
-* Sync Dependencies to IDEA's module when using `idea .` to open JBang project
 * JBang Run Line Marker for `///usr/bin/env jbang`
 * Java scratch file support
 * Run Configuration support: run JBang script by right click
