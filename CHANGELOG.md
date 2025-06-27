@@ -4,6 +4,19 @@
 
 ## [Unreleased]
 
+## [0.25.1]
+
+- Feat: Compatible with IntelliJ IDEA 2023.2+ 
+- Feat: Add JBang Path in settings
+- Feat: Allow install into Intellij IDEA EAP
+- Fix: Select proper directory when creating script
+
+## [0.25.0]
+
+- Feat: Add JBang Path in settins
+- Feat: Allow install into Intellij IDEA EAP
+- Fix: Select proper directory when creating script
+
 ## [0.24.9]
 
 ### Added
