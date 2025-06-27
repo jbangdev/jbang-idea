@@ -1,5 +1,7 @@
 package dev.jbang.idea.ui.toolbar
 
+import com.intellij.openapi.actionSystem.ActionManager
+import com.intellij.openapi.actionSystem.AnAction
 import com.intellij.openapi.actionSystem.AnActionEvent
 import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.diagnostic.Logger
@@ -10,7 +12,6 @@ import dev.jbang.idea.ScriptInfo
 import dev.jbang.idea.actions.SyncDependenciesAction
 import dev.jbang.idea.isJBangScript
 import dev.jbang.idea.isJBangScriptFile
-import dev.jbang.idea.utils.ActionUtils
 
 class SyncDepsAction : BaseToolbarAction() {
     private val log: Logger = Logger.getInstance(SyncDepsAction::class.java)
@@ -24,11 +25,16 @@ class SyncDepsAction : BaseToolbarAction() {
                 if (module != null) {
                     log.info("SyncDepsAction, using module: $module")
                     // Use the existing SyncDependenciesAction#syncDepsToModule to do the work
-                    val action = ActionUtils.getActionByIdAs<SyncDependenciesAction>("jbang.SyncDependenciesAction")
+                    val action = getActionByIdAs<SyncDependenciesAction>("jbang.SyncDependenciesAction")
                     log.info("SyncDepsAction, using action: $action")
                     action?.syncDepsToModule(module, jbangScriptFile)
                 }
             }
         }
+    }
+
+    inline fun <reified T : AnAction> getActionByIdAs(actionId: String): T? {
+        val action = ActionManager.getInstance().getAction(actionId)
+        return action as? T
     }
 }
