@@ -10,7 +10,6 @@ public class JBangToolWindow {
     private JTextField javaField;
     private JTextArea dependenciesTextArea;
 
-
     public JPanel getContent() {
         return toolWindowContent;
     }

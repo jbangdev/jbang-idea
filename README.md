@@ -16,6 +16,8 @@ The following features are available:
 * JBang script creation from file templates: New -> JBang Script
 * JBang directives completion:  for example `//DEPS`, `//SOURCES`
 * Sync Dependencies between JBang and Gradle
+* Sync Dependencies to IDEA's module when using `idea .` to open JBang project
+* Sync Dependencies to IDEA's module by right-clicking in the JBang script header area and choosing "Sync JBang DEPS to Module"
 * JBang Run Line Marker for `///usr/bin/env jbang`
 * Java scratch file support
 * Run Configuration support: run JBang script by right click

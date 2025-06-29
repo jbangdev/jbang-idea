@@ -71,6 +71,10 @@
                     class="dev.jbang.idea.ui.toolbar.RunScriptAction"
                     icon="AllIcons.Actions.Run_anything" text="Run JBang Script">
             </action>
+            <action id="JBang.Sync" description="Sync JBang script dependencies"
+                    class="dev.jbang.idea.ui.toolbar.SyncDepsAction"
+                    icon="AllIcons.Actions.SyncPanels" text="Sync JBang Script Dependencies">
+            </action>
         </group>
     </actions>
 

@@ -21,7 +21,7 @@ import javax.swing.SwingConstants
 class JBangToolWindowFactory : ToolWindowFactory, DumbAware {
     override fun createToolWindowContent(project: Project, toolWindow: ToolWindow) {
         val jBangToolWindowPanel = JBangToolWindowPanel(project)
-        val contentFactory = ContentFactory.SERVICE.getInstance()
+        val contentFactory = ContentFactory.getInstance()
         val content = contentFactory.createContent(jBangToolWindowPanel, "", false)
         toolWindow.contentManager.addContent(content)
     }
