@@ -1,3 +1,1 @@
-* xref:index.adoc[]
-* xref:installation.adoc[]
-* xref:usage.adoc[]
+include::partial$nav.adoc[]
