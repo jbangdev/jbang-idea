@@ -8,13 +8,14 @@ jbang-idea-plugin
 **JBang plugin** is a plugin for IntelliJ IDEA to integrate [JBang](https://www.jbang.dev/).
 
 The following features are available:
-              
+
+* Sync Dependencies to IDEA's module when using `idea .` to open JBang project 
+* Define JBang location if not found in PATH or JBANG_HOME
 * JSON Schema for jbang-catalog.json and code completion for `script-ref`
 * JDKs sync with JBang: sync JDKs from JBang to IntelliJ IDEA
 * JBang script creation from file templates: New -> JBang Script
 * JBang directives completion:  for example `//DEPS`, `//SOURCES`
 * Sync Dependencies between JBang and Gradle
-* Sync Dependencies to IDEA's module when using `idea .` to open JBang project
 * JBang Run Line Marker for `///usr/bin/env jbang`
 * Java scratch file support
 * Run Configuration support: run JBang script by right click
@@ -29,7 +30,7 @@ The following features are available:
 
 ## Sync Dependencies between JBang and Gradle
 
-Right lick JBang script and Choose `Sync JBang DEPS` and sync dependencies between JBang script and build.gradle.
+Right click JBang script and Choose `Sync JBang DEPS` and sync dependencies between JBang script and build.gradle.
 
 **Limitations**:
 
@@ -46,6 +47,12 @@ Right lick JBang script and Choose `Sync JBang DEPS` and sync dependencies betwe
 ```
 $ # JDK 11 required
 $ ./gradlew -x test patchPluginXml buildPlugin
+```
+
+or if using just:
+
+```
+$ just build
 ```
 
 <kbd>Preferences</kbd> > <kbd>Plugins</kbd> >  <kbd>Gear Icon Right Click</kbd> > <kbd>Install Plugin from Disk</kbd> > <kbd>Choose
