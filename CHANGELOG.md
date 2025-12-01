@@ -4,6 +4,8 @@
 
 ## Unreleased
 
+- Fix: Upgrade to work with Java 25+, which means targeting Java 21 and Intellij more recent versions (2024+) 
+
 ## 0.25.1
 
 - Feat: Compatible with IntelliJ IDEA 2023.2+ 

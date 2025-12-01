@@ -1,1 +1,5 @@
-rootProject.name = "jbang-idea-plugin"
+plugins {
+    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
+}
+
+rootProject.name = "jbang-idea"
