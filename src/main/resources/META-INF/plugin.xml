@@ -15,7 +15,7 @@
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
         <supportsKotlinPluginMode/>
     </extensions>
-    
+
     <extensions defaultExtensionNs="com.intellij">
         <backgroundPostStartupActivity implementation="dev.jbang.idea.JBangJdkLoader"/>
         <fileIconProvider implementation="dev.jbang.idea.JBangIconProvider"/>
@@ -23,20 +23,14 @@
         <runConfigurationProducer implementation="dev.jbang.idea.run.JBangRunConfigurationProducer"/>
         <fileType name="JSHELL" language="JShellLanguage" extensions="jsh"/>
         <fileType name="JAVA" language="JAVA" extensions="jbang"/>
-        <completion.contributor language="JAVA"
-                                implementationClass="dev.jbang.idea.completion.directive.JBangJavaCompletionContributor"/>
-        <completion.contributor language="JAVA"
-                                implementationClass="dev.jbang.idea.completion.sources.JBangJavaSourcesCompletionContributor"/>
-        <completion.contributor language="JAVA"
-                                implementationClass="dev.jbang.idea.completion.deps.JBangJavaDepsGavCompletionContributor"/>
-        <completion.contributor language="JSON"
-                                implementationClass="dev.jbang.idea.completion.ScriptRefCompletionContributor"/>
-        <runLineMarkerContributor language="JAVA"
-                                  implementationClass="dev.jbang.idea.run.JBangRunLineMarkerContributor"/>
-        <notificationGroup id="JBang Failure" icon="/icons/jbang-16x16.png" displayType="STICKY_BALLOON"
-                           isLogByDefault="true"/>
-        <notificationGroup id="JBang Success" icon="/icons/jbang-16x16.png" displayType="BALLOON"
-                           isLogByDefault="true"/>
+        <fileType name="JSON5" fileNames="jbang-catalog.json"/>
+        <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.directive.JBangJavaCompletionContributor"/>
+        <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.sources.JBangJavaSourcesCompletionContributor"/>
+        <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.deps.JBangJavaDepsGavCompletionContributor"/>
+        <completion.contributor language="JSON" implementationClass="dev.jbang.idea.completion.ScriptRefCompletionContributor"/>
+        <runLineMarkerContributor language="JAVA" implementationClass="dev.jbang.idea.run.JBangRunLineMarkerContributor"/>
+        <notificationGroup id="JBang Failure" icon="/icons/jbang-16x16.png" displayType="STICKY_BALLOON" isLogByDefault="true"/>
+        <notificationGroup id="JBang Success" icon="/icons/jbang-16x16.png" displayType="BALLOON" isLogByDefault="true"/>
         <notificationGroup id="JBang Info" icon="/icons/jbang-16x16.png" displayType="BALLOON" isLogByDefault="true"/>
         <annotator language="JAVA" implementationClass="dev.jbang.idea.highlight.JBangDirectiveHighlighterAnnotator"/>
         <toolWindow id="JBang" icon="/icons/jbang-16x16.png" anchor="right"
@@ -47,8 +41,7 @@
         <lang.directNavigationProvider implementation="dev.jbang.idea.navigation.ScriptRefNavigation"/>
         <!--suppress PluginXmlValidity -->
         <lang.directNavigationProvider implementation="dev.jbang.idea.navigation.SourcesRefNavigation"/>
-        <codeInsight.lineMarkerProvider language="JAVA"
-                                        implementationClass="dev.jbang.idea.run.JavaSnippetLineMarkerProvider"/>
+        <codeInsight.lineMarkerProvider language="JAVA" implementationClass="dev.jbang.idea.run.JavaSnippetLineMarkerProvider"/>
         <defaultLiveTemplates file="/liveTemplates/JBang.xml"/>
         <externalSystem.dependencyModifier implementation="dev.jbang.idea.externalsystem.JBangDependencyModifier"/>
         <applicationConfigurable parentId="tools" instance="dev.jbang.idea.settings.JBangConfigurable" id="dev.jbang.intellij.JBangConfigurable" displayName="JBang"/>
