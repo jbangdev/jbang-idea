@@ -2,9 +2,12 @@
 
 # jbang-idea-plugin Changelog
 
-## [Unreleased]
+## [0.25.2]
 
 - Fix: Allow comments in jbang-catalog.json files
+- Fix range problem: https://github.com/jbangdev/jbang-idea/issues/143
+- Use backgroundPostStartupActivity to sync JDKs
+- Trigger JBang script creation from PROJECT_VIEW only
 
 ## 0.25.1
 
