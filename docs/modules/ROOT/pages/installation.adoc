@@ -28,3 +28,20 @@ image:jbang-idea-marketplace.png[]
 
 Once installed you can open an existing JBang script or create a new JBang script.
 
+== JBang Location
+
+The plugin automatically locates the JBang executable using the following order:
+
+1. Custom path (if explicitly set in settings)
+2. `JBANG_HOME` environment variable - checks `$JBANG_HOME/bin/jbang`
+3. `PATH` environment variable - searches for `jbang` (or `jbang.cmd` on Windows) in system PATH
+4. Default location - falls back to `~/.jbang/bin/jbang`
+
+If the automatic detection doesn't find your JBang installation, you can explicitly set the path in the IDE settings. Navigate to `Tools > JBang` in the Settings/Preferences dialog and enter the full path to your JBang executable in the "Custom JBang Path" field.
+
+image:jbang-idea-configuration.png[]
+
+The "Effective JBang Path" field shows the actual path that will be used, which will be your custom path if set, or the automatically detected path otherwise.
+
+
+
