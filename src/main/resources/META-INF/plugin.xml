@@ -18,6 +18,7 @@
         <runConfigurationProducer implementation="dev.jbang.idea.run.JBangRunConfigurationProducer"/>
         <fileType name="JSHELL" language="JShellLanguage" extensions="jsh"/>
         <fileType name="JAVA" language="JAVA" extensions="jbang"/>
+        <fileType name="JSON5" fileNames="jbang-catalog.json"/>
         <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.directive.JBangJavaCompletionContributor"/>
         <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.sources.JBangJavaSourcesCompletionContributor"/>
         <completion.contributor language="JAVA" implementationClass="dev.jbang.idea.completion.deps.JBangJavaDepsGavCompletionContributor"/>
