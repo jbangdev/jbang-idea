@@ -36,6 +36,6 @@ class JBangCatalogJsonSchemaFileProvider : JsonSchemaFileProvider {
     }
 
     override fun getRemoteSource(): String {
-        return "https://www.jbang.dev/documentation/guide/latest/alias_catalogs.html"
+        return "https://www.jbang.dev/documentation/jbang/latest/alias_catalogs.html"
     }
 }
