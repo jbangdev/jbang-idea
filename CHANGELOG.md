@@ -2,7 +2,10 @@
 
 # jbang-idea-plugin Changelog
 
-## [0.25.2]
+## [Unreleased]
+
+
+## 0.25.2
 
 - Fix: Allow comments in jbang-catalog.json files
 - Fix range problem: https://github.com/jbangdev/jbang-idea/issues/143
