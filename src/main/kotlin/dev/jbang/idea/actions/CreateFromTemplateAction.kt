@@ -2,10 +2,7 @@ package dev.jbang.idea.actions
 
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.CommonDataKeys
-import com.intellij.openapi.actionSystem.LangDataKeys
+import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.DumbAware
@@ -16,6 +13,15 @@ import dev.jbang.idea.JBangCli.generateScriptFromTemplate
 import dev.jbang.idea.JBangCli.listJBangTemplates
 
 class CreateFromTemplateAction : AnAction(), DumbAware {
+
+    override fun getActionUpdateThread(): ActionUpdateThread {
+        return ActionUpdateThread.BGT
+    }
+
+    override fun update(e: AnActionEvent) {
+        e.presentation.isEnabledAndVisible = e.place == ActionPlaces.PROJECT_VIEW_POPUP
+    }
+
     override fun actionPerformed(e: AnActionEvent) {
         val project = e.getData(CommonDataKeys.PROJECT)!!
         try {
@@ -62,9 +68,15 @@ class CreateFromTemplateAction : AnAction(), DumbAware {
                                 true
                             }
                         } catch (e: Exception) {
-                            val errorText = "Failed to create script from template, please check template and script name!"
-                            val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
-                            jbangNotificationGroup.createNotification("Failed to create JBang script", errorText, NotificationType.ERROR).notify(project)
+                            val errorText =
+                                "Failed to create script from template, please check template and script name!"
+                            val jbangNotificationGroup =
+                                NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
+                            jbangNotificationGroup.createNotification(
+                                "Failed to create JBang script",
+                                errorText,
+                                NotificationType.ERROR
+                            ).notify(project)
                         }
                     }
                 }
@@ -72,7 +84,11 @@ class CreateFromTemplateAction : AnAction(), DumbAware {
         } catch (e: Exception) {
             val errorText = e.message!!
             val jbangNotificationGroup = NotificationGroupManager.getInstance().getNotificationGroup("JBang Failure")
-            jbangNotificationGroup.createNotification("Failed to get JBang templates", errorText, NotificationType.ERROR).notify(project)
+            jbangNotificationGroup.createNotification(
+                "Failed to get JBang templates",
+                errorText,
+                NotificationType.ERROR
+            ).notify(project)
         }
     }
 
