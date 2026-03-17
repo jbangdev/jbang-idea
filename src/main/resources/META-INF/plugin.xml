@@ -17,7 +17,7 @@
     </extensions>
     
     <extensions defaultExtensionNs="com.intellij">
-        <postStartupActivity implementation="dev.jbang.idea.JBangJdkLoader"/>
+        <backgroundPostStartupActivity implementation="dev.jbang.idea.JBangJdkLoader"/>
         <fileIconProvider implementation="dev.jbang.idea.JBangIconProvider"/>
         <configurationType implementation="dev.jbang.idea.run.JBangConfigurationType"/>
         <runConfigurationProducer implementation="dev.jbang.idea.run.JBangRunConfigurationProducer"/>
