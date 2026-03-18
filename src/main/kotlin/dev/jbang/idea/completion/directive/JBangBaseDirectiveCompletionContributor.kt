@@ -22,6 +22,7 @@ abstract class JBangBaseDirectiveCompletionContributor(language: Language) : Com
             "FILES" to "Mount files to build",
             "SOURCES" to "Pattern to include as sources",
             "DESCRIPTION" to "Markdown description for the application/script",
+            "DOCS" to "Links to additional documentation resources",
             "REPOS" to "Which repositories to use",
             "COMPILE_OPTIONS" to "Options passed to compiler",
             "RUNTIME_OPTIONS" to "Options passed to runtime",
