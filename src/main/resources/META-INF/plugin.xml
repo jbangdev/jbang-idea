@@ -11,8 +11,13 @@
     <depends optional="true" config-file="jbang-withGroovy.xml">org.intellij.groovy</depends>
     <depends optional="true" config-file="jbang-withGradle.xml">com.intellij.gradle</depends>
 
+
+    <extensions defaultExtensionNs="org.jetbrains.kotlin">
+        <supportsKotlinPluginMode/>
+    </extensions>
+
     <extensions defaultExtensionNs="com.intellij">
-        <preloadingActivity implementation="dev.jbang.idea.JBangJdkLoader"/>
+        <backgroundPostStartupActivity implementation="dev.jbang.idea.JBangJdkLoader"/>
         <fileIconProvider implementation="dev.jbang.idea.JBangIconProvider"/>
         <configurationType implementation="dev.jbang.idea.run.JBangConfigurationType"/>
         <runConfigurationProducer implementation="dev.jbang.idea.run.JBangRunConfigurationProducer"/>

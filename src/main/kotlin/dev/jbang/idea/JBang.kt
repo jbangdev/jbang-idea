@@ -20,7 +20,8 @@ val NOTIFICATION_GROUP_FAILURE = "JBang Failure"
 
 const val JBANG_DECLARE = "///usr/bin/env jbang"
 const val JBANG_DECLARE_FULL = "///usr/bin/env jbang \"\$0\" \"\$@\" ; exit \$?"
-val ALL_DIRECTIVES = listOf("JAVA", "DEPS", "GAV", "FILES", "SOURCES", "DESCRIPTION", "REPOS", "JAVAC_OPTIONS", "JAVA_OPTIONS", "PREVIEW", "JAVAAGENT", "CDS", "KOTLIN", "GROOVY")
+val ALL_DIRECTIVES = listOf("JAVA", "DEPS", "GAV", "MAIN","FILES", "SOURCES", "DESCRIPTION", "REPOS", "COMPILE_OPTIONS", "JAVAC_OPTIONS", "RUNTIME_OPTIONS","JAVA_OPTIONS",
+    "PREVIEW", "JAVAAGENT", "CDS", "KOTLIN", "GROOVY", "DESCRIPTION","NOINTEGRATIONS", "MODULE")
 val ALL_EXT_NAMES = listOf(".java", ".kt", ".jsh", ".groovy")
 
 fun findCommandInPath(command: String): Path? {

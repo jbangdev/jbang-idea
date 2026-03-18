@@ -23,6 +23,9 @@ class JBangDirectiveHighlighterAnnotator : Annotator {
                 if (directive.startsWith(JBANG_DECLARE)) {
                     endOffset = startOffset + JBANG_DECLARE_FULL.length
                 }
+                if (endOffset > element.textRange.endOffset) {
+                    endOffset = element.textRange.endOffset
+                }
                 val range = TextRange(startOffset + 2, endOffset)
                 holder.newAnnotation(HighlightSeverity.INFORMATION, "JBang directive")
                     .range(range)

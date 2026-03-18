@@ -1,12 +1,15 @@
 package dev.jbang.idea
 
-import com.intellij.openapi.application.PreloadingActivity
-import com.intellij.openapi.progress.ProgressIndicator
+import com.intellij.ide.util.RunOnceUtil
+import com.intellij.openapi.project.Project
+import com.intellij.openapi.startup.ProjectActivity
 
 
-class JBangJdkLoader : PreloadingActivity() {
+class JBangJdkLoader : ProjectActivity {
 
-    override suspend fun execute() {
-        JBangJdkService.syncJBangJdksWithIdea()
+    override suspend fun execute(project: Project) {
+        RunOnceUtil.runOnceForApp("JBangJdkLoader") {
+            JBangJdkService.syncJBangJdksWithIdea()
+        }
     }
 }

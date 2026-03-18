@@ -15,15 +15,17 @@ abstract class JBangBaseDirectiveCompletionContributor(language: Language) : Com
     companion object {
         val JAVA_DIRECTIVES = mapOf(
             "JAVA" to "Java version to use",
+            "MAIN" to "Set main class",
             "DEPS" to "Add dependency",
             "GAV" to "Set Group, Artifact and Version",
             "MANIFEST" to "Write entries to META-INF/manifest.mf",
             "FILES" to "Mount files to build",
             "SOURCES" to "Pattern to include as sources",
             "DESCRIPTION" to "Markdown description for the application/script",
+            "DOCS" to "Links to additional documentation resources",
             "REPOS" to "Which repositories to use",
-            "JAVAC_OPTIONS" to "Options passed to javac",
-            "JAVA_OPTIONS" to "Options passed to java",
+            "COMPILE_OPTIONS" to "Options passed to compiler",
+            "RUNTIME_OPTIONS" to "Options passed to runtime",
             "NATIVE_OPTIONS" to "Options passed to native-image",
             "JAVAAGENT" to "Activate agent packaging",
             "CDS" to "Activate Class Data Sharing"
@@ -41,7 +43,10 @@ abstract class JBangBaseDirectiveCompletionContributor(language: Language) : Com
         result: CompletionResultSet
     ) {
         JAVA_DIRECTIVES.forEach {
-            result.addElement(LookupElementBuilder.create(it.key + " ").appendTailText(" " + it.value, true).withPresentableText(it.key))
+            result.addElement(
+                LookupElementBuilder.create(it.key + " ").appendTailText(" " + it.value, true)
+                    .withPresentableText(it.key)
+            )
         }
     }
 

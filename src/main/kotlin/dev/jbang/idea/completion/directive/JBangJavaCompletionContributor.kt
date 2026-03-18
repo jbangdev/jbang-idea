@@ -16,6 +16,7 @@ class JBangJavaCompletionContributor : JBangBaseDirectiveCompletionContributor(J
     ) {
         super.addCompletions(parameters, context, result)
         result.addElement(LookupElementBuilder.create("PREVIEW").withTailText(" --enable-preview flag", true))
+        result.addElement(LookupElementBuilder.create("MODULE").withTailText(" treat the code a being a module", true))
     }
 
 }  
