@@ -52,7 +52,12 @@ Right click JBang script and Choose `Sync JBang DEPS` and sync dependencies betw
 ## Build
 
 ```
-$ # JDK 11 required
+# JDK 17 required
+# JDK 17 can be installed using SDKMAN - https://sdkman.io/
+$ sdk env install
+
+# Run Gradle task to build the plugin. The plugin zip file will 
+# be generated in the build/distributions folder.
 $ ./gradlew -x test patchPluginXml buildPlugin
 ```
 
