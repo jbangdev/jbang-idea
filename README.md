@@ -20,7 +20,7 @@ The following features are available:
 * Define JBang location if not found in PATH or JBANG_HOME
 * JSON Schema for jbang-catalog.json and code completion for `script-ref`
 * JDKs sync with JBang: sync JDKs from JBang to IntelliJ IDEA
-* JBang script creation from file templates: New -> JBang Script
+* JBang script creation from file templates by right-clicking in the Project View: New -> JBang Script
 * JBang directives completion:  for example `//DEPS`, `//SOURCES`
 * Sync Dependencies between JBang and Gradle
 * JBang Run Line Marker for `///usr/bin/env jbang`
