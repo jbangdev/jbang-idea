@@ -11,6 +11,7 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
@@ -29,7 +30,6 @@ import dev.jbang.idea.*
 import dev.jbang.idea.JBangCli.resolveScriptDependencies
 import dev.jbang.idea.JBangCli.resolveScriptInfo
 import org.jetbrains.kotlin.idea.core.util.toPsiFile
-import org.jetbrains.kotlin.idea.util.module
 import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
 import org.jetbrains.kotlin.idea.util.projectStructure.version
 import org.jetbrains.plugins.gradle.util.GradleConstants
@@ -70,7 +70,7 @@ class SyncDependenciesAction : AnAction() {
         if (jbangScriptFile != null && isJBangScriptFile(jbangScriptFile.name)) {
             if (isJBangScript(jbangScriptFile.text)) {
                 val project = e.getData(CommonDataKeys.PROJECT)!!
-                val module = jbangScriptFile.module
+                val module = ModuleUtilCore.findModuleForPsiElement(jbangScriptFile)
                 if (module != null) {
                     var buildGradle = LocalFileSystem.getInstance().findFileByPath(project.basePath + "/build.gradle")
                     var moduleBuildGradle = false
@@ -269,7 +269,7 @@ class SyncDependenciesAction : AnAction() {
         )
     }
 
-    private fun syncDepsToModule(module: Module, jbangScriptFile: PsiFile) {
+    fun syncDepsToModule(module: Module, jbangScriptFile: PsiFile) {
         //save all documents first when to call JBang CLI
         ApplicationManager.getApplication().runWriteAction {
             FileDocumentManager.getInstance().saveAllDocuments()

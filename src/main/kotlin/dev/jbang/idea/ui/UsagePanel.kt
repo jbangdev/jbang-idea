@@ -14,6 +14,7 @@ Features:
 - JDKs sync with JBang: sync JDKs from JBang to IntelliJ IDEA
 - JBang directives completion
 - Sync Dependencies between JBang and Gradle
+- Sync Dependencies to IDEA's module by right-clicking in the JBang script header area and choosing "Sync JBang DEPS to Module"
 
 References:
 - Usage: https://www.jbang.dev/documentation/guide/latest/usage.html
