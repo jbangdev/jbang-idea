@@ -11,6 +11,7 @@ import com.intellij.openapi.externalSystem.importing.ImportSpecBuilder
 import com.intellij.openapi.externalSystem.util.ExternalSystemUtil
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.module.Module
+import com.intellij.openapi.module.ModuleUtilCore
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.ProgressManager
 import com.intellij.openapi.progress.Task
@@ -25,13 +26,10 @@ import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.pom.java.LanguageLevel
 import com.intellij.psi.PsiDocumentManager
 import com.intellij.psi.PsiFile
+import com.intellij.psi.PsiManager
 import dev.jbang.idea.*
 import dev.jbang.idea.JBangCli.resolveScriptDependencies
 import dev.jbang.idea.JBangCli.resolveScriptInfo
-import org.jetbrains.kotlin.idea.core.util.toPsiFile
-import org.jetbrains.kotlin.idea.util.module
-import org.jetbrains.kotlin.idea.util.projectStructure.getModuleDir
-import org.jetbrains.kotlin.idea.util.projectStructure.version
 import org.jetbrains.plugins.gradle.util.GradleConstants
 
 
@@ -70,17 +68,17 @@ class SyncDependenciesAction : AnAction() {
         if (jbangScriptFile != null && isJBangScriptFile(jbangScriptFile.name)) {
             if (isJBangScript(jbangScriptFile.text)) {
                 val project = e.getData(CommonDataKeys.PROJECT)!!
-                val module = jbangScriptFile.module
+                val module = ModuleUtilCore.findModuleForPsiElement(jbangScriptFile)
                 if (module != null) {
                     var buildGradle = LocalFileSystem.getInstance().findFileByPath(project.basePath + "/build.gradle")
                     var moduleBuildGradle = false
-                    val buildGradleOfModule = LocalFileSystem.getInstance().findFileByPath(module.getModuleDir() + "/build.gradle")
+                    val buildGradleOfModule = LocalFileSystem.getInstance().findFileByPath(ModuleUtilCore.getModuleDirPath(module) + "/build.gradle")
                     if (buildGradleOfModule != null) {
                         buildGradle = buildGradleOfModule
                         moduleBuildGradle = true
                     }
                     if (buildGradle != null) { // sync dependencies between DEPS and gradle
-                        syncDependenciesBetweenJBangAndGradle(project, module, buildGradle.toPsiFile(project)!!, jbangScriptFile, moduleBuildGradle)
+                        syncDependenciesBetweenJBangAndGradle(project, module, PsiManager.getInstance(project).findFile(buildGradle)!!, jbangScriptFile, moduleBuildGradle)
                     } else { //sync DEPS to IDEA's module
                         syncDepsToModule(module, jbangScriptFile)
                     }
@@ -333,7 +331,7 @@ class SyncDependenciesAction : AnAction() {
         if (moduleSdk == null || moduleSdk.name != version) {
             val javaSdk = checkIfSdkExistsIfNotSyncWithJbang(version, module)
             if (javaSdk != null) {
-                val languageLevel = LanguageLevel.valueOf(javaSdk.version?.name!!)
+                val languageLevel = LanguageLevel.valueOf(JavaSdk.getInstance().getVersion(javaSdk)?.name!!)
                 ApplicationManager.getApplication().runWriteAction {
                     val modifiableRootModel = moduleRootManager.modifiableModel
                     modifiableRootModel.sdk = javaSdk

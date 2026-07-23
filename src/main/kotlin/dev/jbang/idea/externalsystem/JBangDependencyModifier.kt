@@ -8,8 +8,8 @@ import com.intellij.openapi.actionSystem.CommonDataKeys
 import com.intellij.openapi.actionSystem.impl.SimpleDataContext
 import com.intellij.openapi.module.Module
 import com.intellij.psi.PsiComment
+import com.intellij.psi.PsiManager
 import dev.jbang.idea.file.JBangScriptFileIndex
-import org.jetbrains.kotlin.idea.core.util.toPsiFile
 import org.jetbrains.kotlin.psi.psiUtil.getChildrenOfType
 
 @Suppress("UnstableApiUsage")
@@ -43,7 +43,7 @@ class JBangDependencyModifier : ExternalDependencyModificator {
     override fun declaredDependencies(module: Module): MutableList<DeclaredDependency> {
         val scriptFiles = JBangScriptFileIndex.findJbangScriptFiles(module)
         return scriptFiles.map {
-            it.toPsiFile(module.project)!!
+            PsiManager.getInstance(module.project).findFile(it)!!
         }.flatMap { psiFile ->
             psiFile.getChildrenOfType<PsiComment>().filter { it.text.startsWith("//DEPS ") }
                 .map { psiComment ->

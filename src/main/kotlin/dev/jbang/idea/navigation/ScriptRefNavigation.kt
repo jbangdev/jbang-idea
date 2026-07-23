@@ -4,8 +4,8 @@ import com.intellij.navigation.DirectNavigationProvider
 import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.psi.PsiDirectory
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiManager
 import dev.jbang.idea.completion.ScriptRefCompletionContributor.Companion.scriptRefValueCapture
-import org.jetbrains.kotlin.idea.core.util.toPsiFile
 
 
 @Suppress("UnstableApiUsage")
@@ -19,7 +19,7 @@ class ScriptRefNavigation : DirectNavigationProvider {
             ) {
                 val directory = element.containingFile.parent as PsiDirectory
                 val realPath = directory.virtualFile.toNioPath().resolve(scriptRef)
-                return VirtualFileManager.getInstance().findFileByNioPath(realPath)?.toPsiFile(element.project)
+                return VirtualFileManager.getInstance().findFileByNioPath(realPath)?.let { PsiManager.getInstance(element.project).findFile(it) }
             }
         }
         return null
