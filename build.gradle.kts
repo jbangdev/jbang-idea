@@ -27,7 +27,7 @@ dependencies {
         bundledPlugins(providers.gradleProperty("platformBundledPlugins").map { it.split(',').map(String::trim).filter(String::isNotEmpty) })
         bundledModules(providers.gradleProperty("platformBundledModules").map { it.split(',').map(String::trim).filter(String::isNotEmpty) })
 
-        testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.JUnit4)
+        testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Bundled)
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Plugin.Java)
     }
 }
