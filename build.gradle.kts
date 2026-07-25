@@ -21,13 +21,14 @@ repositories {
 
 dependencies {
     implementation("org.zeroturnaround:zt-exec:1.12")
+    testImplementation("junit:junit:4.13.2")
 
     intellijPlatform {
         intellijIdea(providers.gradleProperty("platformVersion"))
         bundledPlugins(providers.gradleProperty("platformBundledPlugins").map { it.split(',').map(String::trim).filter(String::isNotEmpty) })
         bundledModules(providers.gradleProperty("platformBundledModules").map { it.split(',').map(String::trim).filter(String::isNotEmpty) })
 
-        testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Bundled)
+        testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Plugin.Java)
     }
 }
