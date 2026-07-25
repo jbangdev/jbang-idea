@@ -5,7 +5,7 @@ plugins {
     id("java")
     id("org.jetbrains.kotlin.jvm") version "2.4.0"
     // IntelliJ Platform Gradle Plugin 2.x (required for IntelliJ Platform 2024.2+)
-    id("org.jetbrains.intellij.platform") version "2.18.1"
+    id("org.jetbrains.intellij.platform") version "2.17.0"
     id("org.jetbrains.changelog") version "2.2.1"
 }
 
