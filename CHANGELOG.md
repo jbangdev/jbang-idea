@@ -4,6 +4,12 @@
 
 ## [Unreleased]
 
+- Fix: Support IntelliJ IDEA 2026.2. `Sync Dependencies` no longer throws `NoClassDefFoundError` (#155); migrated off the removed `org.jetbrains.kotlin.idea.util.projectStructure` internal APIs to IntelliJ Platform APIs.
+- Fix: Migrate GAV `//DEPS` completion from the removed `reposearch` `DependencySearchService` to the new `DependencyCompletionService`.
+- Fix: Defer `parentEnvironment` initialization to avoid service access during class init (`<clinit>`).
+- Fix: Replace removed `AllIcons.Actions.Run_anything` icon with `AllIcons.Actions.Execute`.
+- Build: Migrate to IntelliJ Platform Gradle Plugin 2.x. Minimum supported IDE is now 2026.2 (build 262, JBR 25).
+
 
 ## 0.25.2
 

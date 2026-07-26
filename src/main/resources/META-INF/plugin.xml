@@ -6,6 +6,7 @@
     <category>Tool</category>
 
     <depends>com.intellij.modules.java</depends>
+    <depends>com.intellij.modules.json</depends>
     <depends>org.jetbrains.idea.reposearch</depends>
     <depends optional="true" config-file="jbang-withKotlin.xml">org.jetbrains.kotlin</depends>
     <depends optional="true" config-file="jbang-withGroovy.xml">org.intellij.groovy</depends>
@@ -75,7 +76,7 @@
             </action>
             <action id="JBang.Run" description="Run JBang Script"
                     class="dev.jbang.idea.ui.toolbar.RunScriptAction"
-                    icon="AllIcons.Actions.Run_anything" text="Run JBang Script">
+                    icon="AllIcons.Actions.Execute" text="Run JBang Script">
             </action>
         </group>
     </actions>

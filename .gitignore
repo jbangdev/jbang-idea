@@ -122,6 +122,9 @@ modules.xml
 .gradle
 build/
 
+# IntelliJ Platform Gradle Plugin 2.x cache
+.intellijPlatform/
+
 # Ignore Gradle GUI config
 gradle-app.setting
 

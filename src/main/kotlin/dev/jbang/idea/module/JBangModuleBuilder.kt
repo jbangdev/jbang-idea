@@ -7,7 +7,6 @@ import com.intellij.openapi.module.Module
 import com.intellij.openapi.roots.ModuleRootManager
 import dev.jbang.idea.JBangCli.generateScriptFromTemplate
 import dev.jbang.idea.jbangIcon
-import org.jetbrains.kotlin.idea.util.projectStructure.sdk
 import java.util.*
 import java.util.regex.Pattern
 import javax.swing.Icon
@@ -36,7 +35,7 @@ class JBangModuleBuilder : JavaModuleBuilder(), ModuleBuilderListener {
         val moduleRootManager = ModuleRootManager.getInstance(module)
         val properties = Properties()
         properties.putAll(FileTemplateManager.getInstance(module.project).defaultProperties)
-        val javaSdkVersion = module.sdk?.versionString
+        val javaSdkVersion = moduleRootManager.sdk?.versionString
         val javaVersion = if (javaSdkVersion != null) {
             (19 downTo 9).firstOrNull { javaSdkVersion.contains("${it}.0") } ?: 8
         } else {

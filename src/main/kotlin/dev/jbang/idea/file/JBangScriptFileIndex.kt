@@ -43,7 +43,7 @@ class JBangScriptFileIndex : ScalarIndexExtension<String>() {
     }
 
     companion object {
-        val NAME = ID.create<String, Void?>("jbang.scriptFileIndex")
+        val NAME = ID.create<String, Void>("jbang.scriptFileIndex")
 
         fun findJbangScriptFiles(module: Module): MutableCollection<VirtualFile> {
             val fileBasedIndex = FileBasedIndex.getInstance()
