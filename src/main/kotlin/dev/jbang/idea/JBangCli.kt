@@ -10,7 +10,7 @@ import dev.jbang.idea.JBangCli.parentEnvironment
 import org.zeroturnaround.exec.ProcessExecutor
 import java.io.File
 
-public val PARENT_ENV_VAR = parentEnvironment();
+public val PARENT_ENV_VAR by lazy { parentEnvironment() }
 
 object JBangCli {
 
