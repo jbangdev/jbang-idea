@@ -4,71 +4,68 @@
 
 ## [Unreleased]
 
-- Fix: Support IntelliJ IDEA 2026.2. `Sync Dependencies` no longer throws `NoClassDefFoundError` (#155); migrated off the removed `org.jetbrains.kotlin.idea.util.projectStructure` internal APIs to IntelliJ Platform APIs.
-- Fix: Migrate GAV `//DEPS` completion from the removed `reposearch` `DependencySearchService` to the new `DependencyCompletionService`.
-- Fix: Defer `parentEnvironment` initialization to avoid service access during class init (`<clinit>`).
-- Fix: Replace removed `AllIcons.Actions.Run_anything` icon with `AllIcons.Actions.Execute`.
-- Build: Migrate to IntelliJ Platform Gradle Plugin 2.x. Minimum supported IDE is now 2026.2 (build 262, JBR 25).
+## [0.26.1] - 2026-07-26
 
+**Full Changelog**: https://github.com/jbangdev/jbang-idea/compare/v0.26.0...v0.26.1
 
-## 0.25.2
+## [0.25.2]
 
 - Fix: Allow comments in jbang-catalog.json files
 - Fix range problem: https://github.com/jbangdev/jbang-idea/issues/143
 - Use backgroundPostStartupActivity to sync JDKs
 - Trigger JBang script creation from PROJECT_VIEW only
 
-## 0.25.1
+## [0.25.1]
 
 - Feat: Compatible with IntelliJ IDEA 2023.2+ 
 - Feat: Add JBang Path in settings
 - Feat: Allow install into IntelliJ IDEA EAP
 - Fix: Select proper directory when creating script
 
-## 0.25.0
+## [0.25.0]
 
 - Feat: Add JBang Path in settings
 - Feat: Allow install into IntelliJ IDEA EAP
 - Fix: Select proper directory when creating script
 
-## 0.24.9
+## [0.24.9]
 
 ### Added
 
 - Fixed: Compatible with IntelliJ IDEA 2025.1
 
-## 0.24.8
+## [0.24.8]
 
 ### Added
 
 - Fix #73: cannot create JBang script in IntelliJ IDEA
 - Fixed: Compatible with IntelliJ IDEA 2024.3
 
-## 0.24.6
+## [0.24.6]
 
 ### Added
 
 - Fixed: Compatible with IntelliJ IDEA 2024.2
 
-## 0.24.5
+## [0.24.5]
 
 ### Added
 
 - Fixed: Compatible with IntelliJ IDEA 2024.1
 
-## 0.24.4
+## [0.24.4]
 
 ### Added
 
 - Fixed: Compatible with IntelliJ IDEA 2023.3
 
-## 0.24.3
+## [0.24.3]
 
 ### Added
 
 - Feat: Add `//PREVIEW` support
 
-## 0.24.2
+## [0.24.2]
 
 ### Fixed
 
@@ -76,13 +73,13 @@
 - Fixed: Compatible with IntelliJ IDEA 2023.2
 - Fixed: Add more properties for alias object in `jbang-catalog-schema.json`
 
-## 0.24.1
+## [0.24.1]
 
 ### Fixed
 
 - Fixed: Compatible with IntelliJ IDEA 2023.1
 
-## 0.24.0
+## [0.24.0]
 
 ### Added
 
@@ -91,13 +88,13 @@
 - Added: NATIVE_OPTIONS support
 - Fixed: support for quoted arguments in the build configuration
 
-## 0.23.0
+## [0.23.0]
 
 ### Fixed
 
 - Fixed: Compatible with IntelliJ IDEA 2022.3
 
-## 0.22.0
+## [0.22.0]
 
 ### Added
 
@@ -106,7 +103,7 @@
 - Added: icon for `build.jbang`
 - Added: Java Scratch file support - https://github.com/jbangdev/jbang-idea/issues/68
 
-## 0.21.0
+## [0.21.0]
 
 ### Added
 
@@ -116,13 +113,13 @@
     * jbang-build: generate JBang declaration with build info
     * jbang-sb: generate JBang declaration with Spring Boot dependencies
 
-## 0.20.0
+## [0.20.0]
 
 ### Added
 
 - Added: Java 18 Snippet support with `java`, `groovy`, `kotlin` lang attribute
 
-## 0.19.0
+## [0.19.0]
 
 ### Added
 
@@ -130,7 +127,7 @@
 - Added: environment variables support for JBang run configuration
 - Fixed: Force to refresh script info when click refresh button in JBang tool window
 
-## 0.18.0
+## [0.18.0]
 
 ### Added
 
@@ -138,7 +135,7 @@
 - Added: Java version synced within module
 - Fixed: external library name always as jbang, and now is `${moduelName}-jbang`
 
-## 0.17.0
+## [0.17.0]
 
 ### Added
 
@@ -146,7 +143,7 @@
 - Added: open new JBang script files after creation from template
 - Fix: save all documents when to sync DEPS
 
-## 0.16.0
+## [0.16.0]
 
 ### Added
 
@@ -154,25 +151,25 @@
 - Added: introduce ProgressManager and Task.Backgroundable to sync dependencies asynchronously
 - Fix: added descriptions to directive completions
 
-## 0.15.0
+## [0.15.0]
 
 ### Added
 
 - Added: Support 2022.1 EAP
 
-## 0.13.0
+## [0.13.0]
 
 ### Added
 
 - GAV completion with last version support
 
-## 0.12.0
+## [0.12.0]
 
 ### Added
 
 - Bug fix: remove file editor listener because of performance
 
-## 0.11.0
+## [0.11.0]
 
 ### Added
 
@@ -182,14 +179,14 @@
 - text with one colon - artifact search based on groupId `com.google.guava:`
 - text with two colons - version search based on groupId and artifactId `com.google.guava:guava:`
 
-## 0.10.0
+## [0.10.0]
 
 ### Added
 
 - JBang module wizard: create new JBang project or create JBang module on current project
 - Language detection for JBang module creation: create different script file based on Java/Groovy/Kotlin chosen
 
-## 0.9.0
+## [0.9.0]
 
 ### Added
 
@@ -199,27 +196,27 @@
 - High lighter for JBang directives
 - JBang tool window
 
-## 0.6.0
+## [0.6.0]
 
 ### Added
 
 - Add create script from JBang template
 - Move all DEPS to module's jbang library
 
-## 0.5.0
+## [0.5.0]
 
 ### Added
 
 - Add to sync DEPS to IDEA's module:  use `idea .` to open JBang project
 
-## 0.4.0
+## [0.4.0]
 
 ### Added
 
 - JBang Run Line Marker for `///usr/bin/env jbang`
 - `//GROOVY` directive completion for JBang Groovy script
 
-## 0.3.0
+## [0.3.0]
 
 ### Added
 
@@ -227,14 +224,14 @@
 - Add icon for `JBang run` in editor popup menu
 - Append ` by JBang` to JBang run configuration to indicate it run by JBang
 
-## 0.2.0
+## [0.2.0]
 
 ### Added
 
 - GAV directive added for completion
 - Run configuration for Groovy: run Groovy by JBang
 
-## 0.1.0
+## [0.1.0]
 
 ### Added
 
@@ -243,3 +240,38 @@
 - Run Configuration support: run JBang script by right click
 - JBang script creation from file templates: New -> JBang Script
 - JBang directives completion:  for example `//DEPS`, `//SOURCES`
+
+[Unreleased]: https://github.com/jbangdev/jbang-idea/compare/v0.26.1...HEAD
+[0.26.1]: https://github.com/jbangdev/jbang-idea/compare/v0.25.2...v0.26.1
+[0.25.2]: https://github.com/jbangdev/jbang-idea/compare/v0.25.1...v0.25.2
+[0.25.1]: https://github.com/jbangdev/jbang-idea/compare/v0.25.0...v0.25.1
+[0.25.0]: https://github.com/jbangdev/jbang-idea/compare/v0.24.9...v0.25.0
+[0.24.9]: https://github.com/jbangdev/jbang-idea/compare/v0.24.8...v0.24.9
+[0.24.8]: https://github.com/jbangdev/jbang-idea/compare/v0.24.6...v0.24.8
+[0.24.6]: https://github.com/jbangdev/jbang-idea/compare/v0.24.5...v0.24.6
+[0.24.5]: https://github.com/jbangdev/jbang-idea/compare/v0.24.4...v0.24.5
+[0.24.4]: https://github.com/jbangdev/jbang-idea/compare/v0.24.3...v0.24.4
+[0.24.3]: https://github.com/jbangdev/jbang-idea/compare/v0.24.2...v0.24.3
+[0.24.2]: https://github.com/jbangdev/jbang-idea/compare/v0.24.1...v0.24.2
+[0.24.1]: https://github.com/jbangdev/jbang-idea/compare/v0.24.0...v0.24.1
+[0.24.0]: https://github.com/jbangdev/jbang-idea/compare/v0.23.0...v0.24.0
+[0.23.0]: https://github.com/jbangdev/jbang-idea/compare/v0.22.0...v0.23.0
+[0.22.0]: https://github.com/jbangdev/jbang-idea/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/jbangdev/jbang-idea/compare/v0.20.0...v0.21.0
+[0.20.0]: https://github.com/jbangdev/jbang-idea/compare/v0.19.0...v0.20.0
+[0.19.0]: https://github.com/jbangdev/jbang-idea/compare/v0.18.0...v0.19.0
+[0.18.0]: https://github.com/jbangdev/jbang-idea/compare/v0.17.0...v0.18.0
+[0.17.0]: https://github.com/jbangdev/jbang-idea/compare/v0.16.0...v0.17.0
+[0.16.0]: https://github.com/jbangdev/jbang-idea/compare/v0.15.0...v0.16.0
+[0.15.0]: https://github.com/jbangdev/jbang-idea/compare/v0.13.0...v0.15.0
+[0.13.0]: https://github.com/jbangdev/jbang-idea/compare/v0.12.0...v0.13.0
+[0.12.0]: https://github.com/jbangdev/jbang-idea/compare/v0.11.0...v0.12.0
+[0.11.0]: https://github.com/jbangdev/jbang-idea/compare/v0.10.0...v0.11.0
+[0.10.0]: https://github.com/jbangdev/jbang-idea/compare/v0.9.0...v0.10.0
+[0.9.0]: https://github.com/jbangdev/jbang-idea/compare/v0.6.0...v0.9.0
+[0.6.0]: https://github.com/jbangdev/jbang-idea/compare/v0.5.0...v0.6.0
+[0.5.0]: https://github.com/jbangdev/jbang-idea/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/jbangdev/jbang-idea/compare/v0.3.0...v0.4.0
+[0.3.0]: https://github.com/jbangdev/jbang-idea/compare/v0.2.0...v0.3.0
+[0.2.0]: https://github.com/jbangdev/jbang-idea/compare/v0.1.0...v0.2.0
+[0.1.0]: https://github.com/jbangdev/jbang-idea/commits/v0.1.0
