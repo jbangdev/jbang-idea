@@ -1,38 +1,35 @@
-= Intro
+= JBang for IntelliJ IDEA
 :idprefix:
 :idseparator: -
 ifndef::env-github[]
 :icons: font
 endif::[]
-ifdef::env-github[]
-:caution-caption: :fire:
-:important-caption: :exclamation:
-:note-caption: :paperclip:
-:tip-caption: :bulb:
-:warning-caption: :warning:
-endif::[]
 
-JBang Idea plugin enhances the JBang experience inside Intellij IDEA.
+The JBang plugin brings https://www.jbang.dev/[JBang] scripts into IntelliJ IDEA while keeping JBang itself as the source of truth.
+It reads script metadata with `jbang info tools` and exposes dependencies and declared sources as project overlays.
+It does not rewrite IntelliJ modules, Gradle builds, or Maven projects.
 
-The plugin works with and without `jbang edit` command. You can create jbang scripts, get auto completion and run your script without any setup.
+== Highlights
 
-A real game changer to get started with Java.
+* Automatic synchronization after opening or saving a JBang root script
+* Explicit *Sync JBang Project* action with visible progress and detailed errors
+* Multiple root scripts with isolated classpaths and active-root switching
+* Resolution and navigation for `//SOURCES` and `//FILES`
+* Local and remote Maven coordinate completion for `//DEPS`
+* Directive, path, and catalog `script-ref` completion
+* Exact diagnostics for invalid directives, unresolved dependencies, and missing resources
+* Per-root `//JAVA` JDK registration and selection in standalone projects
+* Run and Debug configurations, gutter icons, and editor/project context actions
+* CLI-backed *New > JBang Script* templates
+* Java, Kotlin, Groovy, JShell (`.jsh`), and `.jbang` script recognition
+* JSON Schema support for `jbang-catalog.json`
 
-The following features are available:
+image:current/project-overview.png[JBang multi-root project in IntelliJ IDEA]
 
-* JBang project wizard: create JBang project by IDEA project wizard
-* JSON Schema for jbang-catalog.json and code completion for `script-ref`
-* JDKs sync with JBang: sync JDKs from JBang to IntelliJ IDEA
-* JBang script creation from file templates by right-clicking in the Project View: New -> JBang Script
-* JBang directives completion:  for example `//DEPS`, `//SOURCES`
-* Sync Dependencies between JBang and Gradle
-* Sync Dependencies to IDEA's module when using `idea .` to open JBang project
-* JBang Run Line Marker for `///usr/bin/env jbang`
-* Run Configuration support: run JBang script by right click
-* file name end with '.java', '.kt', '.groovy' or '.jsh'
-* file code should contain `///usr/bin/env jbang` or `//DEPS`
-* GAV completion for `//DEPS `
-* text without colon - full text search `google.guava`, and words seperated by `.` or `-`
-* text with one colon - artifact search based on groupId `com.google.guava:`
-* text with two colons - version search based on groupId and artifactId `com.google.guava:guava:`
+== How project integration works
 
+Each JBang root has its own resolved metadata, dependency roots, declared source files, and requested Java version.
+The active root controls the classpath and JDK used for its included sources.
+Dependencies appear under *External Libraries* as synthetic JBang libraries; existing Gradle and Maven models remain untouched.
+
+See xref:usage.adoc[Usage] for the complete workflow and xref:installation.adoc[Installation] for executable discovery and configuration.
