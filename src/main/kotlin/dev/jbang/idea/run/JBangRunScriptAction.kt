@@ -1,23 +1,95 @@
 package dev.jbang.idea.run
 
-import com.intellij.execution.Executor
-import com.intellij.execution.Location
-import com.intellij.execution.PsiLocation
-import com.intellij.execution.RunManagerEx
-import com.intellij.execution.actions.ConfigurationContext
-import com.intellij.execution.runners.ExecutionUtil
-import com.intellij.openapi.actionSystem.AnAction
-import com.intellij.openapi.actionSystem.AnActionEvent
-import com.intellij.openapi.actionSystem.impl.SimpleDataContext
-import com.intellij.psi.PsiElement
+import com.intellij.execution.ProgramRunnerUtil
+import com.intellij.execution.RunManager
+import com.intellij.execution.executors.DefaultDebugExecutor
+import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.project.DumbAware
+import com.intellij.openapi.roots.ProjectFileIndex
+import dev.jbang.idea.JBangPlugin
+import dev.jbang.idea.project.JBangScriptDetector
 
-class JBangRunScriptAction(private val target: PsiElement) : AnAction() {
-    override fun actionPerformed(event: AnActionEvent) {
-        val dataContext = SimpleDataContext.getSimpleContext(Location.DATA_KEY, PsiLocation(target), event.dataContext)
-        val context = ConfigurationContext.getFromContext(dataContext, event.place)
-        val producer = JBangRunConfigurationProducer()
-        val configuration = producer.findOrCreateConfigurationFromContext(context)?.configurationSettings ?: return
-        (context.runManager as RunManagerEx).setTemporaryConfiguration(configuration)
-        ExecutionUtil.runConfiguration(configuration, Executor.EXECUTOR_EXTENSION_NAME.extensionList.first())
+/**
+ * Right-click editor/project-view action: "Run with JBang" / "Debug with JBang".
+ * Works regardless of whether the file is inside a source root.
+ */
+class JBangRunScriptAction : AnAction("Run with JBang", "Run this script using jbang", JBangPlugin.icon16), DumbAware {
+
+    override fun getActionUpdateThread() = ActionUpdateThread.BGT
+
+    override fun update(e: AnActionEvent) {
+        val file = e.getData(CommonDataKeys.VIRTUAL_FILE)
+        val project = e.project
+        if (file == null || !JBangScriptDetector.isRootScript(file)) {
+            e.presentation.isEnabledAndVisible = false
+            return
+        }
+        // Hide when gutter icons are available (file is in a source root)
+        val inSourceRoot = project != null && ProjectFileIndex.getInstance(project).isInSourceContent(file)
+        e.presentation.isEnabledAndVisible = !inSourceRoot
+    }
+
+    override fun actionPerformed(e: AnActionEvent) {
+        val file = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
+        val project = e.project ?: return
+
+        val runManager = RunManager.getInstance(project)
+        val factory = JBangConfigurationFactory(JBangConfigurationType())
+
+        // Reuse existing config or create new one
+        val configName = "jbang ${file.name}"
+        val existing = runManager.findConfigurationByName(configName)
+        val settings = if (existing != null) {
+            existing
+        } else {
+            val newSettings = runManager.createConfiguration(configName, factory)
+            val config = newSettings.configuration as JBangRunConfiguration
+            config.scriptPath = file.path
+            runManager.addConfiguration(newSettings)
+            newSettings
+        }
+
+        runManager.selectedConfiguration = settings
+        ProgramRunnerUtil.executeConfiguration(settings, DefaultRunExecutor.getRunExecutorInstance())
+    }
+}
+
+class JBangDebugScriptAction : AnAction("Debug with JBang", "Debug this script using jbang", JBangPlugin.icon16), DumbAware {
+
+    override fun getActionUpdateThread() = ActionUpdateThread.BGT
+
+    override fun update(e: AnActionEvent) {
+        val file = e.getData(CommonDataKeys.VIRTUAL_FILE)
+        val project = e.project
+        if (file == null || !JBangScriptDetector.isRootScript(file)) {
+            e.presentation.isEnabledAndVisible = false
+            return
+        }
+        val inSourceRoot = project != null && ProjectFileIndex.getInstance(project).isInSourceContent(file)
+        e.presentation.isEnabledAndVisible = !inSourceRoot
+    }
+
+    override fun actionPerformed(e: AnActionEvent) {
+        val file = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
+        val project = e.project ?: return
+
+        val runManager = RunManager.getInstance(project)
+        val factory = JBangConfigurationFactory(JBangConfigurationType())
+
+        val configName = "jbang ${file.name}"
+        val existing = runManager.findConfigurationByName(configName)
+        val settings = if (existing != null) {
+            existing
+        } else {
+            val newSettings = runManager.createConfiguration(configName, factory)
+            val config = newSettings.configuration as JBangRunConfiguration
+            config.scriptPath = file.path
+            runManager.addConfiguration(newSettings)
+            newSettings
+        }
+
+        runManager.selectedConfiguration = settings
+        ProgramRunnerUtil.executeConfiguration(settings, DefaultDebugExecutor.getDebugExecutorInstance())
     }
 }

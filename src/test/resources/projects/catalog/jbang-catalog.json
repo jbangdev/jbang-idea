@@ -1,0 +1,8 @@
+{
+  "aliases": {
+    "hello": {
+      "script-ref": "scripts/hello.java",
+      "description": "Local script-ref navigation sample"
+    }
+  }
+}

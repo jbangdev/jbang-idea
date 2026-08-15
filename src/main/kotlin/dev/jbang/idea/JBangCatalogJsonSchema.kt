@@ -6,36 +6,16 @@ import com.jetbrains.jsonSchema.extension.JsonSchemaFileProvider
 import com.jetbrains.jsonSchema.extension.JsonSchemaProviderFactory
 import com.jetbrains.jsonSchema.extension.SchemaType
 
-
 class JBangCatalogJsonSchemaProviderFactory : JsonSchemaProviderFactory {
-    override fun getProviders(project: Project): MutableList<JsonSchemaFileProvider> {
-        return mutableListOf(JBangCatalogJsonSchemaFileProvider())
+    override fun getProviders(project: Project): List<JsonSchemaFileProvider> {
+        return listOf(JBangCatalogJsonSchemaProvider())
     }
 }
 
-class JBangCatalogJsonSchemaFileProvider : JsonSchemaFileProvider {
-
-    override fun isAvailable(file: VirtualFile): Boolean {
-        return file.name == "jbang-catalog.json"
-    }
-
-    override fun getName(): String {
-        return "JBang"
-    }
-
-    override fun getSchemaFile(): VirtualFile? {
-        return JsonSchemaProviderFactory.getResourceFile(JBangCatalogJsonSchemaFileProvider::class.java, "/jbang-catalog-schema.json")
-    }
-
-    override fun getSchemaType(): SchemaType {
-        return SchemaType.embeddedSchema
-    }
-
-    override fun getPresentableName(): String {
-        return "JBang"
-    }
-
-    override fun getRemoteSource(): String {
-        return "https://www.jbang.dev/documentation/jbang/latest/alias_catalogs.html"
-    }
+private class JBangCatalogJsonSchemaProvider : JsonSchemaFileProvider {
+    override fun isAvailable(file: VirtualFile): Boolean = file.name == "jbang-catalog.json"
+    override fun getName(): String = "JBang Catalog"
+    override fun getSchemaFile(): VirtualFile? =
+        JsonSchemaProviderFactory.getResourceFile(JBangCatalogJsonSchemaProvider::class.java, "/jbang-catalog-schema.json")
+    override fun getSchemaType(): SchemaType = SchemaType.embeddedSchema
 }

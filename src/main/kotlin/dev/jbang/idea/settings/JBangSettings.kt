@@ -1,28 +1,32 @@
 package dev.jbang.idea.settings
 
-import com.intellij.openapi.components.PersistentStateComponent
-import com.intellij.openapi.components.State
-import com.intellij.openapi.components.Storage
-import com.intellij.util.xmlb.XmlSerializerUtil
+import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.components.*
 
-@State(
-    name = "JBangSettings",
-    storages = [Storage("jbang.xml")]
-)
-class JBangSettings : PersistentStateComponent<JBangSettings> {
-    var jbangExecutablePath: String? = null
+@State(name = "JBangSettings", storages = [Storage("jbang.xml")])
+@Service(Service.Level.APP)
+class JBangSettings : PersistentStateComponent<JBangSettings.State> {
 
-    override fun getState(): JBangSettings {
-        return this
-    }
+    data class State(
+        var jbangPath: String = "",
+        var autoSync: Boolean = true,
+    )
 
-    override fun loadState(state: JBangSettings) {
-        XmlSerializerUtil.copyBean(state, this)
-    }
+    private var myState = State()
+
+    override fun getState(): State = myState
+    override fun loadState(state: State) { myState = state }
+
+    var jbangPath: String
+        get() = myState.jbangPath
+        set(value) { myState.jbangPath = value }
+
+    var autoSync: Boolean
+        get() = myState.autoSync
+        set(value) { myState.autoSync = value }
 
     companion object {
-        fun getInstance(): JBangSettings {
-            return com.intellij.openapi.components.ServiceManager.getService(JBangSettings::class.java)
-        }
+        val instance: JBangSettings
+            get() = ApplicationManager.getApplication().getService(JBangSettings::class.java)
     }
-} 
+}
