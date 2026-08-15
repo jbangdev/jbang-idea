@@ -16,10 +16,15 @@ class JBangResolveScopeEnlarger : ResolveScopeEnlarger() {
             service.getLibraryRootsForFile(file.path).takeIf { it.isNotEmpty() }?.let {
                 add(GlobalSearchScopesCore.directoriesScope(project, true, *it.toTypedArray()))
             }
-            service.getSourceFilesForFile(file.path).mapNotNull { it.parent }.distinct()
-                .takeIf { it.isNotEmpty() }?.let {
-                    add(GlobalSearchScopesCore.directoriesScope(project, true, *it.toTypedArray()))
-                }
+            service.getSourceFilesForFile(file.path).takeIf { it.isNotEmpty() }?.let { files ->
+                val included = files.toSet()
+                add(object : GlobalSearchScope(project) {
+                    override fun contains(file: VirtualFile) = file in included
+                    override fun compare(file1: VirtualFile, file2: VirtualFile) = 0
+                    override fun isSearchInModuleContent(module: com.intellij.openapi.module.Module) = true
+                    override fun isSearchInLibraries() = true
+                })
+            }
         }
         return scopes.takeIf { it.isNotEmpty() }?.let { GlobalSearchScope.union(it) }
     }

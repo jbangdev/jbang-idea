@@ -33,6 +33,7 @@
         <backgroundPostStartupActivity implementation="dev.jbang.idea.project.JBangStartupActivity"/>
         <additionalLibraryRootsProvider implementation="dev.jbang.idea.project.JBangLibraryProvider"/>
         <resolveScopeEnlarger implementation="dev.jbang.idea.project.JBangResolveScopeEnlarger"/>
+        <java.elementFinder implementation="dev.jbang.idea.project.JBangSourceElementFinder"/>
 
         <!-- File detection -->
         <fileIconProvider implementation="dev.jbang.idea.JBangIconProvider"/>
