@@ -21,11 +21,35 @@ on:
   pull_request:
 
 jobs:
-  # Run Gradle Wrapper Validation Action to verify the wrapper's checksum
-  # Run verifyPlugin, IntelliJ Plugin Verifier, and test Gradle tasks
-  # Build plugin and provide the artifact for the next workflow jobs
+  test:
+    name: Test (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Setup Java
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          distribution: zulu
+          java-version: 25
+          cache: gradle
+      - name: Run Tests
+        run: ./gradlew test
+      - name: Collect Test Results
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: tests-result-${{ matrix.os }}
+          path: build/reports/tests
+
+  # Build once after all operating systems pass, then verify and publish the artifact.
   build:
     name: Build
+    needs: test
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.properties.outputs.version }}
@@ -63,18 +87,6 @@ jobs:
           echo "::set-output name=pluginVerifierHomeDir::~/.pluginVerifier"
 
           ./gradlew printProductsReleases # prepare list of IDEs for Plugin Verifier
-
-      # Run tests
-      - name: Run Tests
-        run: ./gradlew test
-
-      # Collect Tests Result of failed tests
-      - name: Collect Tests Result
-        if: ${{ failure() }}
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: tests-result
-          path: ${{ github.workspace }}/build/reports/tests
 
       # Run Build plugin
       - name: Build Plugin
