@@ -135,10 +135,11 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
         installInfo(rootA.virtualFile.path, ScriptInfo())
         installInfo(rootB.virtualFile.path, ScriptInfo())
         val service = JBangProjectService.getInstance(project)
-        service.setActiveRoot(rootB.virtualFile.path)
-
+        service.setActiveRoot(rootA.virtualFile.path)
         val widget = JBangStatusBarWidgetFactory().createWidget(project) as JBangStatusWidget
 
+        assertEquals("jbang: RootA.java", widget.getSelectedValue())
+        service.setActiveRoot(rootB.virtualFile.path)
         assertEquals("jbang: RootB.java", widget.getSelectedValue())
         assertNotNull("Multiple roots should provide a picker", widget.getPopup())
         widget.dispose()
@@ -185,6 +186,35 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
         assertTrue(
             JBangResolveScopeEnlarger().getAdditionalResolveScope(root.virtualFile, project)!!.contains(helper)
         )
+        myFixture.configureFromExistingVirtualFile(root.virtualFile)
+        val reference = com.intellij.psi.util.PsiTreeUtil.findChildrenOfType(
+            root,
+            com.intellij.psi.PsiJavaCodeReferenceElement::class.java,
+        ).single { it.text == "AHelper" }
+        assertEquals(helper, reference.resolve()?.containingFile?.virtualFile)
+    }
+
+    @Test
+    fun testRootDoesNotResolveSiblingSourcesDeclaredByAnotherRoot() {
+        val rootA = myFixture.addFileToProject("RootA.java", "//SOURCES src/AHelper.java\nclass RootA { BHelper helper; }")
+        val rootB = myFixture.addFileToProject("RootB.java", "//SOURCES src/BHelper.java\nclass RootB {}")
+        val sourceDir = Files.createTempDirectory("jbang-isolated-sources")
+        val helperA = Files.writeString(sourceDir.resolve("AHelper.java"), "class AHelper {}")
+        val helperB = Files.writeString(sourceDir.resolve("BHelper.java"), "class BHelper {}")
+        val fileA = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(helperA)!!
+        val fileB = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(helperB)!!
+        installInfo(rootA.virtualFile.path, ScriptInfo(sources = listOf(dev.jbang.idea.cli.SourceEntry(fileA.path, fileA.path))))
+        installInfo(rootB.virtualFile.path, ScriptInfo(sources = listOf(dev.jbang.idea.cli.SourceEntry(fileB.path, fileB.path))))
+        fireLibraryChange(project)
+        PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
+        com.intellij.openapi.project.DumbService.getInstance(project).waitForSmartMode()
+        myFixture.configureFromExistingVirtualFile(rootA.virtualFile)
+        val reference = com.intellij.psi.util.PsiTreeUtil.findChildrenOfType(
+            rootA,
+            com.intellij.psi.PsiJavaCodeReferenceElement::class.java,
+        ).single { it.text == "BHelper" }
+
+        assertNull(reference.resolve())
     }
 
     @Test

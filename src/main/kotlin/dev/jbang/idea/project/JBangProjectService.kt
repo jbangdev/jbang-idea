@@ -137,6 +137,7 @@ class JBangProjectService(private val project: Project) {
     fun setActiveRoot(path: String) {
         activeRootPath = path
         cache[path]?.let { JBangJdkSync.applyToStandaloneProject(project, it) }
+        updateWidget()
     }
 
     /** Get cached info for a script path, or null. */
@@ -147,6 +148,8 @@ class JBangProjectService(private val project: Project) {
     fun getOwningRoots(sourcePath: String): Set<String> = sourceOwners[sourcePath]?.toSet().orEmpty()
 
     fun getLibraryRootsForFile(path: String): List<VirtualFile> = rootForFile(path)?.let(::getLibraryRoots).orEmpty()
+
+    internal fun allSourceFiles(): Set<VirtualFile> = cache.keys.flatMapTo(mutableSetOf(), ::getSourceFilesForFile)
 
     fun getSourceFilesForFile(path: String): List<VirtualFile> = rootForFile(path)?.let(cache::get)?.sources.orEmpty()
         .asSequence()
