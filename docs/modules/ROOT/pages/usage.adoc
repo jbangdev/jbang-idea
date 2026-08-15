@@ -5,32 +5,134 @@
 ifndef::env-github[]
 :icons: font
 endif::[]
-ifdef::env-github[]
-:caution-caption: :fire:
-:important-caption: :exclamation:
-:note-caption: :paperclip:
-:tip-caption: :bulb:
-:warning-caption: :warning:
-endif::[]
 
 toc::[]
 
-TBD - sections for each major feature
+== Recognizing JBang scripts
 
+A Java, Kotlin, Groovy, JShell, or `.jbang` file becomes a JBang root when its first 200 lines contain the JBang shebang or a JBang directive such as `//DEPS`, `//JAVA`, `//SOURCES`, or `//FILES`.
+`jbang.java`, `jbang.kt`, and `jbang.groovy` are also roots.
+Files included through `//SOURCES` belong to their root and inherit its dependency classpath.
 
+== Synchronization
 
-== Completion
+The plugin invokes `jbang info tools --quiet` in the script directory and uses the returned classpath, sources, files, errors, and Java version.
+Synchronization runs when:
 
-The following completions are available in JBang. If they do not open up automatically then do an explicit completion using kbd:[Alt+Space] or kbd:[^+Space] dependent on your platform.
+* the project opens and roots are discovered;
+* an uncached root is opened;
+* a root is saved while *Auto-sync dependencies on save* is enabled; or
+* *Sync JBang Project* is selected from the editor, Project view, or JBang status menu.
 
-=== Basic directive completion
+Explicit synchronization saves the selected root first.
+The status bar reports `syncing`, `synced`, or `sync failed` only after IntelliJ has applied the updated library model.
+Hover a failed status to read every JBang error; the same details appear in the notification and on the failing directive where possible.
 
-Completion for JBang directives like `//JAVA` and  `//DEPS` are available at start of comments (`//`).
+image:current/sync-status.png[JBang active root and synchronization status]
 
-image:jbang-idea-completion-directives.png[]
+== Multiple JBang roots
 
-=== Dependency completion
+Each root keeps a separate classpath and requested JDK.
+Opening a root selects it automatically.
+For a source shared by several roots, use the JBang status widget to choose the owner whose classpath should be active.
+Changing roots does not merge dependencies between scripts.
 
-`//DEPS` has completion of Maven artifacts using JBang/Gradle syntax. You can use fully qualified names or just type a substring of the Group and artifact version to get a list of possible matches from Maven Central.
+image:current/multi-root.png[Switching the active JBang root]
 
-image:jbang-idea-deps-completion.png[]]
+== Sources and files
+
+`//SOURCES` adds source files to the script compilation and IntelliJ resolve scope.
+Completion suggests local source paths, and Ctrl/Cmd-click navigates to the selected file.
+Only files declared by the root are resolved; sibling sources declared by another root remain isolated.
+
+`//FILES` copies resources when JBang runs the script.
+Both plain resources and JBang's `target=source` mapping syntax are supported:
+
+[source,java]
+----
+//SOURCES src/Message.java
+//FILES config/app.properties
+//FILES application.properties=config/dev.properties
+----
+
+Completion and navigation operate on the source side of a mapping.
+Missing resources are underlined at the exact token and show the JBang error on hover.
+
+image:current/navigation.png[Navigation from a declared source to code using the owning root's dependencies]
+
+image:current/resource-diagnostics.png[Exact JBang resource diagnostics]
+
+== Completion and navigation
+
+=== Directives
+
+Type `//` at the beginning of a comment and invoke basic completion to list JBang directives.
+Directive completion is not offered after directive arguments.
+Unknown directives, malformed coordinates, and duplicate `//DEPS` entries are reported in the editor.
+
+=== Maven coordinates
+
+`//DEPS` completion supports:
+
+* group and artifact search before the first colon;
+* artifact completion after `group:`; and
+* version completion after `group:artifact:`.
+
+Local Maven repository matches are returned first and marked `local`.
+Repository/central results are marked `remote`; snapshot versions are identified separately.
+Remote requests are cancellable and time bounded.
+
+image:current/dependency-completion.png[JBang Maven dependency completion]
+
+=== Catalogs
+
+`jbang-catalog.json` receives the bundled JSON Schema.
+For local `script-ref` values, completion lists script files and Ctrl/Cmd-click opens the target.
+HTTP and HTTPS references are left to JBang.
+
+image:current/catalog-completion.png[JBang catalog script reference completion]
+
+== Run and Debug
+
+Use a gutter icon, the editor/Project view context menu, or a JBang run configuration.
+Context actions remain available for scripts outside normal source roots.
+Both the Run and Debug executors recognize JBang configurations.
+Debug launches JBang with JDWP and attaches IntelliJ's debugger automatically.
+
+The Run popup also exposes the same configuration as a Debug action.
+
+image:current/run-debug-selector.png[Run popup with Debug shortcut]
+
+A run configuration supports:
+
+* script path;
+* JBang options;
+* quoted script arguments;
+* environment variables as `KEY=value` entries;
+* working directory; and
+* optional execution in the Terminal tool window.
+
+image:current/run-configuration.png[JBang Run and Debug configuration]
+
+== Java versions and JDKs
+
+When JBang reports an `availableJdkPath`, the plugin registers it as an IntelliJ SDK named from the requested `//JAVA` version.
+Selecting or re-synchronizing a root updates the SDK for a standalone JBang project.
+Projects containing `pom.xml`, `build.gradle`, or `build.gradle.kts` keep their build-system project SDK unchanged.
+
+Resolved dependency JARs and declared source roots appear under *External Libraries*.
+
+image:current/external-libraries.png[Root-specific Java version and dependency overlay]
+
+== Creating scripts
+
+In the Project view, choose *New > JBang Script*.
+The plugin loads templates from `jbang template list`, asks for a template, suggests a filename such as `readme.md`, `hello.kt`, or `<template>.java`, and creates the file with `jbang init`.
+The filename remains editable before creation.
+
+image:current/create-script.png[Creating a script from a JBang template]
+
+== Settings
+
+Open *Settings/Preferences > Tools > JBang* to configure the executable path and automatic synchronization.
+See xref:installation.adoc#install-jbang[Install JBang] for executable lookup order.

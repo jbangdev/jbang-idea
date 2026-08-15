@@ -4,44 +4,37 @@
 ifndef::env-github[]
 :icons: font
 endif::[]
-ifdef::env-github[]
-:caution-caption: :fire:
-:important-caption: :exclamation:
-:note-caption: :paperclip:
-:tip-caption: :bulb:
-:warning-caption: :warning:
-endif::[]
 
 toc::[]
 
-To install JBang Idea plugin you have two options:
+== Install the plugin
 
-Install via IntelliJ's Preferences/Plugins by searching for `jbang` in marketplace.
+Install *JBang* from *Settings/Preferences > Plugins > Marketplace*, or visit https://plugins.jetbrains.com/plugin/18257-jbang/[the JBang Marketplace page].
+Restart IntelliJ IDEA when requested.
 
-image:jbang-idea-preferences.png[]
+image:jbang-idea-marketplace.png[JBang plugin in the Marketplace]
 
-OR
+Open a directory containing a JBang script, or create one with *New > JBang Script* from the Project view.
+No dedicated project type or module wizard is required.
 
-Visit https://plugins.jetbrains.com/plugin/18257-jbang/[JBang Idea plugin marketplace page] and use the Install button.
+== Install JBang
 
-image:jbang-idea-marketplace.png[]
+The plugin invokes the JBang CLI for templates, script metadata, dependency resolution, Run, and Debug.
+Install JBang using the instructions at https://www.jbang.dev/download/[jbang.dev/download].
 
-Once installed you can open an existing JBang script or create a new JBang script.
+The executable is selected in this order:
 
-== JBang Location
+. The path configured under *Settings/Preferences > Tools > JBang*
+. `$JBANG_HOME/bin/jbang`
+. `~/.jbang/bin/jbang`
+. `jbang` from `PATH` (`jbang.cmd` on Windows)
 
-The plugin automatically locates the JBang executable using the following order:
+If automatic discovery is not suitable, set the full executable path in *Tools > JBang*.
+The same page controls automatic synchronization after file saves.
 
-1. Custom path (if explicitly set in settings)
-2. `JBANG_HOME` environment variable - checks `$JBANG_HOME/bin/jbang`
-3. `PATH` environment variable - searches for `jbang` (or `jbang.cmd` on Windows) in system PATH
-4. Default location - falls back to `~/.jbang/bin/jbang`
+image:current/settings.png[JBang settings]
 
-If the automatic detection doesn't find your JBang installation, you can explicitly set the path in the IDE settings. Navigate to `Tools > JBang` in the Settings/Preferences dialog and enter the full path to your JBang executable in the "Custom JBang Path" field.
+== Supported IDE and JDK
 
-image:jbang-idea-configuration.png[]
-
-The "Effective JBang Path" field shows the actual path that will be used, which will be your custom path if set, or the automatically detected path otherwise.
-
-
-
+The current plugin line targets IntelliJ IDEA 2026.2 or newer.
+Building the plugin requires JDK 25; scripts may request a different installed or JBang-managed JDK through `//JAVA`.
