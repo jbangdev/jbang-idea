@@ -5,45 +5,30 @@ jbang-idea-plugin
 [![Downloads](https://img.shields.io/jetbrains/plugin/d/18257.svg)](https://plugins.jetbrains.com/plugin/18257)
 
 <!-- Plugin description -->
-**JBang plugin** is a plugin for IntelliJ IDEA to integrate [JBang](https://www.jbang.dev/).
+**JBang plugin** integrates [JBang](https://www.jbang.dev/) scripts into IntelliJ IDEA without modifying the project module model.
+
+Features:
+
+* Automatic classpath and source synchronization from `jbang info tools`
+* Multiple JBang roots with isolated classpaths and active-root switching
+* Per-script `//JAVA` JDK registration and selection for standalone projects
+* Run and Debug configurations, gutter markers, and editor/project context actions
+* Completion for directives, Maven coordinates, `//SOURCES`, `//FILES`, and catalog `script-ref`
+* Navigation for local sources, files, and catalog scripts
+* Exact diagnostics for invalid directives, unresolved dependencies, and missing resources
+* Explicit **Sync JBang Project** action with progress and detailed results
+* JSON Schema support for `jbang-catalog.json`
+* CLI-backed **New → JBang Script** templates
+
+<!-- Plugin description end -->
 
 ## Documentation
 
 Full documentation is [here](https://www.jbang.dev/documentation/jbang-idea/latest/index.html).
 
-## Overview 
+## How synchronization works
 
-The following features are available:
-
-* Search for jbang to run, or custom JBang path setting
-* Sync Dependencies to IDEA's module when using `idea .` to open JBang project 
-* Define JBang location if not found in PATH or JBANG_HOME
-* JSON Schema for jbang-catalog.json and code completion for `script-ref`
-* JDKs sync with JBang: sync JDKs from JBang to IntelliJ IDEA
-* JBang script creation from file templates by right-clicking in the Project View: New -> JBang Script
-* JBang directives completion:  for example `//DEPS`, `//SOURCES`
-* Sync Dependencies between JBang and Gradle
-* JBang Run Line Marker for `///usr/bin/env jbang`
-* Java scratch file support
-* Run Configuration support: run JBang script by right click
-    * file name end with '.java', '.kt', '.groovy' or '.jsh'
-    * file code should contain `///usr/bin/env jbang` or `//DEPS`
-* GAV completion for `//DEPS `
-    * text without colon - full text search `google.guava`, and words seperated by `.` or `-`
-    * text with one colon - artifact search based on groupId `com.google.guava:`
-    * text with two colons - version search based on groupId and artifactId `com.google.guava:guava:`
-
-<!-- Plugin description end -->
-
-## Sync Dependencies between JBang and Gradle
-
-Right click JBang script and Choose `Sync JBang DEPS` and sync dependencies between JBang script and build.gradle.
-
-**Limitations**:
-
-* Gradle Groovy support now: only detect `build.gradle`
-* After sync, and you need to click `Refresh` floating button if without Auto-Reloading enabled 
-* Dependency remove detection: if you want to delete dependencies, and you should delete lines in build.gradle and script file by hand. 
+The plugin treats the JBang CLI as the source of truth. It resolves scripts after opening and saving them, or when **Sync JBang Project** is selected. Resolved dependencies are exposed as synthetic libraries, so Gradle and Maven project models are left unchanged.
 
 ## Install
 
@@ -52,8 +37,8 @@ Right click JBang script and Choose `Sync JBang DEPS` and sync dependencies betw
 ## Build
 
 ```
-$ # JDK 11 required
-$ ./gradlew -x test patchPluginXml buildPlugin
+$ # JDK 25 required for IntelliJ IDEA 2026.2
+$ ./gradlew test buildPlugin
 ```
 
 or if using just:

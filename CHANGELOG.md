@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+- Rewrite project synchronization around `jbang info tools` and synthetic libraries; Gradle and Maven models are no longer modified.
+- Add multi-root classpath isolation, `//SOURCES` ownership, active-root switching, and standalone project JDK synchronization.
+- Add Run and Debug runners, terminal execution, expanded run options, and context actions outside source roots.
+- Add local/remote Maven completion, path and catalog completion/navigation, and precise directive/resource/dependency diagnostics.
+- Add visible and explicit synchronization with progress, detailed errors, automatic save, and IDE-model completion tracking.
+- Add CLI-backed script templates and reusable integration samples.
+
 ## [0.26.1] - 2026-07-26
 
 **Full Changelog**: https://github.com/jbangdev/jbang-idea/compare/v0.26.0...v0.26.1

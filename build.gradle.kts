@@ -20,7 +20,6 @@ repositories {
 }
 
 dependencies {
-    implementation("org.zeroturnaround:zt-exec:1.12")
     testImplementation("junit:junit:4.13.2")
 
     intellijPlatform {
@@ -31,10 +30,6 @@ dependencies {
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Platform)
         testFramework(org.jetbrains.intellij.platform.gradle.TestFrameworkType.Plugin.Java)
     }
-}
-
-configurations.implementation {
-    exclude(group = "org.slf4j", module = "slf4j-api")
 }
 
 // IntelliJ IDEA 2026.2 runs on JBR 25.
