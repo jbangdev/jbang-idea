@@ -12,26 +12,36 @@ object JBangPlugin {
     /** Directives that mark a file as a jbang root script (has its own classpath). */
     val ROOT_DIRECTIVES = setOf(
         "DEPS", "JAVA", "REPOS", "GAV", "JAVAAGENT",
-        "COMPILE_OPTIONS", "RUNTIME_OPTIONS", "NATIVE_OPTIONS",
-        "CDS", "MANIFEST", "DESCRIPTION", "PREVIEW"
+        "COMPILE_OPTIONS", "JAVAC_OPTIONS", "RUNTIME_OPTIONS", "JAVA_OPTIONS",
+        "NATIVE_OPTIONS", "CDS", "MANIFEST", "DESCRIPTION", "PREVIEW",
+        "MAIN", "MODULE", "KOTLIN", "GROOVY",
+        "NOINTEGRATIONS", "DOCS",
     )
 
-    /** All known jbang directives. */
+    /** All known jbang directives (from https://www.jbang.dev/documentation/guide/latest/script-directives.html). */
     val ALL_DIRECTIVES = mapOf(
+        "DEPS" to "Add Maven dependency (GAV format)",
+        "REPOS" to "Additional repositories to resolve dependencies from",
         "JAVA" to "Java version to use",
-        "DEPS" to "Add dependency (GAV format)",
-        "GAV" to "Set Group, Artifact and Version for this script",
-        "SOURCES" to "Pattern to include as source files",
-        "FILES" to "Mount files into the build",
-        "REPOS" to "Repositories to resolve dependencies from",
-        "DESCRIPTION" to "Markdown description for the script",
-        "COMPILE_OPTIONS" to "Options passed to javac",
-        "RUNTIME_OPTIONS" to "Options passed to the JVM at runtime",
-        "NATIVE_OPTIONS" to "Options passed to native-image",
-        "MANIFEST" to "Entries to write to META-INF/MANIFEST.MF",
-        "JAVAAGENT" to "Activate Java agent packaging",
-        "CDS" to "Activate Class Data Sharing",
         "PREVIEW" to "Enable Java preview features",
+        "COMPILE_OPTIONS" to "Options passed to the compiler",
+        "JAVAC_OPTIONS" to "Options passed to the compiler (alias)",
+        "RUNTIME_OPTIONS" to "Options passed to the JVM at runtime",
+        "JAVA_OPTIONS" to "Options passed to the JVM at runtime (alias)",
+        "NATIVE_OPTIONS" to "Options passed to native-image",
+        "MAIN" to "Override the main class",
+        "MODULE" to "Module declaration",
+        "MANIFEST" to "Entries to write to META-INF/MANIFEST.MF",
+        "CDS" to "Activate Class Data Sharing",
+        "JAVAAGENT" to "Activate Java agent packaging",
+        "KOTLIN" to "Kotlin version to use",
+        "GROOVY" to "Groovy version to use",
+        "GAV" to "Set Group, Artifact and Version for this script",
+        "SOURCES" to "Additional source files to include",
+        "FILES" to "Mount files into the build",
+        "DESCRIPTION" to "Markdown description for the script",
+        "DOCS" to "Links to additional documentation resources",
+        "NOINTEGRATIONS" to "Disable automatic integrations",
     )
 
     /** File names that are always jbang roots. */

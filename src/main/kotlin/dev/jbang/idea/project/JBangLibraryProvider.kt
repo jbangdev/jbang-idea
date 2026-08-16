@@ -30,13 +30,12 @@ class JBangLibraryProvider : AdditionalLibraryRootsProvider() {
             val sourceRoots = service.getSourceFilesForFile(path).mapNotNull { it.parent }.distinct()
             if (jars.isEmpty() && sourceRoots.isEmpty()) continue
 
-            val scriptName = File(path).name
             val basePath = project.guessProjectDir()?.path
             val displayPath = if (basePath != null && path.startsWith(basePath))
                 path.removePrefix(basePath).removePrefix("/")
             else path
             libs.add(JBangSyntheticLibrary(
-                name = "jbang: $scriptName",
+                name = "jbang: $displayPath",
                 rootScriptPath = path,
                 displayPath = displayPath,
                 project = project,
@@ -62,7 +61,7 @@ private class JBangSyntheticLibrary(
     override fun getBinaryRoots(): Collection<VirtualFile> = classRoots
 
     override fun getPresentableText(): String = name
-    override fun getLocationString(): String = displayPath
+    override fun getLocationString(): String? = null // path is already in the name
     override fun getIcon(unused: Boolean) = JBangPlugin.icon16
 
     override fun canNavigate(): Boolean = LocalFileSystem.getInstance().findFileByPath(rootScriptPath) != null
@@ -75,8 +74,8 @@ private class JBangSyntheticLibrary(
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (other !is JBangSyntheticLibrary) return false
-        return name == other.name && classRoots == other.classRoots
+        return rootScriptPath == other.rootScriptPath && classRoots == other.classRoots
     }
 
-    override fun hashCode(): Int = name.hashCode() * 31 + classRoots.hashCode()
+    override fun hashCode(): Int = rootScriptPath.hashCode() * 31 + classRoots.hashCode()
 }
