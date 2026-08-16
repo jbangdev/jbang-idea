@@ -106,7 +106,7 @@ class JBangRunConfigOptions : RunConfigurationOptions() {
     private val _jbangOptions = string("").provideDelegate(this, "jbangOptions")
     private val _environmentVariables = string("").provideDelegate(this, "environmentVariables")
     private val _workingDirectory = string("").provideDelegate(this, "workingDirectory")
-    private val _runInTerminal = property(false).provideDelegate(this, "runInTerminal")
+    private val _runInTerminal = property(true).provideDelegate(this, "runInTerminal")
 
     var scriptPath: String
         get() = _scriptPath.getValue(this) ?: ""
