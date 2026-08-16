@@ -114,7 +114,7 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
         service.syncStarted(root.virtualFile.path)
         service.syncFinished(root.virtualFile.path, succeeded = true)
         assertEquals("jbang: RootA.java (synced)", widget.getSelectedValue())
-        assertNotNull(widget.getClickConsumer())
+        assertNotNull(widget.getPopup())
         widget.dispose()
     }
 
