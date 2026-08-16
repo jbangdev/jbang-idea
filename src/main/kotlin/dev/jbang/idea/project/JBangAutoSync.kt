@@ -73,6 +73,20 @@ class JBangStartupActivity : ProjectActivity {
  */
 class JBangFileListener(private val project: Project) : BulkFileListener {
 
+    private fun updateRunConfigs(oldPath: String, newPath: String) {
+        com.intellij.openapi.application.ApplicationManager.getApplication().invokeLater {
+            if (project.isDisposed) return@invokeLater
+            val runManager = com.intellij.execution.RunManager.getInstance(project)
+            for (settings in runManager.allSettings) {
+                val config = settings.configuration as? dev.jbang.idea.run.JBangRunConfiguration ?: continue
+                if (config.scriptPath == oldPath) {
+                    config.scriptPath = newPath
+                    config.name = "jbang ${java.io.File(newPath).name}"
+                }
+            }
+        }
+    }
+
     override fun after(events: List<VFileEvent>) {
         val service = JBangProjectService.getInstance(project)
         var changed = false
@@ -87,12 +101,13 @@ class JBangFileListener(private val project: Project) : BulkFileListener {
                 is com.intellij.openapi.vfs.newvfs.events.VFilePropertyChangeEvent -> {
                     if (event.propertyName == VirtualFile.PROP_NAME) {
                         val oldPath = event.oldPath
+                        val newPath = event.file.path
                         if (service.getInfo(oldPath) != null) {
                             service.evict(oldPath)
-                            val newFile = event.file
-                            if (JBangScriptDetector.isRootScript(newFile)) {
+                            updateRunConfigs(oldPath, newPath)
+                            if (JBangScriptDetector.isRootScript(event.file)) {
                                 CoroutineScope(Dispatchers.IO).launch {
-                                    service.resolve(newFile)
+                                    service.resolve(event.file)
                                     fireLibraryChange(project)
                                 }
                             } else {
@@ -104,12 +119,13 @@ class JBangFileListener(private val project: Project) : BulkFileListener {
                 }
                 is com.intellij.openapi.vfs.newvfs.events.VFileMoveEvent -> {
                     val oldPath = event.oldPath
+                    val newPath = event.file.path
                     if (service.getInfo(oldPath) != null) {
                         service.evict(oldPath)
-                        val newFile = event.file
-                        if (JBangScriptDetector.isRootScript(newFile)) {
+                        updateRunConfigs(oldPath, newPath)
+                        if (JBangScriptDetector.isRootScript(event.file)) {
                             CoroutineScope(Dispatchers.IO).launch {
-                                service.resolve(newFile)
+                                service.resolve(event.file)
                                 fireLibraryChange(project)
                             }
                         } else {
