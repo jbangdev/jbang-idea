@@ -4,6 +4,8 @@ import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.CapturingProcessHandler
+import com.intellij.execution.wsl.WSLCommandLineOptions
+import com.intellij.execution.wsl.WslPath
 import com.intellij.openapi.util.SystemInfo
 import dev.jbang.idea.debug
 import dev.jbang.idea.jbangLog
@@ -121,9 +123,12 @@ object JBangCli {
      */
     fun resolveScriptInfo(scriptPath: String): ScriptInfo? {
         return try {
-            val output = exec(findJBangCmd(), "info", "tools", "--quiet", scriptPath,
+            val wsl = if (SystemInfo.isWindows) WslPath.parseWindowsUncPath(scriptPath) else null
+            val effectivePath = wsl?.linuxPath ?: scriptPath
+            val output = exec("jbang", "info", "tools", "--quiet", effectivePath,
                 env = mapOf("JBANG_DOWNLOAD_SOURCES" to "true"),
-                workDirectory = File(scriptPath).absoluteFile.parentFile)
+                workDirectory = if (wsl != null) null else File(scriptPath).absoluteFile.parentFile,
+                wslDistributionId = wsl?.distributionId)
             gson.fromJson(output.trimToJson(), ScriptInfo::class.java)
         } catch (e: Exception) {
             val error = e.message ?: "jbang info tools failed"
@@ -149,25 +154,44 @@ object JBangCli {
      * Calls `jbang init --template <template> --force <filePath>`.
      */
     fun initScript(templateName: String, filePath: String) {
-        exec(findJBangCmd(), "init", "--template", templateName, "--force", filePath)
+        val wsl = if (SystemInfo.isWindows) WslPath.parseWindowsUncPath(filePath) else null
+        val effectivePath = wsl?.linuxPath ?: filePath
+        exec("jbang", "init", "--template", templateName, "--force", effectivePath,
+            wslDistributionId = wsl?.distributionId)
     }
 
     fun initScript(filePath: String) {
-        exec(findJBangCmd(), "init", "--force", filePath)
+        val wsl = if (SystemInfo.isWindows) WslPath.parseWindowsUncPath(filePath) else null
+        val effectivePath = wsl?.linuxPath ?: filePath
+        exec("jbang", "init", "--force", effectivePath, wslDistributionId = wsl?.distributionId)
     }
 
     private fun exec(
         vararg command: String,
         env: Map<String, String> = emptyMap(),
         workDirectory: File? = null,
+        wslDistributionId: String? = null,
     ): String {
-        val cmd = GeneralCommandLine(*command)
+        val isWsl = wslDistributionId != null
+        val exeCommand = if (isWsl) command else arrayOf(findJBangCmd(), *command.drop(1).toTypedArray())
+        var cmd = GeneralCommandLine(*exeCommand)
             .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
             .withEnvironment("NO_COLOR", "true")
             .withEnvironment(env)
-            .withWorkDirectory(workDirectory)
+        if (workDirectory != null) cmd = cmd.withWorkDirectory(workDirectory)
 
-        log.debug { "exec: ${command.joinToString(" ")}" }
+        if (isWsl && SystemInfo.isWindows) {
+            try {
+                val distro = WslPath.getDistributionByWindowsUncPath("//wsl.localhost/$wslDistributionId/")
+                if (distro != null) {
+                    cmd = distro.patchCommandLine(cmd, null, WSLCommandLineOptions())
+                }
+            } catch (e: Exception) {
+                log.warn("WSL command patching failed: ${e.message}")
+            }
+        }
+
+        log.debug { "exec: ${cmd.commandLineString}" }
         val handler = CapturingProcessHandler(cmd)
         val result = handler.runProcess(30_000)
 
