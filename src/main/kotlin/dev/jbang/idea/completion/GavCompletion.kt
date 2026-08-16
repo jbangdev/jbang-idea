@@ -3,6 +3,7 @@ package dev.jbang.idea.completion
 import com.google.gson.JsonParser
 import com.intellij.codeInsight.completion.*
 import com.intellij.codeInsight.lookup.LookupElementBuilder
+import com.intellij.codeInsight.completion.PrioritizedLookupElement
 import com.intellij.openapi.components.service
 import com.intellij.openapi.externalSystem.model.ProjectSystemId
 import com.intellij.openapi.progress.runBlockingCancellable
@@ -80,8 +81,10 @@ private object GavCompletionProvider : CompletionProvider<CompletionParameters>(
         val searchService = service<DependencyCompletionService>()
         val searchContext = DependencyCompletionContextImpl(comment.project, ProjectSystemId("GRADLE"))
 
+        var priority = 10000.0
+
         fun addLookup(lookupString: String, source: DependencyCompletionContributionSource? = null) {
-            var lookup = LookupElementBuilder.create(searchText, lookupString).withIcon(MAVEN_ICON)
+            var lookup = LookupElementBuilder.create(lookupString).withIcon(MAVEN_ICON)
             if (isVersionSearch) lookup = lookup.withTypeText(parts.take(2).joinToString(":"), true)
             val tail = buildString {
                 if (source != null) append(if (source == DependencyCompletionContributionSource.LOCAL) " local" else " remote")
@@ -89,7 +92,7 @@ private object GavCompletionProvider : CompletionProvider<CompletionParameters>(
             }
             if (tail.isNotEmpty()) lookup = lookup.withTailText(tail, true)
             result.addElement(
-                lookup.withInsertHandler { insertionContext, selectedItem ->
+                PrioritizedLookupElement.withPriority(lookup.withInsertHandler { insertionContext, selectedItem ->
                         var selectedText = selectedItem.lookupString
                         if (isVersionSearch) {
                             val artifactInfo = searchText.substring(0, searchText.lastIndexOf(':'))
@@ -101,7 +104,7 @@ private object GavCompletionProvider : CompletionProvider<CompletionParameters>(
                         document.deleteString(startOffset, currentOffset)
                         document.insertString(startOffset, selectedText)
                         editor.caretModel.moveToOffset(startOffset + selectedText.length)
-                    }
+                    }, priority--)
             )
         }
 
@@ -157,17 +160,17 @@ private object GavCompletionProvider : CompletionProvider<CompletionParameters>(
 
     private suspend fun mavenCentralCompletions(searchText: String): List<String> {
         val parts = searchText.split(':')
+        // For version completion, use maven-metadata.xml (always current)
+        if (parts.size == 3) return mavenMetadataVersions(parts[0], parts[1], parts[2])
+
         val query = when (parts.size) {
             1 -> parts[0]
             2 -> "g:\"${parts[0]}\"" + parts[1].takeIf(String::isNotEmpty)?.let { " AND a:$it*" }.orEmpty()
-            3 -> "g:\"${parts[0]}\" AND a:\"${parts[1]}\"" +
-                parts[2].takeIf(String::isNotEmpty)?.let { " AND v:$it*" }.orEmpty()
             else -> return emptyList()
         }
         val endpoint = System.getProperty("jbang.maven.search.url")
             ?: "https://search.maven.org/solrsearch/select"
-        val core = if (parts.size == 3) "&core=gav" else ""
-        val uri = URI.create("$endpoint?wt=json&rows=50$core&q=${URLEncoder.encode(query, StandardCharsets.UTF_8)}")
+        val uri = URI.create("$endpoint?wt=json&rows=50&q=${URLEncoder.encode(query, StandardCharsets.UTF_8)}")
 
         return try {
             val request = HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(5)).GET().build()
@@ -179,11 +182,30 @@ private object GavCompletionProvider : CompletionProvider<CompletionParameters>(
                 val doc = value.asJsonObject
                 val group = doc.get("g")?.asString ?: return@mapNotNull null
                 val artifact = doc.get("a")?.asString ?: return@mapNotNull null
-                when (parts.size) {
-                    3 -> doc.get("v")?.asString
-                    else -> "$group:$artifact:${if (parts.size == 1) doc.get("latestVersion")?.asString.orEmpty() else ""}"
-                }
+                "$group:$artifact:${if (parts.size == 1) doc.get("latestVersion")?.asString.orEmpty() else ""}"
             }.distinct().take(50)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (_: Exception) {
+            emptyList()
+        }
+    }
+
+    /** Fetches versions from repo1.maven.org/maven2 maven-metadata.xml — always up to date. */
+    private suspend fun mavenMetadataVersions(group: String, artifact: String, prefix: String): List<String> {
+        val path = group.replace('.', '/')
+        val uri = URI.create("https://repo1.maven.org/maven2/$path/$artifact/maven-metadata.xml")
+        return try {
+            val request = HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(5)).GET().build()
+            val response = HTTP.sendCancellable(request)
+            if (response.statusCode() !in 200..299) return emptyList()
+            val root = javax.xml.parsers.DocumentBuilderFactory.newInstance().newDocumentBuilder()
+                .parse(java.io.ByteArrayInputStream(response.body().toByteArray()))
+            val nodes = root.getElementsByTagName("version")
+            val versions = (0 until nodes.length).map { nodes.item(it).textContent }
+                .filter { prefix.isEmpty() || it.startsWith(prefix) }
+            // Return newest first (metadata lists oldest first)
+            versions.asReversed().take(50)
         } catch (e: CancellationException) {
             throw e
         } catch (_: Exception) {
