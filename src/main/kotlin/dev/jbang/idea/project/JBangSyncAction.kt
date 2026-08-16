@@ -1,13 +1,16 @@
 package dev.jbang.idea.project
 
+import com.intellij.ide.BrowserUtil
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
+import dev.jbang.idea.cli.JBangCli
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -29,6 +32,26 @@ class JBangSyncAction : DumbAwareAction() {
     }
 
     companion object {
+        private fun notifyJBangNotFound(project: Project) {
+            NotificationGroupManager.getInstance().getNotificationGroup("JBang")
+                .createNotification(
+                    "JBang not found",
+                    "Install JBang or configure its path in Settings > Tools > JBang.",
+                    NotificationType.WARNING,
+                )
+                .addAction(object : AnAction("Install JBang\u2026") {
+                    override fun actionPerformed(e: AnActionEvent) {
+                        ShowSettingsUtil.getInstance().showSettingsDialog(project, "JBang")
+                    }
+                })
+                .addAction(object : AnAction("Download Page") {
+                    override fun actionPerformed(e: AnActionEvent) {
+                        BrowserUtil.browse("https://www.jbang.dev/download")
+                    }
+                })
+                .notify(project)
+        }
+
         internal fun save(file: com.intellij.openapi.vfs.VirtualFile) {
             FileDocumentManager.getInstance().getDocument(file)?.let(FileDocumentManager.getInstance()::saveDocument)
         }
@@ -38,6 +61,10 @@ class JBangSyncAction : DumbAwareAction() {
             val path = selectedPath ?: service.activeRootPath ?: return
             val file = LocalFileSystem.getInstance().refreshAndFindFileByPath(path) ?: return
             save(file)
+            if (JBangCli.resolveJBangPath() == null) {
+                notifyJBangNotFound(project)
+                return
+            }
             CoroutineScope(Dispatchers.IO).launch {
                 val info = service.resolve(file, deferStatusCompletion = true)
                 val errors = info?.resolutionErrors.orEmpty().ifEmpty {
