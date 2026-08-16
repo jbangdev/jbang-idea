@@ -324,7 +324,7 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
 
         val presentation = (lib as com.intellij.navigation.ItemPresentation)
         assertEquals("jbang: overlay.java", presentation.presentableText)
-        assertTrue("Location should contain root path", presentation.locationString?.contains("overlay.java") == true)
+        assertEquals("Location should be relative to project", "overlay.java", presentation.locationString)
     }
 
     @Test

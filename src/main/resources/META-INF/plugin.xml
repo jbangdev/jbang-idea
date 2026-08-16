@@ -37,7 +37,8 @@
 
         <!-- File detection -->
         <fileIconProvider implementation="dev.jbang.idea.JBangIconProvider"/>
-        <fileType name="JAVA" language="JAVA" extensions="jbang"/>
+        <fileType implementationClass="dev.jbang.idea.JBangFileType" name="JBang"
+            fieldName="INSTANCE" extensions="jbang"/>
         <fileType name="JSHELL" language="JShellLanguage" extensions="jsh"/>
         <fileType name="JSON5" fileNames="jbang-catalog.json"/>
 
