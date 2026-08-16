@@ -79,7 +79,13 @@ object JBangCli {
      * Resolve the absolute path to the `jbang` command.
      * Checks: settings → JBANG_HOME/bin → ~/.jbang/bin → PATH.
      */
-    fun findJBangCmd(): String {
+    fun findJBangCmd(): String = resolveJBangPath() ?: if (SystemInfo.isWindows) "jbang.cmd" else "jbang"
+
+    /**
+     * Resolves the actual jbang executable path, or null if not found.
+     * Checks: settings → JBANG_HOME/bin → ~/.jbang/bin → PATH lookup.
+     */
+    fun resolveJBangPath(): String? {
         val fromSettings = JBangSettings.instance.jbangPath
         if (fromSettings.isNotBlank() && File(fromSettings).canExecute()) return fromSettings
 
@@ -92,9 +98,22 @@ object JBangCli {
         val userDir = File(System.getProperty("user.home"), ".jbang/bin/jbang")
         if (userDir.canExecute()) return userDir.absolutePath
 
-        // Fall back to PATH
-        return if (SystemInfo.isWindows) "jbang.cmd" else "jbang"
+        // Check PATH
+        val pathName = if (SystemInfo.isWindows) "jbang.cmd" else "jbang"
+        val pathDirs = System.getenv("PATH")?.split(File.pathSeparatorChar).orEmpty()
+        for (dir in pathDirs) {
+            val candidate = File(dir, pathName)
+            if (candidate.canExecute()) return candidate.absolutePath
+        }
+
+        return null
     }
+
+    /** Platform-appropriate shell command to install JBang. */
+    fun installCommand(): String = if (SystemInfo.isWindows)
+        "iex \"& { \$(iwr -useb https://ps.jbang.dev) } app setup\""
+    else
+        "curl -Ls https://sh.jbang.dev | bash -s - app setup"
 
     /**
      * Calls `jbang info tools --quiet <scriptPath>` and parses the JSON.

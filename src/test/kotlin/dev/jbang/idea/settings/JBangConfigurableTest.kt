@@ -2,7 +2,9 @@ package dev.jbang.idea.settings
 
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.util.ui.UIUtil
+import javax.swing.JButton
 import javax.swing.JCheckBox
+import javax.swing.JLabel
 
 class JBangConfigurableTest : BasePlatformTestCase() {
     private var previousAsk = true
@@ -36,5 +38,24 @@ class JBangConfigurableTest : BasePlatformTestCase() {
 
         assertTrue(JBangSettings.instance.askToOpenSelectedRoot)
         assertFalse(JBangSettings.instance.openSelectedRootWithoutAsking)
+    }
+
+    fun testSettingsShowsResolvedJBangPath() {
+        val configurable = JBangConfigurable()
+        val component = configurable.createComponent()
+        configurable.reset()
+        val labels = UIUtil.findComponentsOfType(component, JLabel::class.java)
+        val resolved = labels.find { it.text?.startsWith("Resolved:") == true || it.text?.startsWith("Not found") == true }
+
+        assertNotNull("Settings should show resolved jbang path", resolved)
+    }
+
+    fun testSettingsHasInstallButton() {
+        val configurable = JBangConfigurable()
+        val component = configurable.createComponent()
+        val buttons = UIUtil.findComponentsOfType(component, JButton::class.java)
+        val installButton = buttons.find { it.text == "Install JBang…" }
+
+        assertNotNull("Settings should have an Install JBang button", installButton)
     }
 }
