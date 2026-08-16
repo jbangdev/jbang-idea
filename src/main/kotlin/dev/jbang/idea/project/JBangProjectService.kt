@@ -70,7 +70,7 @@ class JBangProjectService(private val project: Project) {
         syncStarted(path)
         var succeeded = false
         return try {
-            val info = JBangCli.resolveScriptInfo(path)
+            val info = JBangCli.resolveScriptInfo(path, project)
             if (info != null) {
                 JBangJdkSync.register(info)
                 cacheResolved(path, info, info.classpathJars.mapNotNull {

@@ -126,6 +126,29 @@ object JBangCli {
         return null
     }
 
+    /**
+     * Finds a usable JAVA_HOME from IntelliJ's registered JDKs.
+     * Used to bootstrap jbang when JAVA_HOME isn't in the process environment.
+     */
+    private fun findIdeaJavaHome(project: com.intellij.openapi.project.Project?): String? {
+        return try {
+            // Prefer the current project's SDK
+            if (project != null) {
+                com.intellij.openapi.roots.ProjectRootManager.getInstance(project).projectSdk
+                    ?.takeIf { it.sdkType.name == "JavaSDK" }
+                    ?.homePath
+                    ?.let { return it }
+            }
+            // Fall back to any registered JDK
+            com.intellij.openapi.projectRoots.ProjectJdkTable.getInstance().allJdks
+                .filter { it.sdkType.name == "JavaSDK" && it.homePath != null }
+                .maxByOrNull { it.versionString ?: "" }
+                ?.homePath
+        } catch (_: Exception) {
+            null
+        }
+    }
+
     /** Platform-appropriate shell command to install JBang. */
     fun installCommand(): String = if (SystemInfo.isWindows)
         "iex \"& { \$(iwr -useb https://ps.jbang.dev) } app setup\""
@@ -136,14 +159,15 @@ object JBangCli {
      * Calls `jbang info tools --quiet <scriptPath>` and parses the JSON.
      * Returns error details in [ScriptInfo.commandErrors] when JBang fails.
      */
-    fun resolveScriptInfo(scriptPath: String): ScriptInfo? {
+    fun resolveScriptInfo(scriptPath: String, project: com.intellij.openapi.project.Project? = null): ScriptInfo? {
         return try {
             val wsl = if (SystemInfo.isWindows) WslPath.parseWindowsUncPath(scriptPath) else null
             val effectivePath = wsl?.linuxPath ?: scriptPath
             val output = exec("jbang", "info", "tools", "--quiet", effectivePath,
                 env = mapOf("JBANG_DOWNLOAD_SOURCES" to "true"),
                 workDirectory = if (wsl != null) null else File(scriptPath).absoluteFile.parentFile,
-                wslDistributionId = wsl?.distributionId)
+                wslDistributionId = wsl?.distributionId,
+                project = project)
             gson.fromJson(output.trimToJson(), ScriptInfo::class.java)
         } catch (e: Exception) {
             val error = e.message ?: "jbang info tools failed"
@@ -186,6 +210,7 @@ object JBangCli {
         env: Map<String, String> = emptyMap(),
         workDirectory: File? = null,
         wslDistributionId: String? = null,
+        project: com.intellij.openapi.project.Project? = null,
     ): String {
         val isWsl = wslDistributionId != null
         val exeCommand = if (isWsl) command else arrayOf(findJBangCmd(), *command.drop(1).toTypedArray())
@@ -193,6 +218,11 @@ object JBangCli {
             .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
             .withEnvironment("NO_COLOR", "true")
             .withEnvironment(env)
+        // If JAVA_HOME isn't set (e.g. IDEA launched from desktop shortcut),
+        // inject one from IntelliJ's known JDKs so jbang can bootstrap itself.
+        if (cmd.environment["JAVA_HOME"] == null && System.getenv("JAVA_HOME") == null) {
+            findIdeaJavaHome(project)?.let { cmd.withEnvironment("JAVA_HOME", it) }
+        }
         if (workDirectory != null) cmd = cmd.withWorkDirectory(workDirectory)
 
         if (isWsl && SystemInfo.isWindows) {
