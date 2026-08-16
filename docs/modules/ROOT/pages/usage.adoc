@@ -35,6 +35,7 @@ image:current/sync-status.png[JBang active root and synchronization status]
 Each root keeps a separate classpath and requested JDK.
 Opening a root selects it automatically.
 For a source shared by several roots, use the JBang status widget to choose the owner whose classpath should be active.
+When the selected root is not the current editor file, the plugin offers to open it; *Do not ask again* remembers that choice.
 Changing roots does not merge dependencies between scripts.
 
 image:current/multi-root.png[Switching the active JBang root]
@@ -135,4 +136,5 @@ image:current/create-script.png[Creating a script from a JBang template]
 == Settings
 
 Open *Settings/Preferences > Tools > JBang* to configure the executable path and automatic synchronization.
+Re-enable *Ask to open a root selected from the status bar* there to clear a remembered *Do not ask again* choice.
 See xref:installation.adoc#install-jbang[Install JBang] for executable lookup order.
