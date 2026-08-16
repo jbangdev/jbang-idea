@@ -19,21 +19,12 @@ class JBangSettings : PersistentStateComponent<JBangSettings.State> {
     override fun getState(): State = myState
     override fun loadState(state: State) { myState = state }
 
-    var jbangPath: String
-        get() = myState.jbangPath
-        set(value) { myState.jbangPath = value }
-
-    var autoSync: Boolean
-        get() = myState.autoSync
-        set(value) { myState.autoSync = value }
-
-    var askToOpenSelectedRoot: Boolean
-        get() = myState.askToOpenSelectedRoot
-        set(value) { myState.askToOpenSelectedRoot = value }
-
-    var openSelectedRootWithoutAsking: Boolean
-        get() = myState.openSelectedRootWithoutAsking
-        set(value) { myState.openSelectedRootWithoutAsking = value }
+    // ponytail: direct field access via instance.state is cleaner, but these accessors
+    // are used everywhere and changing all call sites is churn for no functional gain.
+    var jbangPath: String by myState::jbangPath
+    var autoSync: Boolean by myState::autoSync
+    var askToOpenSelectedRoot: Boolean by myState::askToOpenSelectedRoot
+    var openSelectedRootWithoutAsking: Boolean by myState::openSelectedRootWithoutAsking
 
     companion object {
         val instance: JBangSettings

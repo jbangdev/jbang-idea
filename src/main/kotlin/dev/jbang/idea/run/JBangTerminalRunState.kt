@@ -136,19 +136,7 @@ class JBangTerminalRunState(
         typeToTty(widget, shellCmd + "\n")
     }
 
-    /**
-     * Write directly to the tty connector. Avoids the first-character-eaten
-     * bug in ShellTerminalWidget.executeCommand().
-     */
-    private fun typeToTty(widget: ShellTerminalWidget, text: String) {
-        try {
-            widget.executeWithTtyConnector { tty ->
-                tty.write(text.toByteArray())
-            }
-        } catch (e: Exception) {
-            log.warn("Failed to write to terminal tty", e)
-        }
-    }
+    private fun typeToTty(widget: ShellTerminalWidget, text: String) = TerminalHelper.typeToTty(widget, text)
 
     private fun createAndRun(manager: TerminalToolWindowManager, tabName: String, shellCmd: String, canonicalName: String? = null) {
         val state = TerminalTabState()
@@ -156,32 +144,16 @@ class JBangTerminalRunState(
         state.myWorkingDirectory = config.project.basePath
         state.myIsUserDefinedTabTitle = true
 
-        // Ensure the Terminal tool window is open and visible
         val twm = com.intellij.openapi.wm.ToolWindowManager.getInstance(config.project)
-        val toolWindow = twm.getToolWindow("Terminal")
-        if (toolWindow == null) {
-            log.warn("Terminal tool window not found — is the Terminal plugin installed?")
-            return
-        }
+        val toolWindow = twm.getToolWindow("Terminal") ?: return
         toolWindow.activate(null)
-        val contentManager = toolWindow.contentManager
-        val terminalWidget = manager.createNewSession(manager.terminalRunner, state, contentManager)
-
-        val shellWidget = ShellTerminalWidget.asShellJediTermWidget(terminalWidget)
-        if (shellWidget != null) {
-            tabs[canonicalName ?: tabName] = shellWidget
-            // Wait for shell prompt, then type command via tty
-            ApplicationManager.getApplication().executeOnPooledThread {
-                for (i in 1..40) {
-                    Thread.sleep(250)
-                    try {
-                        if (shellWidget.processTtyConnector != null) break
-                    } catch (_: Exception) {}
-                }
-                Thread.sleep(500)
-                ApplicationManager.getApplication().invokeLater {
-                    typeToTty(shellWidget, shellCmd + "\n")
-                }
+        val terminalWidget = manager.createNewSession(manager.terminalRunner, state, toolWindow.contentManager)
+        val shellWidget = ShellTerminalWidget.asShellJediTermWidget(terminalWidget) ?: return
+        tabs[canonicalName ?: tabName] = shellWidget
+        ApplicationManager.getApplication().executeOnPooledThread {
+            TerminalHelper.waitForShell(shellWidget)
+            ApplicationManager.getApplication().invokeLater {
+                typeToTty(shellWidget, shellCmd + "\n")
             }
         }
     }
