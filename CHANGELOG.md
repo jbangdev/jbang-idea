@@ -2,14 +2,57 @@
 
 # jbang-idea-plugin Changelog
 
-## [Unreleased]
+## [0.100.0]
 
-- Rewrite project synchronization around `jbang info tools` and synthetic libraries; Gradle and Maven models are no longer modified.
-- Add multi-root classpath isolation, `//SOURCES` ownership, active-root switching, and standalone project JDK synchronization.
-- Add Run and Debug runners, terminal execution, expanded run options, and context actions outside source roots.
-- Add local/remote Maven completion, path and catalog completion/navigation, and precise directive/resource/dependency diagnostics.
-- Add visible and explicit synchronization with progress, detailed errors, automatic save, and IDE-model completion tracking.
-- Add CLI-backed script templates and reusable integration samples.
+Complete rewrite of the JBang IntelliJ plugin. The plugin now uses `jbang info tools` as its
+single source of truth and overlays dependencies as synthetic libraries — Gradle, Maven, and
+IntelliJ module models are never modified.
+
+### Added
+- Multi-root classpath isolation: each JBang root script keeps its own resolved dependencies,
+  declared sources, and requested Java version.
+- Active-root switching via the status bar widget, with an option to open the selected root file.
+- `//SOURCES` ownership and element finder: declared sources resolve in the editor and inherit
+  the owning root's classpath. Sibling sources from other roots remain isolated.
+- Run **and** Debug support with JDWP auto-attach, gutter icons, context menu actions, and
+  terminal execution mode (with Windows PTY fallback).
+- Expanded run configuration: JBang options, quoted arguments, environment variables, and
+  working directory.
+- Local and remote Maven coordinate completion for `//DEPS`, with cancellable time-bounded
+  central lookups and subdued `local`/`remote`/`snapshot` presentation.
+- Path completion and Ctrl/Cmd-click navigation for `//SOURCES` and `//FILES` (including
+  `target=source` mappings and multiple entries per directive).
+- Catalog `script-ref` completion and navigation in `jbang-catalog.json`.
+- Exact diagnostics: unknown directives, malformed coordinates, duplicate `//DEPS`, unresolved
+  dependencies, and missing `//SOURCES`/`//FILES` resources highlighted on the failing token.
+- Visible synchronization: `syncing…`, `(synced)`, and `(sync failed: N errors)` in the status
+  bar; detailed errors in tooltips and notifications; explicit **Sync JBang Project** action with
+  automatic save.
+- Per-root `//JAVA` JDK registration and standalone project SDK assignment (Gradle/Maven SDKs
+  are never overwritten).
+- CLI-backed **New → JBang Script** with smart filename suggestions from `jbang template list`.
+- Own `.jbang` file type (directive-only, not parsed as Java).
+- `.jsh` registered as JShell.
+- JSON Schema for `jbang-catalog.json`.
+- Navigate from External Libraries back to the owning root script (F4/Enter).
+- All 19 official JBang directives plus `JAVAC_OPTIONS` and `JAVA_OPTIONS` aliases.
+- Settings: JBang path, auto-sync toggle, and root-open prompt with "Do not ask again" support.
+- Cross-platform CI: tests on Linux, Windows, and macOS; Plugin Verifier in the build pipeline.
+- Documentation with full screenshot walkthrough and contract tests.
+
+### Changed
+- Synchronization is now overlay-based: dependencies appear under External Libraries as synthetic
+  JBang libraries. No module dependencies, Gradle mirroring, or project-model mutation.
+- Run/Debug context actions are always visible for JBang scripts (not hidden inside source roots).
+
+### Removed
+- Module builder/wizard — just open a folder containing JBang scripts.
+- Gradle dependency mirroring (`jbang-withGradle.xml` was empty).
+- `DependencyModifier` (was `return false` — never functional).
+- Tool window with dependency list — replaced by status bar widget and External Libraries.
+- File-based index — replaced by in-memory root cache.
+- `JavaSnippetLineMarkerProvider` (ran `@snippet` Javadoc tags via JBang).
+- Live templates (`jbang`, `jbang-build`, `jbang-sb`) — replaced by CLI-backed templates.
 
 ## [0.26.1] - 2026-07-26
 
@@ -24,261 +67,7 @@
 
 ## [0.25.1]
 
-- Feat: Compatible with IntelliJ IDEA 2023.2+ 
+- Feat: Compatible with IntelliJ IDEA 2023.2+
 - Feat: Add JBang Path in settings
 - Feat: Allow install into IntelliJ IDEA EAP
 - Fix: Select proper directory when creating script
-
-## [0.25.0]
-
-- Feat: Add JBang Path in settings
-- Feat: Allow install into IntelliJ IDEA EAP
-- Fix: Select proper directory when creating script
-
-## [0.24.9]
-
-### Added
-
-- Fixed: Compatible with IntelliJ IDEA 2025.1
-
-## [0.24.8]
-
-### Added
-
-- Fix #73: cannot create JBang script in IntelliJ IDEA
-- Fixed: Compatible with IntelliJ IDEA 2024.3
-
-## [0.24.6]
-
-### Added
-
-- Fixed: Compatible with IntelliJ IDEA 2024.2
-
-## [0.24.5]
-
-### Added
-
-- Fixed: Compatible with IntelliJ IDEA 2024.1
-
-## [0.24.4]
-
-### Added
-
-- Fixed: Compatible with IntelliJ IDEA 2023.3
-
-## [0.24.3]
-
-### Added
-
-- Feat: Add `//PREVIEW` support
-
-## [0.24.2]
-
-### Fixed
-
-- Fixed: honor JBANG_HOME, PATH and ~/.jbang/bin in that order when searching for jbang command
-- Fixed: Compatible with IntelliJ IDEA 2023.2
-- Fixed: Add more properties for alias object in `jbang-catalog-schema.json`
-
-## [0.24.1]
-
-### Fixed
-
-- Fixed: Compatible with IntelliJ IDEA 2023.1
-
-## [0.24.0]
-
-### Added
-
-- Added: enable download sources
-- Added: attach sources for jbang lib when syncing dependencies
-- Added: NATIVE_OPTIONS support
-- Fixed: support for quoted arguments in the build configuration
-
-## [0.23.0]
-
-### Fixed
-
-- Fixed: Compatible with IntelliJ IDEA 2022.3
-
-## [0.22.0]
-
-### Added
-
-- Added: new `//MANIFEST` keyword to allow writing entries to `META-INF/manifest.mf`
-- Added: `JBANG_HOME` environment variable support
-- Added: icon for `build.jbang`
-- Added: Java Scratch file support - https://github.com/jbangdev/jbang-idea/issues/68
-
-## [0.21.0]
-
-### Added
-
-- Added: JBang icon for build.java, build.kt and build.groovy files
-- Added: JBang live templates
-    * jbang: generate JBang declaration
-    * jbang-build: generate JBang declaration with build info
-    * jbang-sb: generate JBang declaration with Spring Boot dependencies
-
-## [0.20.0]
-
-### Added
-
-- Added: Java 18 Snippet support with `java`, `groovy`, `kotlin` lang attribute
-
-## [0.19.0]
-
-### Added
-
-- Added: Catalog alias support for JBang run configuration
-- Added: environment variables support for JBang run configuration
-- Fixed: Force to refresh script info when click refresh button in JBang tool window
-
-## [0.18.0]
-
-### Added
-
-- Added: code completion/navigation for //SOURCES
-- Added: Java version synced within module
-- Fixed: external library name always as jbang, and now is `${moduelName}-jbang`
-
-## [0.17.0]
-
-### Added
-
-- Added: JBang ToolWindow listener to make load JBang script info automatically
-- Added: open new JBang script files after creation from template
-- Fix: save all documents when to sync DEPS
-
-## [0.16.0]
-
-### Added
-
-- Added: introduce zt-exec to call JBang command
-- Added: introduce ProgressManager and Task.Backgroundable to sync dependencies asynchronously
-- Fix: added descriptions to directive completions
-
-## [0.15.0]
-
-### Added
-
-- Added: Support 2022.1 EAP
-
-## [0.13.0]
-
-### Added
-
-- GAV completion with last version support
-
-## [0.12.0]
-
-### Added
-
-- Bug fix: remove file editor listener because of performance
-
-## [0.11.0]
-
-### Added
-
-- Code completion and navigation for `script-ref` in `jbang-catalog.json`
-- GAV completion for `//DEPS `
-- text without colon - full text search `google.guava`, and words seperated by `.` or `-`
-- text with one colon - artifact search based on groupId `com.google.guava:`
-- text with two colons - version search based on groupId and artifactId `com.google.guava:guava:`
-
-## [0.10.0]
-
-### Added
-
-- JBang module wizard: create new JBang project or create JBang module on current project
-- Language detection for JBang module creation: create different script file based on Java/Groovy/Kotlin chosen
-
-## [0.9.0]
-
-### Added
-
-- Module JDK sync according to `//JAVA`
-- Remove bundle of jbang.jar
-- Dependencies sync adjusted to one way: from Gradle to DEPS or from DEPS to Gradle
-- High lighter for JBang directives
-- JBang tool window
-
-## [0.6.0]
-
-### Added
-
-- Add create script from JBang template
-- Move all DEPS to module's jbang library
-
-## [0.5.0]
-
-### Added
-
-- Add to sync DEPS to IDEA's module:  use `idea .` to open JBang project
-
-## [0.4.0]
-
-### Added
-
-- JBang Run Line Marker for `///usr/bin/env jbang`
-- `//GROOVY` directive completion for JBang Groovy script
-
-## [0.3.0]
-
-### Added
-
-- Sync Dependencies Action: right click script file and sync dependencies between JBang and Gradle
-- Add icon for `JBang run` in editor popup menu
-- Append ` by JBang` to JBang run configuration to indicate it run by JBang
-
-## [0.2.0]
-
-### Added
-
-- GAV directive added for completion
-- Run configuration for Groovy: run Groovy by JBang
-
-## [0.1.0]
-
-### Added
-
-- JDK sync from JBang to IntelliJ IDEA
-- Json Schema support for jbang-catalog.json
-- Run Configuration support: run JBang script by right click
-- JBang script creation from file templates: New -> JBang Script
-- JBang directives completion:  for example `//DEPS`, `//SOURCES`
-
-[Unreleased]: https://github.com/jbangdev/jbang-idea/compare/v0.26.1...HEAD
-[0.26.1]: https://github.com/jbangdev/jbang-idea/compare/v0.25.2...v0.26.1
-[0.25.2]: https://github.com/jbangdev/jbang-idea/compare/v0.25.1...v0.25.2
-[0.25.1]: https://github.com/jbangdev/jbang-idea/compare/v0.25.0...v0.25.1
-[0.25.0]: https://github.com/jbangdev/jbang-idea/compare/v0.24.9...v0.25.0
-[0.24.9]: https://github.com/jbangdev/jbang-idea/compare/v0.24.8...v0.24.9
-[0.24.8]: https://github.com/jbangdev/jbang-idea/compare/v0.24.6...v0.24.8
-[0.24.6]: https://github.com/jbangdev/jbang-idea/compare/v0.24.5...v0.24.6
-[0.24.5]: https://github.com/jbangdev/jbang-idea/compare/v0.24.4...v0.24.5
-[0.24.4]: https://github.com/jbangdev/jbang-idea/compare/v0.24.3...v0.24.4
-[0.24.3]: https://github.com/jbangdev/jbang-idea/compare/v0.24.2...v0.24.3
-[0.24.2]: https://github.com/jbangdev/jbang-idea/compare/v0.24.1...v0.24.2
-[0.24.1]: https://github.com/jbangdev/jbang-idea/compare/v0.24.0...v0.24.1
-[0.24.0]: https://github.com/jbangdev/jbang-idea/compare/v0.23.0...v0.24.0
-[0.23.0]: https://github.com/jbangdev/jbang-idea/compare/v0.22.0...v0.23.0
-[0.22.0]: https://github.com/jbangdev/jbang-idea/compare/v0.21.0...v0.22.0
-[0.21.0]: https://github.com/jbangdev/jbang-idea/compare/v0.20.0...v0.21.0
-[0.20.0]: https://github.com/jbangdev/jbang-idea/compare/v0.19.0...v0.20.0
-[0.19.0]: https://github.com/jbangdev/jbang-idea/compare/v0.18.0...v0.19.0
-[0.18.0]: https://github.com/jbangdev/jbang-idea/compare/v0.17.0...v0.18.0
-[0.17.0]: https://github.com/jbangdev/jbang-idea/compare/v0.16.0...v0.17.0
-[0.16.0]: https://github.com/jbangdev/jbang-idea/compare/v0.15.0...v0.16.0
-[0.15.0]: https://github.com/jbangdev/jbang-idea/compare/v0.13.0...v0.15.0
-[0.13.0]: https://github.com/jbangdev/jbang-idea/compare/v0.12.0...v0.13.0
-[0.12.0]: https://github.com/jbangdev/jbang-idea/compare/v0.11.0...v0.12.0
-[0.11.0]: https://github.com/jbangdev/jbang-idea/compare/v0.10.0...v0.11.0
-[0.10.0]: https://github.com/jbangdev/jbang-idea/compare/v0.9.0...v0.10.0
-[0.9.0]: https://github.com/jbangdev/jbang-idea/compare/v0.6.0...v0.9.0
-[0.6.0]: https://github.com/jbangdev/jbang-idea/compare/v0.5.0...v0.6.0
-[0.5.0]: https://github.com/jbangdev/jbang-idea/compare/v0.4.0...v0.5.0
-[0.4.0]: https://github.com/jbangdev/jbang-idea/compare/v0.3.0...v0.4.0
-[0.3.0]: https://github.com/jbangdev/jbang-idea/compare/v0.2.0...v0.3.0
-[0.2.0]: https://github.com/jbangdev/jbang-idea/compare/v0.1.0...v0.2.0
-[0.1.0]: https://github.com/jbangdev/jbang-idea/commits/v0.1.0
