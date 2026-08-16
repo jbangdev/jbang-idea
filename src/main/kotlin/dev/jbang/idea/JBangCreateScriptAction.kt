@@ -22,6 +22,10 @@ class JBangCreateScriptAction : DumbAwareAction() {
         val project = e.project ?: return
         val selected = e.getData(CommonDataKeys.VIRTUAL_FILE) ?: return
         val directory = if (selected.isDirectory) selected else selected.parent
+        if (JBangCli.resolveJBangPath() == null) {
+            Messages.showErrorDialog(project, "JBang is not installed. Install it from Settings > Tools > JBang.", "New JBang Script")
+            return
+        }
         object : Task.Backgroundable(project, "Loading JBang templates", true) {
             private var templates = emptyList<TemplateInfo>()
             override fun run(indicator: ProgressIndicator) { templates = JBangCli.listTemplates() }
