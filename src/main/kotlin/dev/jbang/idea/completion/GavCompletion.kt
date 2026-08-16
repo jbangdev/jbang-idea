@@ -194,7 +194,8 @@ private object GavCompletionProvider : CompletionProvider<CompletionParameters>(
     /** Fetches versions from repo1.maven.org/maven2 maven-metadata.xml — always up to date. */
     private suspend fun mavenMetadataVersions(group: String, artifact: String, prefix: String): List<String> {
         val path = group.replace('.', '/')
-        val uri = URI.create("https://repo1.maven.org/maven2/$path/$artifact/maven-metadata.xml")
+        val baseUrl = System.getProperty("jbang.maven.repo.url") ?: "https://repo1.maven.org/maven2"
+        val uri = URI.create("$baseUrl/$path/$artifact/maven-metadata.xml")
         return try {
             val request = HttpRequest.newBuilder(uri).timeout(Duration.ofSeconds(5)).GET().build()
             val response = HTTP.sendCancellable(request)

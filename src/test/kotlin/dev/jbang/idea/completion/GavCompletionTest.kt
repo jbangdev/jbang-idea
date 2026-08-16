@@ -82,12 +82,19 @@ class GavCompletionTest : LightJavaCodeInsightFixtureTestCase() {
         val artifact = repository.resolve(path)
         Files.createDirectories(artifact)
         Files.writeString(artifact.resolve("artifact.pom"), "<project/>")
-        val previous = System.getProperty("maven.repo.local")
+        val previousRepo = System.getProperty("maven.repo.local")
+        val previousUrl = System.getProperty("jbang.maven.repo.url")
+        val previousSearch = System.getProperty("jbang.maven.search.url")
         System.setProperty("maven.repo.local", repository.toString())
+        // Prevent tests from hitting real Maven Central
+        System.setProperty("jbang.maven.repo.url", "http://localhost:0")
+        System.setProperty("jbang.maven.search.url", "http://localhost:0")
         try {
             test()
         } finally {
-            if (previous == null) System.clearProperty("maven.repo.local") else System.setProperty("maven.repo.local", previous)
+            if (previousRepo == null) System.clearProperty("maven.repo.local") else System.setProperty("maven.repo.local", previousRepo)
+            if (previousUrl == null) System.clearProperty("jbang.maven.repo.url") else System.setProperty("jbang.maven.repo.url", previousUrl)
+            if (previousSearch == null) System.clearProperty("jbang.maven.search.url") else System.setProperty("jbang.maven.search.url", previousSearch)
             FileUtil.delete(repository)
         }
     }
