@@ -135,8 +135,7 @@ class JBangDirectiveAnnotatorTest : LightJavaCodeInsightFixtureTestCase() {
 
     @Test
     fun testSourcesResolutionErrorHighlightsFailingPath() {
-        val file = myFixture.addFileToProject("SourcesError.java", "//DEPS example:test:1\n//SOURCES missing.java\nclass SourcesError {}")
-        myFixture.configureFromExistingVirtualFile(file.virtualFile)
+        val file = myFixture.configureByText("SourcesError.java", "//DEPS example:test:1\n//SOURCES missing.java\nclass SourcesError {}")
         JBangProjectService.getInstance(project).cacheResolved(
             file.virtualFile.path,
             ScriptInfo(sources = listOf(dev.jbang.idea.cli.SourceEntry(
@@ -162,20 +161,21 @@ class JBangDirectiveAnnotatorTest : LightJavaCodeInsightFixtureTestCase() {
     @Test
     fun testDependencyResolutionErrorHighlightsCoordinate() {
         val coordinate = "example:missing:99"
-        val file = myFixture.addFileToProject("DepsError.java", "//DEPS $coordinate\nclass DepsError {}")
-        myFixture.configureFromExistingVirtualFile(file.virtualFile)
+        val file = myFixture.configureByText("DepsError.java", "//DEPS $coordinate\nclass DepsError {}")
+        val path = file.virtualFile.path
         JBangProjectService.getInstance(project).cacheResolved(
-            file.virtualFile.path,
+            path,
             ScriptInfo(dependencies = listOf(coordinate)),
             emptyList(),
         )
+        assertNotNull("ScriptInfo should be cached", JBangProjectService.getInstance(project).getInfo(path))
         val comment = PsiTreeUtil.findChildrenOfType(file, PsiComment::class.java).single()
         val holder = com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl(
             com.intellij.lang.annotation.AnnotationSession(file), false
         )
         holder.runAnnotatorWithContext(comment, JBangDirectiveAnnotator())
 
-        assertTrue(holder.any {
+        assertTrue("Should highlight unresolved dependency coordinate, got: ${holder.map { "${it.severity}:${it.message}" }}", holder.any {
             it.severity == com.intellij.lang.annotation.HighlightSeverity.ERROR &&
                 it.message == "Unable to resolve dependency: $coordinate" &&
                 file.text.substring(it.startOffset, it.endOffset) == coordinate
