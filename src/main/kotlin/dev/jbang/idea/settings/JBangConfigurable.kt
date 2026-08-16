@@ -13,6 +13,7 @@ class JBangConfigurable : Configurable {
     private var panel: JPanel? = null
     private val pathField = TextFieldWithBrowseButton()
     private val autoSyncCheckbox = JCheckBox("Auto-sync dependencies on save")
+    private val askToOpenRootCheckbox = JCheckBox("Ask to open a root selected from the status bar")
 
     init {
         @Suppress("DEPRECATION")
@@ -29,6 +30,7 @@ class JBangConfigurable : Configurable {
         panel = FormBuilder.createFormBuilder()
             .addLabeledComponent("JBang path:", pathField)
             .addComponent(autoSyncCheckbox)
+            .addComponent(askToOpenRootCheckbox)
             .addComponentFillVertically(JPanel(), 0)
             .panel
         return panel!!
@@ -36,18 +38,23 @@ class JBangConfigurable : Configurable {
 
     override fun isModified(): Boolean {
         val settings = JBangSettings.instance
-        return pathField.text != settings.jbangPath || autoSyncCheckbox.isSelected != settings.autoSync
+        return pathField.text != settings.jbangPath ||
+            autoSyncCheckbox.isSelected != settings.autoSync ||
+            askToOpenRootCheckbox.isSelected != settings.askToOpenSelectedRoot
     }
 
     override fun apply() {
         val settings = JBangSettings.instance
         settings.jbangPath = pathField.text
         settings.autoSync = autoSyncCheckbox.isSelected
+        settings.askToOpenSelectedRoot = askToOpenRootCheckbox.isSelected
+        if (settings.askToOpenSelectedRoot) settings.openSelectedRootWithoutAsking = false
     }
 
     override fun reset() {
         val settings = JBangSettings.instance
         pathField.text = settings.jbangPath
         autoSyncCheckbox.isSelected = settings.autoSync
+        askToOpenRootCheckbox.isSelected = settings.askToOpenSelectedRoot
     }
 }

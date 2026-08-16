@@ -10,6 +10,8 @@ class JBangSettings : PersistentStateComponent<JBangSettings.State> {
     data class State(
         var jbangPath: String = "",
         var autoSync: Boolean = true,
+        var askToOpenSelectedRoot: Boolean = true,
+        var openSelectedRootWithoutAsking: Boolean = false,
     )
 
     private var myState = State()
@@ -24,6 +26,14 @@ class JBangSettings : PersistentStateComponent<JBangSettings.State> {
     var autoSync: Boolean
         get() = myState.autoSync
         set(value) { myState.autoSync = value }
+
+    var askToOpenSelectedRoot: Boolean
+        get() = myState.askToOpenSelectedRoot
+        set(value) { myState.askToOpenSelectedRoot = value }
+
+    var openSelectedRootWithoutAsking: Boolean
+        get() = myState.openSelectedRootWithoutAsking
+        set(value) { myState.openSelectedRootWithoutAsking = value }
 
     companion object {
         val instance: JBangSettings

@@ -1,18 +1,24 @@
 package dev.jbang.idea.project
 
+import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.ui.DoNotAskOption
+import com.intellij.openapi.ui.MessageDialogBuilder
+import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.ui.awt.RelativePoint
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.StatusBarWidgetFactory
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget
 import com.intellij.util.Consumer
 import dev.jbang.idea.JBangPlugin
+import dev.jbang.idea.settings.JBangSettings
 import java.awt.Point
 import java.awt.event.MouseEvent
 import java.io.File
@@ -28,8 +34,16 @@ class JBangStatusBarWidgetFactory : StatusBarWidgetFactory {
     override fun isAvailable(project: Project): Boolean = true
 }
 
-internal class JBangStatusWidget(project: Project) : EditorBasedWidget(project),
-    StatusBarWidget.MultipleTextValuesPresentation {
+internal class JBangStatusWidget(
+    project: Project,
+    private val confirmOpen: (Project, String, DoNotAskOption) -> Boolean = { dialogProject, rootName, doNotAsk ->
+        MessageDialogBuilder.yesNo("JBang Root Selected", "Open $rootName in the editor?")
+            .yesText("Open")
+            .noText("Keep Current File")
+            .doNotAsk(doNotAsk)
+            .ask(dialogProject)
+    },
+) : EditorBasedWidget(project), StatusBarWidget.MultipleTextValuesPresentation {
 
     override fun ID(): String = "JBangActiveRoot"
 
@@ -72,12 +86,36 @@ internal class JBangStatusWidget(project: Project) : EditorBasedWidget(project),
 
             override fun onChosen(selectedValue: String, finalChoice: Boolean): PopupStep<*>? {
                 if (selectedValue == sync) JBangSyncAction.sync(project)
-                else service.setActiveRoot(selectedValue)
+                else selectRoot(selectedValue)
                 myStatusBar?.updateWidget(ID())
                 return FINAL_CHOICE
             }
         }
         return JBPopupFactory.getInstance().createListPopup(step)
+    }
+
+    internal fun selectRoot(path: String) {
+        JBangProjectService.getInstance(project).setActiveRoot(path)
+        if (FileEditorManager.getInstance(project).selectedFiles.any { it.path == path }) return
+
+        val settings = JBangSettings.instance
+        val shouldOpen = if (settings.askToOpenSelectedRoot) {
+            confirmOpen(project, File(path).name, object : DoNotAskOption.Adapter() {
+                override fun rememberChoice(isSelected: Boolean, exitCode: Int) {
+                    if (isSelected) {
+                        settings.askToOpenSelectedRoot = false
+                        settings.openSelectedRootWithoutAsking = exitCode == Messages.YES
+                    }
+                }
+            })
+        } else {
+            settings.openSelectedRootWithoutAsking
+        }
+        if (shouldOpen) {
+            LocalFileSystem.getInstance().findFileByPath(path)?.let {
+                FileEditorManager.getInstance(project).openFile(it, true)
+            }
+        }
     }
 
     override fun getClickConsumer() = Consumer<MouseEvent> { event ->
