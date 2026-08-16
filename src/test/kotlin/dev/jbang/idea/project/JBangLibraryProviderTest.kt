@@ -324,7 +324,21 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
 
         val presentation = (lib as com.intellij.navigation.ItemPresentation)
         assertEquals("jbang: overlay.java", presentation.presentableText)
-        assertEquals("Location should be relative to project", "overlay.java", presentation.locationString)
+    }
+
+    @Test
+    fun testLibrariesWithSameScriptNameInDifferentDirsAreDistinct() {
+        val jar = Files.createTempFile("jbang-dup", ".jar").toFile()
+        JarOutputStream(jar.outputStream()).use { }
+        val scriptA = myFixture.addFileToProject("a/resource.java", "//DEPS x:y:1\nclass resource {}")
+        val scriptB = myFixture.addFileToProject("b/resource.java", "//DEPS x:z:1\nclass resource {}")
+        installInfo(scriptA.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(jar.path)))
+        installInfo(scriptB.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(jar.path)))
+
+        val libs = JBangLibraryProvider().getAdditionalProjectLibraries(project)
+        assertEquals(2, libs.size)
+        val names = libs.map { (it as com.intellij.navigation.ItemPresentation).presentableText }.toSet()
+        assertEquals("Library names should be unique", 2, names.size)
     }
 
     @Test

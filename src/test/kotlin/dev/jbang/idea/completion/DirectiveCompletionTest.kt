@@ -33,10 +33,25 @@ class DirectiveCompletionTest : LightJavaCodeInsightFixtureTestCase() {
     fun testAllDirectivesAreDefined() {
         // Sanity: all directive names are non-empty and the map is populated
         assertTrue(JBangPlugin.ALL_DIRECTIVES.isNotEmpty())
-        assertTrue(JBangPlugin.ALL_DIRECTIVES.size >= 14)
+        assertTrue(JBangPlugin.ALL_DIRECTIVES.size >= 21)
         for ((name, desc) in JBangPlugin.ALL_DIRECTIVES) {
             assertTrue("Directive name should not be blank", name.isNotBlank())
             assertTrue("Description should not be blank for $name", desc.isNotBlank())
+        }
+    }
+
+    @Test
+    fun testOfficialJBangDirectivesArePresent() {
+        // All directives from https://www.jbang.dev/documentation/guide/latest/script-directives.html
+        val official = listOf(
+            "DEPS", "REPOS", "JAVA", "PREVIEW",
+            "COMPILE_OPTIONS", "RUNTIME_OPTIONS", "NATIVE_OPTIONS",
+            "MAIN", "MODULE", "MANIFEST", "CDS", "JAVAAGENT",
+            "KOTLIN", "GROOVY", "SOURCES", "FILES", "DESCRIPTION",
+            "DOCS", "NOINTEGRATIONS",
+        )
+        for (d in official) {
+            assertTrue("Missing official directive: $d", d in JBangPlugin.ALL_DIRECTIVES)
         }
     }
 }
