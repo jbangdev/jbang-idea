@@ -8,9 +8,9 @@ import com.intellij.execution.process.KillableColoredProcessHandler
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessTerminatedListener
 import com.intellij.execution.runners.ExecutionEnvironment
+import com.intellij.openapi.fileChooser.FileChooserDescriptorFactory
 import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.components.JBTextField
@@ -185,11 +185,19 @@ class JBangRunState(private val config: JBangRunConfiguration, environment: Exec
 
 class JBangSettingsEditor : SettingsEditor<JBangRunConfiguration>() {
 
-    private val scriptPathField = TextFieldWithBrowseButton()
+    private val scriptPathField = TextFieldWithBrowseButton().apply {
+        @Suppress("DEPRECATION")
+        addBrowseFolderListener("Select JBang Script", null, null,
+            FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor())
+    }
     private val optionsField = JBTextField()
     private val argsField = JBTextField()
     private val environmentField = JBTextField()
-    private val workingDirectoryField = TextFieldWithBrowseButton()
+    private val workingDirectoryField = TextFieldWithBrowseButton().apply {
+        @Suppress("DEPRECATION")
+        addBrowseFolderListener("Select Working Directory", null, null,
+            FileChooserDescriptorFactory.createSingleFolderDescriptor())
+    }
     private val terminalCheckbox = JCheckBox("Run in terminal")
 
     override fun createEditor(): JComponent {
