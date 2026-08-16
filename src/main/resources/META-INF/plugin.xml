@@ -86,7 +86,7 @@
         <applicationService serviceImplementation="dev.jbang.idea.settings.JBangSettings"/>
 
         <!-- Notifications -->
-        <notificationGroup id="JBang" icon="/icons/jbang-16x16.png"
+        <notificationGroup id="JBang" icon="/icons/jbang.svg"
             displayType="BALLOON" isLogByDefault="true"/>
     </extensions>
 
@@ -99,7 +99,7 @@
         <action id="jbang.CreateScript"
                 class="dev.jbang.idea.JBangCreateScriptAction"
                 text="JBang Script"
-                icon="/icons/jbang-16x16.png">
+                icon="/icons/jbang.svg">
             <add-to-group group-id="NewGroup" anchor="last"/>
         </action>
         <action id="jbang.Sync"
@@ -112,14 +112,14 @@
         <action id="jbang.RunScript"
                 class="dev.jbang.idea.run.JBangRunScriptAction"
                 text="Run with JBang"
-                icon="/icons/jbang-16x16.png">
+                icon="/icons/jbang.svg">
             <add-to-group group-id="EditorPopupMenu" anchor="first"/>
             <add-to-group group-id="ProjectViewPopupMenu" anchor="first"/>
         </action>
         <action id="jbang.DebugScript"
                 class="dev.jbang.idea.run.JBangDebugScriptAction"
                 text="Debug with JBang"
-                icon="/icons/jbang-16x16.png">
+                icon="/icons/jbang.svg">
             <add-to-group group-id="EditorPopupMenu" relative-to-action="jbang.RunScript" anchor="after"/>
             <add-to-group group-id="ProjectViewPopupMenu" relative-to-action="jbang.RunScript" anchor="after"/>
         </action>
