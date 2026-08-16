@@ -80,8 +80,7 @@ class JBangDirectiveAnnotatorTest : LightJavaCodeInsightFixtureTestCase() {
 
     @Test
     fun testFilesResolutionErrorHighlightsFailingPath() {
-        val file = myFixture.addFileToProject("FilesError.java", "//DEPS example:test:1\n//FILES wonka jbang-multi-root.iml\nclass FilesError {}")
-        myFixture.configureFromExistingVirtualFile(file.virtualFile)
+        val file = myFixture.configureByText("FilesError.java", "//DEPS example:test:1\n//FILES wonka jbang-multi-root.iml\nclass FilesError {}")
         JBangProjectService.getInstance(project).cacheResolved(
             file.virtualFile.path,
             ScriptInfo(files = listOf(ResourceEntry(
@@ -109,11 +108,10 @@ class JBangDirectiveAnnotatorTest : LightJavaCodeInsightFixtureTestCase() {
 
     @Test
     fun testMappedFilesErrorHighlightsMissingSourceAfterEqualsOnly() {
-        val file = myFixture.addFileToProject(
+        val file = myFixture.configureByText(
             "MappedFilesError.java",
             "//DEPS example:test:1\n//FILES jbang-multi-root.iml=jbang-mu\n//FILES jbang-multi-root.iml\nclass MappedFilesError {}"
         )
-        myFixture.configureFromExistingVirtualFile(file.virtualFile)
         JBangProjectService.getInstance(project).cacheResolved(
             file.virtualFile.path,
             ScriptInfo(files = listOf(
