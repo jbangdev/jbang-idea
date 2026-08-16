@@ -52,6 +52,7 @@ class JBangRunConfigTest : LightJavaCodeInsightFixtureTestCase() {
         val settings = runManager.createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
         val config = settings.configuration as JBangRunConfiguration
         config.scriptPath = "/tmp/hello.java"
+        config.runInTerminal = false
 
         val executor = DefaultRunExecutor.getRunExecutorInstance()
         val environment = com.intellij.execution.runners.ExecutionEnvironmentBuilder
@@ -69,6 +70,7 @@ class JBangRunConfigTest : LightJavaCodeInsightFixtureTestCase() {
         val settings = runManager.createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
         val config = settings.configuration as JBangRunConfiguration
         config.scriptPath = "/tmp/hello.java"
+        config.runInTerminal = false
 
         // Debug executor may not be fully available in light test fixtures.
         // Verify the branching logic by checking executor ID matching.
@@ -95,9 +97,9 @@ class JBangRunConfigTest : LightJavaCodeInsightFixtureTestCase() {
         val settings = runManager.createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
         val config = settings.configuration as JBangRunConfiguration
 
-        assertFalse("runInTerminal should default to false", config.runInTerminal)
-        config.runInTerminal = true
-        assertTrue("runInTerminal should be settable", config.runInTerminal)
+        assertTrue("runInTerminal should default to true", config.runInTerminal)
+        config.runInTerminal = false
+        assertFalse("runInTerminal should be settable", config.runInTerminal)
     }
 
     @Test

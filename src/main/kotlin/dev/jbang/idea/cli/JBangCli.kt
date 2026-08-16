@@ -133,6 +133,10 @@ object JBangCli {
         exec(findJBangCmd(), "init", "--template", templateName, "--force", filePath)
     }
 
+    fun initScript(filePath: String) {
+        exec(findJBangCmd(), "init", "--force", filePath)
+    }
+
     private fun exec(
         vararg command: String,
         env: Map<String, String> = emptyMap(),

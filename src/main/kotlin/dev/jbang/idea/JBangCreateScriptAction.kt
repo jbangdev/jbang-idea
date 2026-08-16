@@ -6,7 +6,6 @@ import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.vfs.VirtualFile
 import dev.jbang.idea.cli.JBangCli
 import dev.jbang.idea.cli.TemplateInfo
@@ -27,36 +26,23 @@ class JBangCreateScriptAction : DumbAwareAction() {
             private var templates = emptyList<TemplateInfo>()
             override fun run(indicator: ProgressIndicator) { templates = JBangCli.listTemplates() }
             override fun onSuccess() {
-                if (templates.isEmpty()) {
-                    Messages.showErrorDialog(project, "JBang returned no templates.", "New JBang Script")
-                    return
-                }
-                JBPopupFactory.getInstance().createPopupChooserBuilder(templates.map(TemplateInfo::name))
-                    .setTitle("JBang Template")
-                    .setItemChosenCallback { template ->
-                        val name = Messages.showInputDialog(
-                            project,
-                            "File name:",
-                            "New JBang Script",
-                            JBangPlugin.icon16,
-                            suggestFileName(template),
-                            null,
-                        )
-                            ?.takeIf(String::isNotBlank) ?: return@setItemChosenCallback
-                        create(project, directory, name, template)
-                    }
-                    .createPopup()
-                    .showCenteredInCurrentWindow(project)
+                val dialog = JBangCreateScriptDialog(project, templates)
+                if (!dialog.showAndGet()) return
+                val name = dialog.scriptName
+                val template = dialog.selectedTemplate
+                create(project, directory, name, template)
             }
         }.queue()
     }
 
-    private fun create(project: com.intellij.openapi.project.Project, directory: VirtualFile, name: String, template: String) {
+    private fun create(project: com.intellij.openapi.project.Project, directory: VirtualFile, name: String, template: String?) {
         object : Task.Backgroundable(project, "Creating JBang script", true) {
             private var error: Exception? = null
             override fun run(indicator: ProgressIndicator) {
                 try {
-                    JBangCli.initScript(template, File(directory.path, name).path)
+                    val path = File(directory.path, name).path
+                    if (template != null) JBangCli.initScript(template, path)
+                    else JBangCli.initScript(path)
                 } catch (e: Exception) {
                     error = e
                 }
@@ -73,8 +59,11 @@ class JBangCreateScriptAction : DumbAwareAction() {
     }
 
     companion object {
-        internal fun suggestFileName(template: String): String =
-            template.takeIf { name -> listOf(".java", ".kt", ".groovy", ".jsh", ".md").any(name::endsWith) }
-                ?: "$template.java"
+        internal fun suggestFileName(template: String?): String =
+            when {
+                template == null -> ""
+                listOf(".java", ".kt", ".groovy", ".jsh", ".md").any(template::endsWith) -> template
+                else -> "$template.java"
+            }
     }
 }
