@@ -26,6 +26,30 @@ class JBangNavigationTest : LightJavaCodeInsightFixtureTestCase() {
     }
 
     @Test
+    fun testMappedFilesPathResolvesSourceSide() {
+        val target = myFixture.addFileToProject("config/app.json", "{}")
+        myFixture.configureByText("Root.java", "//FILES mounted.json=config/a<caret>pp.json\nclass Root {}")
+
+        val resolved = myFixture.file.findReferenceAt(myFixture.caretOffset)!!.resolve()
+
+        assertEquals(target.virtualFile, resolved!!.containingFile.virtualFile)
+    }
+
+    @Test
+    fun testMultipleFilesPathsResolveIndependently() {
+        val target = myFixture.addFileToProject("config/second.json", "{}")
+        myFixture.addFileToProject("config/first.json", "{}")
+        myFixture.configureByText(
+            "Root.java",
+            "//FILES config/first.json mounted.json=config/sec<caret>ond.json\nclass Root {}",
+        )
+
+        val resolved = myFixture.file.findReferenceAt(myFixture.caretOffset)!!.resolve()
+
+        assertEquals(target.virtualFile, resolved!!.containingFile.virtualFile)
+    }
+
+    @Test
     fun testCatalogScriptRefResolvesRelativeToCatalog() {
         val target = myFixture.addFileToProject("scripts/hello.java", "class hello {}")
         myFixture.configureByText("jbang-catalog.json", """

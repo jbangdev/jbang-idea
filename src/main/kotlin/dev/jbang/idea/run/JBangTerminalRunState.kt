@@ -7,6 +7,7 @@ import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.ui.Messages
+import com.intellij.openapi.util.Key
 import dev.jbang.idea.debug
 import dev.jbang.idea.jbangLog
 import org.jetbrains.plugins.terminal.ShellTerminalWidget
@@ -21,6 +22,10 @@ class JBangTerminalRunState(
     private val config: JBangRunConfiguration,
     private val environment: ExecutionEnvironment
 ) : RunProfileState {
+
+    private val tabs = config.project.getUserData(TABS_KEY) ?: ConcurrentHashMap<String, ShellTerminalWidget>().also {
+        config.project.putUserData(TABS_KEY, it)
+    }
 
     override fun execute(executor: Executor, runner: ProgramRunner<*>): ExecutionResult? {
         val project = config.project
@@ -182,6 +187,6 @@ class JBangTerminalRunState(
     }
 
     companion object {
-        private val tabs = ConcurrentHashMap<String, ShellTerminalWidget>()
+        private val TABS_KEY = Key.create<ConcurrentHashMap<String, ShellTerminalWidget>>("jbang.terminal.tabs")
     }
 }

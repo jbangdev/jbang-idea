@@ -20,10 +20,12 @@ class JBangNavigation : PsiReferenceContributor() {
         registrar.registerReferenceProvider(PlatformPatterns.psiComment(), object : PsiReferenceProvider() {
             override fun getReferencesByElement(element: PsiElement, context: ProcessingContext): Array<PsiReference> {
                 val match = DIRECTIVE.matchEntire(element.text) ?: return PsiReference.EMPTY_ARRAY
-                val path = match.groupValues[2].trim()
-                if (path.isEmpty()) return PsiReference.EMPTY_ARRAY
-                val start = element.text.indexOf(path)
-                return arrayOf(LocalPathReference(element, TextRange(start, start + path.length), path))
+                val arguments = match.groups[2] ?: return PsiReference.EMPTY_ARRAY
+                return TOKEN.findAll(arguments.value).map { token ->
+                    val mappedPath = if (match.groupValues[1] == "FILES") token.value.substringAfter('=') else token.value
+                    val start = arguments.range.first + token.range.first + token.value.length - mappedPath.length
+                    LocalPathReference(element, TextRange(start, start + mappedPath.length), mappedPath)
+                }.toList().toTypedArray()
             }
         })
         registrar.registerReferenceProvider(PlatformPatterns.psiElement(JsonStringLiteral::class.java), object : PsiReferenceProvider() {
@@ -53,6 +55,7 @@ class JBangNavigation : PsiReferenceContributor() {
 
     companion object {
         private val DIRECTIVE = Regex("//(SOURCES|FILES)\\s+(.+)")
+        private val TOKEN = Regex("\\S+")
         private fun String.isRemoteOrAbsolute() =
             startsWith("http://") || startsWith("https://") || startsWith("/")
     }

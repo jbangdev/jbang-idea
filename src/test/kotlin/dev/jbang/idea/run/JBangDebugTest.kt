@@ -3,6 +3,7 @@ package dev.jbang.idea.run
 import com.intellij.execution.RunManager
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import org.junit.Test
 
@@ -14,7 +15,7 @@ class JBangDebugTest : LightJavaCodeInsightFixtureTestCase() {
         val settings = runManager.createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
         val config = settings.configuration as JBangRunConfiguration
         config.scriptPath = "/tmp/tako.java"
-        config.scriptArgs = "--name world"
+        config.scriptArgs = "--name \"hello world\""
 
         val cmd = JBangDebugRunState.buildDebugCommandLine(config, 4004)
         val cmdLine = cmd.commandLineString
@@ -22,6 +23,7 @@ class JBangDebugTest : LightJavaCodeInsightFixtureTestCase() {
         assertTrue("Should contain 4004", cmdLine.contains("4004"))
         assertTrue("Should contain run", cmdLine.contains("run"))
         assertTrue("Should contain script", cmdLine.contains("/tmp/tako.java"))
+        assertEquals(listOf("run", "--debug=4004", "/tmp/tako.java", "--name", "hello world"), cmd.parametersList.list)
     }
 
     @Test
@@ -30,11 +32,13 @@ class JBangDebugTest : LightJavaCodeInsightFixtureTestCase() {
         val settings = runManager.createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
         val config = settings.configuration as JBangRunConfiguration
         config.scriptPath = "/tmp/tako.java"
+        config.scriptArgs = "--name \"hello world\""
 
         val cmd = JBangDebugRunState.buildDebugShellCommand(config, 4004)
         assertTrue("Should contain --debug", cmd.contains("--debug"))
         assertTrue("Should contain 4004", cmd.contains("4004"))
         assertTrue("Should contain run", cmd.contains("run"))
+        assertTrue("Should quote parsed arguments", cmd.contains("--name 'hello world'"))
     }
 
     @Test
@@ -54,10 +58,13 @@ class JBangDebugTest : LightJavaCodeInsightFixtureTestCase() {
         val debugState = config.getState(DefaultDebugExecutor.getDebugExecutorInstance(), environment)
         assertInstanceOf(debugState, JBangDebugRunState::class.java)
 
-        // Terminal debug → JBangTerminalDebugRunState
         config.runInTerminal = true
         val debugTermState = config.getState(DefaultDebugExecutor.getDebugExecutorInstance(), environment)
-        assertInstanceOf(debugTermState, JBangTerminalDebugRunState::class.java)
+        if (SystemInfo.isWindows) {
+            assertInstanceOf(debugTermState, JBangDebugRunState::class.java)
+        } else {
+            assertInstanceOf(debugTermState, JBangTerminalDebugRunState::class.java)
+        }
     }
 
     @Test
