@@ -3,6 +3,7 @@ package dev.jbang.idea.run
 import com.intellij.psi.*
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
+import dev.jbang.idea.project.JBangScriptDetector
 import org.junit.Test
 
 /**
@@ -83,5 +84,45 @@ class tako implements Callable<Integer> {
             .find { it.name == "main" }
         assertNotNull("Should find main", mainMethod)
         assertNull("No jbang marker on plain Java main()", marker.getInfo(mainMethod!!.nameIdentifier!!))
+    }
+
+    @Test
+    fun testRunMarkerOnKotlinDepsComment() {
+        val psiFile = myFixture.configureByText("hello.kt", """
+            //DEPS com.google.guava:guava:33.0-jre
+            fun main() { println("hello") }
+        """.trimIndent())
+
+        val marker = JBangRunLineMarker()
+        val comments = PsiTreeUtil.findChildrenOfType(psiFile, PsiComment::class.java)
+        val depsComment = comments.find { it.text.startsWith("//DEPS") }
+        assertNotNull("Should find //DEPS in Kotlin file", depsComment)
+        assertNotNull("Kotlin //DEPS should get a run marker", marker.getInfo(depsComment!!))
+    }
+
+    @Test
+    fun testRunMarkerOnGroovyDepsComment() {
+        val psiFile = myFixture.configureByText("hello.groovy", """
+            //DEPS com.google.guava:guava:33.0-jre
+            println 'hello'
+        """.trimIndent())
+
+        val marker = JBangRunLineMarker()
+        val comments = PsiTreeUtil.findChildrenOfType(psiFile, PsiComment::class.java)
+        val depsComment = comments.find { it.text.startsWith("//DEPS") }
+        assertNotNull("Should find //DEPS in Groovy file", depsComment)
+        assertNotNull("Groovy //DEPS should get a run marker", marker.getInfo(depsComment!!))
+    }
+
+    @Test
+    fun testScriptDetectorRecognizesKotlinRoot() {
+        val file = myFixture.addFileToProject("hello.kt", "//DEPS com.google.guava:guava:33.0-jre\nfun main() {}")
+        assertTrue("Kotlin file with //DEPS should be a root", JBangScriptDetector.isRootScript(file.virtualFile))
+    }
+
+    @Test
+    fun testScriptDetectorRecognizesGroovyRoot() {
+        val file = myFixture.addFileToProject("hello.groovy", "//DEPS com.google.guava:guava:33.0-jre\nprintln 'hello'")
+        assertTrue("Groovy file with //DEPS should be a root", JBangScriptDetector.isRootScript(file.virtualFile))
     }
 }

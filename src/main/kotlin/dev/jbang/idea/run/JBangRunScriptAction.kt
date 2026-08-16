@@ -6,7 +6,6 @@ import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAware
-import com.intellij.openapi.roots.ProjectFileIndex
 import dev.jbang.idea.JBangPlugin
 import dev.jbang.idea.project.JBangScriptDetector
 
@@ -25,9 +24,7 @@ class JBangRunScriptAction : AnAction("Run with JBang", "Run this script using j
             e.presentation.isEnabledAndVisible = false
             return
         }
-        // Hide when gutter icons are available (file is in a source root)
-        val inSourceRoot = project != null && ProjectFileIndex.getInstance(project).isInSourceContent(file)
-        e.presentation.isEnabledAndVisible = !inSourceRoot
+        e.presentation.isEnabledAndVisible = true
     }
 
     override fun actionPerformed(e: AnActionEvent) {
@@ -66,8 +63,7 @@ class JBangDebugScriptAction : AnAction("Debug with JBang", "Debug this script u
             e.presentation.isEnabledAndVisible = false
             return
         }
-        val inSourceRoot = project != null && ProjectFileIndex.getInstance(project).isInSourceContent(file)
-        e.presentation.isEnabledAndVisible = !inSourceRoot
+        e.presentation.isEnabledAndVisible = true
     }
 
     override fun actionPerformed(e: AnActionEvent) {
