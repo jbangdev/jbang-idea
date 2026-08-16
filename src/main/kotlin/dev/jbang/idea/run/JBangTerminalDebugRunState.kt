@@ -20,8 +20,8 @@ import java.net.Socket
 private val log = jbangLog<JBangTerminalDebugRunState>()
 
 /**
- * Debug in Terminal: launches `jbang run --debug=4004 <script>` in the Terminal
- * tool window, then polls for the debug port to open and auto-attaches the debugger.
+ * Debug in Terminal: launches `jbang run --debug=<port>` in the Terminal,
+ * polls for the port, and auto-attaches IntelliJ's remote debugger.
  */
 class JBangTerminalDebugRunState(
     private val config: JBangRunConfiguration,
@@ -33,100 +33,41 @@ class JBangTerminalDebugRunState(
         val shellCmd = JBangDebugRunState.buildDebugShellCommand(config, port)
         val tabName = "jbang debug ${File(config.scriptPath).name}"
 
-        try {
-            val project = config.project
-            val twm = com.intellij.openapi.wm.ToolWindowManager.getInstance(project)
-            val toolWindow = twm.getToolWindow("Terminal")
-            if (toolWindow == null) {
-                log.warn("Terminal tool window not found")
-                // Fall back to non-terminal debug
-                return JBangDebugRunState(config, environment).execute(executor, runner)
-            }
-
-            ApplicationManager.getApplication().invokeLater {
-                toolWindow.activate {
-                    val manager = org.jetbrains.plugins.terminal.TerminalToolWindowManager.getInstance(project)
-                    val state = org.jetbrains.plugins.terminal.TerminalTabState()
-                    state.myTabName = tabName
-                    state.myWorkingDirectory = config.project.basePath
-                    state.myIsUserDefinedTabTitle = true
-
-                    val contentManager = toolWindow.contentManager
-                    val terminalWidget = manager.createNewSession(manager.terminalRunner, state, contentManager)
-                    val shellWidget = org.jetbrains.plugins.terminal.ShellTerminalWidget.asShellJediTermWidget(terminalWidget)
-
-                    if (shellWidget != null) {
-                        // Wait for shell, send debug command, then poll for debug port
-                        ApplicationManager.getApplication().executeOnPooledThread {
-                            // Wait for shell prompt
-                            for (i in 1..40) {
-                                Thread.sleep(250)
-                                try {
-                                    if (shellWidget.processTtyConnector != null) break
-                                } catch (_: Exception) {}
-                            }
-                            Thread.sleep(500)
-
-                            // Send the debug command
-                            ApplicationManager.getApplication().invokeLater {
-                                try {
-                                    shellWidget.executeWithTtyConnector { tty ->
-                                        tty.write((shellCmd + "\n").toByteArray())
-                                    }
-                                } catch (_: Exception) {}
-                            }
-
-                            // Poll for debug port to open, then attach
-                            log.debug { "Waiting for debug port $port..." }
-                            for (i in 1..60) { // up to 30 seconds
-                                Thread.sleep(500)
-                                if (isPortOpen(port)) {
-                                    log.debug { "Debug port $port is open, attaching debugger" }
-                                    ApplicationManager.getApplication().invokeLater {
-                                        attachRemoteDebugger(config, port)
-                                    }
-                                    break
-                                }
-                            }
+        if (!TerminalHelper.runInTerminal(config.project, tabName, shellCmd) { shell ->
+                // After command is sent, poll for debug port in background
+                ApplicationManager.getApplication().executeOnPooledThread {
+                    log.debug { "Waiting for debug port $port..." }
+                    for (i in 1..60) {
+                        Thread.sleep(500)
+                        if (try { Socket("localhost", port).use { true } } catch (_: Exception) { false }) {
+                            log.debug { "Debug port $port is open, attaching debugger" }
+                            ApplicationManager.getApplication().invokeLater { attachDebugger(port) }
+                            break
                         }
                     }
                 }
-            }
-        } catch (e: Exception) {
-            log.warn("Terminal debug failed, falling back", e)
+            }) {
+            // Terminal not available — fall back to PTY debug
             return JBangDebugRunState(config, environment).execute(executor, runner)
         }
-
         return null
     }
 
-    private fun isPortOpen(port: Int): Boolean {
-        return try {
-            Socket("localhost", port).use { true }
-        } catch (_: Exception) {
-            false
-        }
-    }
-
-    private fun attachRemoteDebugger(config: JBangRunConfiguration, port: Int) {
+    private fun attachDebugger(port: Int) {
         try {
             val project = config.project
-            val remoteType = RemoteConfigurationType.getInstance()
-            val remoteFactory = remoteType.configurationFactories[0]
-            val remoteSettings = RunManager.getInstance(project)
+            val remoteFactory = RemoteConfigurationType.getInstance().configurationFactories[0]
+            val settings = RunManager.getInstance(project)
                 .createConfiguration("jbang debug ${File(config.scriptPath).name}", remoteFactory)
-            val remoteConfig = remoteSettings.configuration as RemoteConfiguration
-            remoteConfig.HOST = "localhost"
-            remoteConfig.PORT = port.toString()
-            remoteConfig.SERVER_MODE = false
-
-            val debugExecutor = DefaultDebugExecutor.getDebugExecutorInstance()
-            val debugEnv = ExecutionEnvironmentBuilder
-                .create(project, debugExecutor, remoteConfig)
+            (settings.configuration as RemoteConfiguration).apply {
+                HOST = "localhost"
+                PORT = port.toString()
+                SERVER_MODE = false
+            }
+            val env = ExecutionEnvironmentBuilder
+                .create(project, DefaultDebugExecutor.getDebugExecutorInstance(), settings.configuration)
                 .build()
-
-            ProgramRunnerUtil.executeConfiguration(debugEnv, false, true)
-            log.debug { "Remote debugger attached to localhost:$port" }
+            ProgramRunnerUtil.executeConfiguration(env, false, true)
         } catch (e: Exception) {
             log.warn("Failed to attach debugger: ${e.message}")
         }
