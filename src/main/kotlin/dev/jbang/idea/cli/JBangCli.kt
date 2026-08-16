@@ -65,6 +65,12 @@ data class TemplateInfo(
 
 private val gson = Gson()
 
+/** Strip any JVM diagnostic lines before the JSON object. */
+private fun String.trimToJson(): String {
+    val start = indexOf('{')
+    return if (start > 0) substring(start) else this
+}
+
 // --- CLI invocation ---
 
 object JBangCli {
@@ -99,7 +105,7 @@ object JBangCli {
             val output = exec(findJBangCmd(), "info", "tools", "--quiet", scriptPath,
                 env = mapOf("JBANG_DOWNLOAD_SOURCES" to "true"),
                 workDirectory = File(scriptPath).absoluteFile.parentFile)
-            gson.fromJson(output, ScriptInfo::class.java)
+            gson.fromJson(output.trimToJson(), ScriptInfo::class.java)
         } catch (e: Exception) {
             val error = e.message ?: "jbang info tools failed"
             log.warn("jbang info tools failed for $scriptPath: $error")
