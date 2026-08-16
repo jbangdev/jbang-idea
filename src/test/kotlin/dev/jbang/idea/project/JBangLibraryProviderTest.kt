@@ -1,6 +1,7 @@
 package dev.jbang.idea.project
 
 import com.intellij.openapi.roots.AdditionalLibraryRootsListener
+import com.intellij.pom.Navigatable
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -309,6 +310,34 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
         assertTrue(service.allRoots.isEmpty())
         assertNull(service.activeRootPath)
         assertTrue(JBangLibraryProvider().getAdditionalProjectLibraries(project).isEmpty())
+    }
+
+    @Test
+    fun testLibraryNodeIsNavigatableAndShowsRootPath() {
+        val jar = Files.createTempFile("jbang-overlay", ".jar").toFile()
+        JarOutputStream(jar.outputStream()).use { }
+        val script = myFixture.addFileToProject("overlay.java", "//DEPS example:overlay:1\nclass overlay {}")
+        installInfo(script.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(jar.path)))
+
+        val lib = JBangLibraryProvider().getAdditionalProjectLibraries(project).single()
+        assertInstanceOf(lib, Navigatable::class.java)
+
+        val presentation = (lib as com.intellij.navigation.ItemPresentation)
+        assertEquals("jbang: overlay.java", presentation.presentableText)
+        assertTrue("Location should contain root path", presentation.locationString?.contains("overlay.java") == true)
+    }
+
+    @Test
+    fun testLibraryNodeCanNavigateToRealFile() {
+        val jar = Files.createTempFile("jbang-nav", ".jar").toFile()
+        JarOutputStream(jar.outputStream()).use { }
+        val scriptPath = Files.writeString(Files.createTempFile("NavRoot", ".java"), "//DEPS x:y:1\nclass NavRoot {}")
+        val scriptFile = LocalFileSystem.getInstance().refreshAndFindFileByNioFile(scriptPath)!!
+        com.intellij.openapi.vfs.newvfs.impl.VfsRootAccess.allowRootAccess(testRootDisposable, scriptPath.toRealPath().parent.toString())
+        installInfo(scriptFile.path, ScriptInfo(resolvedDependencies = listOf(jar.path)))
+
+        val lib = JBangLibraryProvider().getAdditionalProjectLibraries(project).single()
+        assertTrue((lib as Navigatable).canNavigate())
     }
 
     @Test
