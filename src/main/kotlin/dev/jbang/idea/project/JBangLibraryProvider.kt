@@ -3,7 +3,7 @@ package dev.jbang.idea.project
 import com.intellij.navigation.ItemPresentation
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.project.ProjectManager
+import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.roots.AdditionalLibraryRootsProvider
 import com.intellij.openapi.roots.SyntheticLibrary
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -31,9 +31,15 @@ class JBangLibraryProvider : AdditionalLibraryRootsProvider() {
             if (jars.isEmpty() && sourceRoots.isEmpty()) continue
 
             val scriptName = File(path).name
+            val basePath = project.guessProjectDir()?.path
+            val displayPath = if (basePath != null && path.startsWith(basePath))
+                path.removePrefix(basePath).removePrefix("/")
+            else path
             libs.add(JBangSyntheticLibrary(
                 name = "jbang: $scriptName",
                 rootScriptPath = path,
+                displayPath = displayPath,
+                project = project,
                 classRoots = jars,
                 sourceRoots = sourceRoots,
             ))
@@ -46,6 +52,8 @@ class JBangLibraryProvider : AdditionalLibraryRootsProvider() {
 private class JBangSyntheticLibrary(
     private val name: String,
     private val rootScriptPath: String,
+    private val displayPath: String,
+    private val project: Project,
     private val classRoots: List<VirtualFile>,
     private val sourceRoots: List<VirtualFile>,
 ) : SyntheticLibrary(), ItemPresentation, Navigatable {
@@ -54,14 +62,13 @@ private class JBangSyntheticLibrary(
     override fun getBinaryRoots(): Collection<VirtualFile> = classRoots
 
     override fun getPresentableText(): String = name
-    override fun getLocationString(): String = rootScriptPath
+    override fun getLocationString(): String = displayPath
     override fun getIcon(unused: Boolean) = JBangPlugin.icon16
 
     override fun canNavigate(): Boolean = LocalFileSystem.getInstance().findFileByPath(rootScriptPath) != null
     override fun canNavigateToSource(): Boolean = canNavigate()
     override fun navigate(requestFocus: Boolean) {
         val file = LocalFileSystem.getInstance().findFileByPath(rootScriptPath) ?: return
-        val project = ProjectManager.getInstance().openProjects.firstOrNull() ?: return
         FileEditorManager.getInstance(project).openFile(file, requestFocus)
     }
 
