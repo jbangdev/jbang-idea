@@ -111,6 +111,21 @@ object JBangCli {
         return null
     }
 
+    /**
+     * Detects shim errors from tool managers (mise, asdf, sdkman) and returns
+     * a user-friendly message, or null if the error is not a shim issue.
+     */
+    private fun parseShimError(stderr: String): String? {
+        if (stderr.contains("No version is set for shim") || stderr.contains("no aqua-registry")) {
+            return "JBang is not configured in your tool manager (mise/asdf). " +
+                "Run 'mise use -g jbang@latest' or install JBang directly from Settings > Tools > JBang."
+        }
+        if (stderr.contains("not currently installed") || stderr.contains("not available")) {
+            return "JBang shim found but not installed. Install it from Settings > Tools > JBang."
+        }
+        return null
+    }
+
     /** Platform-appropriate shell command to install JBang. */
     fun installCommand(): String = if (SystemInfo.isWindows)
         "iex \"& { \$(iwr -useb https://ps.jbang.dev) } app setup\""
@@ -197,7 +212,8 @@ object JBangCli {
 
         if (result.exitCode != 0) {
             val stderr = result.stderr.trim()
-            error("jbang exited ${result.exitCode}: $stderr")
+            val message = parseShimError(stderr) ?: "jbang exited ${result.exitCode}: $stderr"
+            error(message)
         }
         return result.stdout
     }
