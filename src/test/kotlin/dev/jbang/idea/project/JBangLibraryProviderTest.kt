@@ -313,6 +313,27 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
     }
 
     @Test
+    fun testRenamingRootEvictsOldPathAndResolvesNewPath() {
+        val jar = Files.createTempFile("jbang-overlay", ".jar").toFile()
+        JarOutputStream(jar.outputStream()).use { }
+        val script = myFixture.addFileToProject("old.java", "//DEPS example:overlay:1\nclass old {}")
+        installInfo(script.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(jar.path)))
+        val service = JBangProjectService.getInstance(project)
+        service.setActiveRoot(script.virtualFile.path)
+
+        val oldPath = script.virtualFile.path
+        myFixture.renameElement(script, "renamed.java")
+        JBangFileListener(project).after(listOf(
+            com.intellij.openapi.vfs.newvfs.events.VFilePropertyChangeEvent(
+                this, script.virtualFile, VirtualFile.PROP_NAME, "old.java", "renamed.java"
+            )
+        ))
+        PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
+
+        assertNull("Old path should be evicted", service.getInfo(oldPath))
+    }
+
+    @Test
     fun testLibraryNodeIsNavigatableAndShowsRootPath() {
         val jar = Files.createTempFile("jbang-overlay", ".jar").toFile()
         JarOutputStream(jar.outputStream()).use { }

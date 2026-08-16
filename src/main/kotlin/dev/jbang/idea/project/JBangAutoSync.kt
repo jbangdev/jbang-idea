@@ -84,6 +84,40 @@ class JBangFileListener(private val project: Project) : BulkFileListener {
                     fireLibraryChange(project)
                     changed = true
                 }
+                is com.intellij.openapi.vfs.newvfs.events.VFilePropertyChangeEvent -> {
+                    if (event.propertyName == VirtualFile.PROP_NAME) {
+                        val oldPath = event.oldPath
+                        if (service.getInfo(oldPath) != null) {
+                            service.evict(oldPath)
+                            val newFile = event.file
+                            if (JBangScriptDetector.isRootScript(newFile)) {
+                                CoroutineScope(Dispatchers.IO).launch {
+                                    service.resolve(newFile)
+                                    fireLibraryChange(project)
+                                }
+                            } else {
+                                fireLibraryChange(project)
+                            }
+                            changed = true
+                        }
+                    }
+                }
+                is com.intellij.openapi.vfs.newvfs.events.VFileMoveEvent -> {
+                    val oldPath = event.oldPath
+                    if (service.getInfo(oldPath) != null) {
+                        service.evict(oldPath)
+                        val newFile = event.file
+                        if (JBangScriptDetector.isRootScript(newFile)) {
+                            CoroutineScope(Dispatchers.IO).launch {
+                                service.resolve(newFile)
+                                fireLibraryChange(project)
+                            }
+                        } else {
+                            fireLibraryChange(project)
+                        }
+                        changed = true
+                    }
+                }
                 is VFileContentChangeEvent -> {
                     if (!JBangSettings.instance.autoSync) continue
                     val file = event.file
