@@ -2,6 +2,8 @@
 
 # jbang-idea-plugin Changelog
 
+## [Unreleased]
+
 ## [0.100.0]
 
 Complete rewrite of the JBang IntelliJ plugin. The plugin now uses `jbang info tools` as its
