@@ -17,6 +17,7 @@ import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Key
+import com.intellij.util.execution.ParametersListUtil
 import dev.jbang.idea.cli.JBangCli
 import dev.jbang.idea.debug
 import dev.jbang.idea.jbangLog
@@ -90,9 +91,7 @@ class JBangDebugRunState(
         fun buildDebugCommandLine(config: JBangRunConfiguration, port: Int): GeneralCommandLine {
             val jbang = JBangCli.findJBangCmd()
             val args = mutableListOf(jbang, "run", "--debug=$port", config.scriptPath)
-            if (config.scriptArgs.isNotBlank()) {
-                args.addAll(config.scriptArgs.split(" "))
-            }
+            args += ParametersListUtil.parse(config.scriptArgs)
             return PtyCommandLine(args)
                 .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
         }
@@ -101,9 +100,7 @@ class JBangDebugRunState(
             val jbang = JBangRunState.quote(JBangCli.findJBangCmd())
             val script = JBangRunState.quote(config.scriptPath)
             val parts = mutableListOf(jbang, "run", "--debug=$port", script)
-            if (config.scriptArgs.isNotBlank()) {
-                parts.add(config.scriptArgs)
-            }
+            parts += ParametersListUtil.parse(config.scriptArgs).map(JBangRunState::quote)
             return parts.joinToString(" ")
         }
     }

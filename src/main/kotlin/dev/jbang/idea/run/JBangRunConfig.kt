@@ -12,6 +12,7 @@ import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.ui.FormBuilder
@@ -86,13 +87,13 @@ class JBangRunConfiguration(
 
     override fun getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState {
         val isDebug = executor.id == DefaultDebugExecutor.EXECUTOR_ID
-        if (isDebug && runInTerminal) {
+        if (isDebug && runInTerminal && !SystemInfo.isWindows) {
             return JBangTerminalDebugRunState(this, environment)
         }
         if (isDebug) {
             return JBangDebugRunState(this, environment)
         }
-        if (runInTerminal) {
+        if (runInTerminal && !SystemInfo.isWindows) {
             return JBangTerminalRunState(this, environment)
         }
         return JBangRunState(this, environment)

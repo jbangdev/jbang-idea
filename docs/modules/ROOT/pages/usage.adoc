@@ -110,7 +110,7 @@ A run configuration supports:
 * quoted script arguments;
 * environment variables as `KEY=value` entries;
 * working directory; and
-* optional execution in the Terminal tool window.
+* optional execution in the Terminal tool window (Windows falls back to the shell-independent PTY runner).
 
 image:current/run-configuration.png[JBang Run and Debug configuration]
 

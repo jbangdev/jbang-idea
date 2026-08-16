@@ -4,6 +4,7 @@ import com.intellij.execution.RunManager
 import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.util.PsiTreeUtil
 import java.io.File
 import com.intellij.psi.PsiComment
@@ -148,8 +149,11 @@ class JBangRunConfigTest : LightJavaCodeInsightFixtureTestCase() {
             .build()
 
         val state = config.getState(executor, environment)
-        // When runInTerminal is true, should return JBangTerminalRunState
-        assertInstanceOf(state, JBangTerminalRunState::class.java)
+        if (SystemInfo.isWindows) {
+            assertInstanceOf(state, JBangRunState::class.java)
+        } else {
+            assertInstanceOf(state, JBangTerminalRunState::class.java)
+        }
     }
 
     @Test
