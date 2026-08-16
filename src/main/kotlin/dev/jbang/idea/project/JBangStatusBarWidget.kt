@@ -9,18 +9,14 @@ import com.intellij.openapi.ui.popup.JBPopupFactory
 import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
-import com.intellij.ui.awt.RelativePoint
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.StatusBarWidgetFactory
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget
-import com.intellij.util.Consumer
 import dev.jbang.idea.JBangPlugin
 import dev.jbang.idea.settings.JBangSettings
-import java.awt.Point
-import java.awt.event.MouseEvent
 import java.io.File
 
 /**
@@ -118,10 +114,4 @@ internal class JBangStatusWidget(
         }
     }
 
-    override fun getClickConsumer() = Consumer<MouseEvent> { event ->
-        getPopup()?.let { popup ->
-            val height = popup.content.preferredSize.height
-            popup.show(RelativePoint(event.component, Point(0, -height)))
-        }
-    }
 }
