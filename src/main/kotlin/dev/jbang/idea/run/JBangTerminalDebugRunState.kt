@@ -31,7 +31,7 @@ class JBangTerminalDebugRunState(
     override fun execute(executor: Executor, runner: ProgramRunner<*>): ExecutionResult? {
         val port = JBangDebugRunState.DEFAULT_DEBUG_PORT
         val shellCmd = JBangDebugRunState.buildDebugShellCommand(config, port)
-        val tabName = "jbang debug ${File(config.scriptPath).name}"
+        val tabName = "jbang debug: ${compressedPath(config.project, config.scriptPath)}"
 
         if (!TerminalHelper.runInTerminal(config.project, tabName, shellCmd) { shell ->
                 // After command is sent, poll for debug port in background

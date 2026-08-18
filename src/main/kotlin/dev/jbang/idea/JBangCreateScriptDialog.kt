@@ -28,6 +28,7 @@ class JBangCreateScriptDialog(
         setCellRenderer { _, value, _, isSelected, _ ->
             javax.swing.JLabel(if (value.description.isNotBlank()) "${value.name} — ${value.description}" else value.name).apply {
                 isOpaque = true
+                border = javax.swing.BorderFactory.createEmptyBorder(2, 6, 2, 6)
                 if (isSelected) {
                     background = javax.swing.UIManager.getColor("List.selectionBackground")
                     foreground = javax.swing.UIManager.getColor("List.selectionForeground")

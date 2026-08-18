@@ -8,7 +8,6 @@ import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.project.Project
-import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.LocalFileSystem
 import dev.jbang.idea.cli.JBangCli
 import kotlinx.coroutines.CoroutineScope
@@ -73,13 +72,11 @@ class JBangSyncAction : DumbAwareAction() {
                 val succeeded = info != null && errors.isEmpty()
                 fireLibraryChange(project) {
                     service.syncFinished(path, succeeded, errors)
-                    val group = NotificationGroupManager.getInstance().getNotificationGroup("JBang")
-                    if (succeeded) group.createNotification("Synced ${file.name}", NotificationType.INFORMATION).notify(project)
-                    else group.createNotification(
-                        "Failed to sync ${file.name}",
-                        errors.joinToString("<br>") { StringUtil.escapeXmlEntities(it) },
-                        NotificationType.ERROR,
-                    ).notify(project)
+                    if (succeeded) {
+                        NotificationGroupManager.getInstance().getNotificationGroup("JBang")
+                            .createNotification("Synced ${file.name}", NotificationType.INFORMATION)
+                            .notify(project)
+                    }
                 }
             }
         }

@@ -10,6 +10,8 @@ import com.intellij.openapi.ui.popup.ListPopup
 import com.intellij.openapi.ui.popup.PopupStep
 import com.intellij.openapi.ui.popup.util.BaseListPopupStep
 import com.intellij.openapi.util.text.StringUtil
+import com.intellij.util.Consumer
+import java.awt.event.MouseEvent
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget
@@ -114,4 +116,7 @@ internal class JBangStatusWidget(
         }
     }
 
+    override fun getClickConsumer() = Consumer<MouseEvent> { event ->
+        getPopup()?.showUnderneathOf(event.component)
+    }
 }

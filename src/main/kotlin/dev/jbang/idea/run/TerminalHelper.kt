@@ -10,6 +10,21 @@ import org.jetbrains.plugins.terminal.TerminalToolWindowManager
 
 private val log = jbangLog<TerminalHelper>()
 
+/**
+ * Compresses a script path relative to the project root.
+ * `com/model/test.java` → `c/m/test.java`
+ * Files at the root just show the filename.
+ */
+fun compressedPath(project: com.intellij.openapi.project.Project, scriptPath: String): String {
+    val basePath = project.basePath ?: return java.io.File(scriptPath).name
+    val relative = if (scriptPath.startsWith(basePath))
+        scriptPath.removePrefix(basePath).removePrefix("/")
+    else return java.io.File(scriptPath).name
+    val parts = relative.split('/')
+    if (parts.size <= 1) return relative
+    return parts.dropLast(1).joinToString("/") { it.take(1) } + "/" + parts.last()
+}
+
 /** Shared terminal launch logic for run and debug states. */
 object TerminalHelper {
 
@@ -60,6 +75,7 @@ object TerminalHelper {
     internal fun typeToTty(shell: ShellTerminalWidget, text: String) {
         try {
             shell.executeWithTtyConnector { tty -> tty.write(text.toByteArray()) }
+            shell.terminalPanel.scrollToShowAllOutput()
         } catch (e: Exception) {
             log.warn("Failed to write to terminal tty", e)
         }
