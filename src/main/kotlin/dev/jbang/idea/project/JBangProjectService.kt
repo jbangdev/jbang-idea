@@ -1,10 +1,13 @@
 package dev.jbang.idea.project
 
 import com.intellij.codeInsight.daemon.DaemonCodeAnalyzer
+import com.intellij.notification.NotificationGroupManager
+import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -113,6 +116,18 @@ class JBangProjectService(private val project: Project) {
         lastSucceededRootPath = path.takeIf { succeeded }
         lastSyncErrors = errors
         updateWidget()
+        if (!succeeded && errors.isNotEmpty() && dev.jbang.idea.settings.JBangSettings.instance.notifySyncErrors) {
+            ApplicationManager.getApplication().invokeLater({
+                if (!project.isDisposed) {
+                    NotificationGroupManager.getInstance().getNotificationGroup("JBang")
+                        .createNotification(
+                            "Failed to sync ${java.io.File(path).name}",
+                            errors.joinToString("<br>") { StringUtil.escapeXmlEntities(it) },
+                            NotificationType.ERROR,
+                        ).notify(project)
+                }
+            }, ModalityState.nonModal())
+        }
     }
 
     private fun updateWidget() {

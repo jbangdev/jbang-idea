@@ -12,6 +12,7 @@ class JBangSettings : PersistentStateComponent<JBangSettings.State> {
         var autoSync: Boolean = true,
         var askToOpenSelectedRoot: Boolean = true,
         var openSelectedRootWithoutAsking: Boolean = false,
+        var notifySyncErrors: Boolean = false,
     )
 
     private var myState = State()
@@ -25,6 +26,7 @@ class JBangSettings : PersistentStateComponent<JBangSettings.State> {
     var autoSync: Boolean by myState::autoSync
     var askToOpenSelectedRoot: Boolean by myState::askToOpenSelectedRoot
     var openSelectedRootWithoutAsking: Boolean by myState::openSelectedRootWithoutAsking
+    var notifySyncErrors: Boolean by myState::notifySyncErrors
 
     companion object {
         val instance: JBangSettings

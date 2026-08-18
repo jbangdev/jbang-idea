@@ -24,6 +24,7 @@ class JBangConfigurable : Configurable {
     private val resolvedLabel = JLabel()
     private val autoSyncCheckbox = JCheckBox("Auto-sync dependencies on save")
     private val askToOpenRootCheckbox = JCheckBox("Ask to open a root selected from the status bar")
+    private val notifySyncErrorsCheckbox = JCheckBox("Show sync errors as notifications")
 
     init {
         @Suppress("DEPRECATION")
@@ -64,6 +65,7 @@ class JBangConfigurable : Configurable {
             .addSeparator()
             .addComponent(autoSyncCheckbox)
             .addComponent(askToOpenRootCheckbox)
+            .addComponent(notifySyncErrorsCheckbox)
             .addComponentFillVertically(JPanel(), 0)
             .panel
         updateResolved()
@@ -74,7 +76,8 @@ class JBangConfigurable : Configurable {
         val settings = JBangSettings.instance
         return pathField.text != settings.jbangPath ||
             autoSyncCheckbox.isSelected != settings.autoSync ||
-            askToOpenRootCheckbox.isSelected != settings.askToOpenSelectedRoot
+            askToOpenRootCheckbox.isSelected != settings.askToOpenSelectedRoot ||
+            notifySyncErrorsCheckbox.isSelected != settings.notifySyncErrors
     }
 
     override fun apply() {
@@ -83,6 +86,7 @@ class JBangConfigurable : Configurable {
         settings.autoSync = autoSyncCheckbox.isSelected
         settings.askToOpenSelectedRoot = askToOpenRootCheckbox.isSelected
         if (settings.askToOpenSelectedRoot) settings.openSelectedRootWithoutAsking = false
+        settings.notifySyncErrors = notifySyncErrorsCheckbox.isSelected
         updateResolved()
     }
 
@@ -91,6 +95,7 @@ class JBangConfigurable : Configurable {
         pathField.text = settings.jbangPath
         autoSyncCheckbox.isSelected = settings.autoSync
         askToOpenRootCheckbox.isSelected = settings.askToOpenSelectedRoot
+        notifySyncErrorsCheckbox.isSelected = settings.notifySyncErrors
         updateResolved()
     }
 

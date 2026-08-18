@@ -6,15 +6,11 @@ import com.intellij.execution.configurations.RunProfileState
 import com.intellij.execution.runners.ExecutionEnvironment
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.ui.Messages
-import com.intellij.openapi.util.Key
-import dev.jbang.idea.debug
+import com.intellij.openapi.wm.ToolWindowManager
 import dev.jbang.idea.jbangLog
 import org.jetbrains.plugins.terminal.ShellTerminalWidget
-import org.jetbrains.plugins.terminal.TerminalTabState
 import org.jetbrains.plugins.terminal.TerminalToolWindowManager
 import java.io.File
-import java.util.concurrent.ConcurrentHashMap
 
 private val log = jbangLog<JBangTerminalRunState>()
 
@@ -23,142 +19,43 @@ class JBangTerminalRunState(
     private val environment: ExecutionEnvironment
 ) : RunProfileState {
 
-    private val tabs = config.project.getUserData(TABS_KEY) ?: ConcurrentHashMap<String, ShellTerminalWidget>().also {
-        config.project.putUserData(TABS_KEY, it)
-    }
-
     override fun execute(executor: Executor, runner: ProgramRunner<*>): ExecutionResult? {
         val project = config.project
         val shellCmd = JBangRunState.buildShellCommand(config)
-        val tabName = "jbang ${File(config.scriptPath).name}"
-        val scriptName = File(config.scriptPath).name
+        val tabName = "jbang: ${compressedPath(project, config.scriptPath)}"
 
-        try {
-            val manager = TerminalToolWindowManager.getInstance(project)
-            val existing = tabs[tabName]
-
-            ApplicationManager.getApplication().executeOnPooledThread {
-                var busy = false
-                if (existing != null) {
-                    try {
-                        busy = existing.hasRunningCommands()
-                    } catch (_: Exception) {
-                        tabs.remove(tabName)
-                    }
-                }
-                val alive = existing != null && tabs.containsKey(tabName)
-
-                ApplicationManager.getApplication().invokeLater {
-                    try {
-                        if (alive && busy) {
-                            log.debug { "Terminal tab '$tabName' is busy, asking user" }
-                            handleBusy(manager, existing!!, tabName, shellCmd, scriptName)
-                        } else if (alive) {
-                            log.debug { "Reusing terminal tab '$tabName'" }
-                            focusAndType(existing!!, shellCmd)
-                        } else {
-                            log.debug { "Creating new terminal tab '$tabName'" }
-                            createAndRun(manager, tabName, shellCmd)
-                        }
-                    } catch (e: Exception) {
-                        log.warn("Terminal run failed", e)
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            log.warn("Terminal plugin unavailable, falling back to PTY", e)
+        val toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Terminal")
+        if (toolWindow == null) {
+            log.warn("Terminal not available, falling back to PTY")
             return JBangRunState(config, environment).execute(executor, runner)
         }
 
+        ApplicationManager.getApplication().invokeLater {
+            toolWindow.activate {
+                val manager = TerminalToolWindowManager.getInstance(project)
+                // Look for an existing tab by name in the content manager
+                val existingContent = toolWindow.contentManager.contents
+                    .firstOrNull { it.displayName == tabName }
+                val existing = if (existingContent != null) {
+                    toolWindow.contentManager.setSelectedContent(existingContent, true)
+                    // Find the ShellTerminalWidget inside the content's component tree
+                    com.intellij.util.ui.UIUtil.findComponentOfType(existingContent.component, ShellTerminalWidget::class.java)
+                } else null
+
+                if (existing != null) {
+                    // Reuse: type into existing tab
+                    ApplicationManager.getApplication().executeOnPooledThread {
+                        TerminalHelper.waitForShell(existing)
+                        ApplicationManager.getApplication().invokeLater {
+                            TerminalHelper.typeToTty(existing, shellCmd + "\n")
+                        }
+                    }
+                } else {
+                    // Create new tab via helper
+                    TerminalHelper.runInTerminal(project, tabName, shellCmd)
+                }
+            }
+        }
         return null
-    }
-
-    private fun handleBusy(
-        manager: TerminalToolWindowManager,
-        widget: ShellTerminalWidget,
-        tabName: String,
-        shellCmd: String,
-        scriptName: String
-    ) {
-        val choice = Messages.showYesNoCancelDialog(
-            config.project,
-            "The terminal for '$scriptName' is still running.\nKill it and rerun, or open a new tab?",
-            "JBang",
-            "Kill && Rerun",
-            "New Tab",
-            "Cancel",
-            Messages.getQuestionIcon()
-        )
-        when (choice) {
-            Messages.YES -> {
-                focusWidget(widget)
-                // Ctrl+C via tty, wait, then type new command
-                typeToTty(widget, "\u0003") // Ctrl+C
-                ApplicationManager.getApplication().executeOnPooledThread {
-                    Thread.sleep(500)
-                    ApplicationManager.getApplication().invokeLater {
-                        typeToTty(widget, shellCmd + "\n")
-                    }
-                }
-            }
-            Messages.NO -> {
-                // Create new tab but register it under the canonical name
-                // so next run finds this one (the latest), not the old one
-                val displayName = "$tabName (${System.currentTimeMillis() % 10000})"
-                createAndRun(manager, displayName, shellCmd, canonicalName = tabName)
-            }
-        }
-    }
-
-    private fun focusWidget(widget: ShellTerminalWidget) {
-        // Activate the Terminal tool window and select the right tab
-        try {
-            val manager = TerminalToolWindowManager.getInstance(config.project)
-            val toolWindow = manager.toolWindow
-            toolWindow?.show()
-            // Find the content tab containing this widget and select it
-            val contentManager = toolWindow?.contentManager
-            if (contentManager != null) {
-                for (content in contentManager.contents) {
-                    if (content.component.isAncestorOf(widget) ||
-                        content.component == widget.component) {
-                        contentManager.setSelectedContent(content, true)
-                        break
-                    }
-                }
-            }
-        } catch (_: Exception) {}
-        widget.requestFocus()
-    }
-
-    private fun focusAndType(widget: ShellTerminalWidget, shellCmd: String) {
-        focusWidget(widget)
-        typeToTty(widget, shellCmd + "\n")
-    }
-
-    private fun typeToTty(widget: ShellTerminalWidget, text: String) = TerminalHelper.typeToTty(widget, text)
-
-    private fun createAndRun(manager: TerminalToolWindowManager, tabName: String, shellCmd: String, canonicalName: String? = null) {
-        val state = TerminalTabState()
-        state.myTabName = tabName
-        state.myWorkingDirectory = config.project.basePath
-        state.myIsUserDefinedTabTitle = true
-
-        val twm = com.intellij.openapi.wm.ToolWindowManager.getInstance(config.project)
-        val toolWindow = twm.getToolWindow("Terminal") ?: return
-        toolWindow.activate(null)
-        val terminalWidget = manager.createNewSession(manager.terminalRunner, state, toolWindow.contentManager)
-        val shellWidget = ShellTerminalWidget.asShellJediTermWidget(terminalWidget) ?: return
-        tabs[canonicalName ?: tabName] = shellWidget
-        ApplicationManager.getApplication().executeOnPooledThread {
-            TerminalHelper.waitForShell(shellWidget)
-            ApplicationManager.getApplication().invokeLater {
-                typeToTty(shellWidget, shellCmd + "\n")
-            }
-        }
-    }
-
-    companion object {
-        private val TABS_KEY = Key.create<ConcurrentHashMap<String, ShellTerminalWidget>>("jbang.terminal.tabs")
     }
 }
