@@ -27,8 +27,11 @@ class JBangDirectiveAnnotator : Annotator {
         if (directive.isEmpty()) return
 
         // JBang directives must start at column 0 — skip indented comments
-        val lineStart = element.containingFile?.text?.lastIndexOf('\n', element.textRange.startOffset - 1)?.plus(1) ?: 0
-        if (element.textRange.startOffset != lineStart) return
+        val doc = element.containingFile?.viewProvider?.document
+        if (doc != null) {
+            val lineNum = doc.getLineNumber(element.textRange.startOffset)
+            if (element.textRange.startOffset != doc.getLineStartOffset(lineNum)) return
+        }
         // Skip all-lowercase words — regular comments like //noinspection, //region, etc.
         if (directive == directive.lowercase()) return
         val start = element.textRange.startOffset
