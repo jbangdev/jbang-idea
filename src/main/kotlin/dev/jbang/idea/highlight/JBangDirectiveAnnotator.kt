@@ -25,12 +25,28 @@ class JBangDirectiveAnnotator : Annotator {
 
         val directive = text.substring(2).takeWhile { it.isLetter() || it == '_' }
         if (directive.isEmpty()) return
+
+        // JBang directives must start at column 0 — skip indented comments
+        val lineStart = element.containingFile?.text?.lastIndexOf('\n', element.textRange.startOffset - 1)?.plus(1) ?: 0
+        if (element.textRange.startOffset != lineStart) return
+        // Skip all-lowercase words — regular comments like //noinspection, //region, etc.
+        if (directive == directive.lowercase()) return
         val start = element.textRange.startOffset
         val directiveEnd = 2 + directive.length
         if (directive !in JBangPlugin.ALL_DIRECTIVES) {
-            holder.newAnnotation(HighlightSeverity.WARNING, "Unknown JBang directive: $directive")
-                .range(TextRange(start, start + directiveEnd))
-                .create()
+            // Check if it's a known directive with wrong casing (e.g. //Deps)
+            val upper = directive.uppercase()
+            if (upper in JBangPlugin.ALL_DIRECTIVES) {
+                holder.newAnnotation(HighlightSeverity.WARNING, "JBang directive should be uppercase: //$upper")
+                    .range(TextRange(start, start + directiveEnd))
+                    .create()
+            } else if (directive == upper) {
+                // All uppercase but unknown — likely a typo
+                holder.newAnnotation(HighlightSeverity.WARNING, "Unknown JBang directive: $directive")
+                    .range(TextRange(start, start + directiveEnd))
+                    .create()
+            }
+            // Mixed case that doesn't match any known directive — ignore (e.g. //SuppressWarnings)
             return
         }
 
