@@ -28,25 +28,26 @@ object JBangScriptDetector {
     }
 
     /**
-     * Scans the first N lines of a file for jbang markers.
-     * Returns true if shebang or any root directive is found.
+     * Scans the first N lines of text for jbang markers.
+     * Used by both VirtualFile detection and the file-based index.
      */
-    private fun hasJBangMarkers(file: VirtualFile): Boolean {
-        try {
-            val reader = file.inputStream.bufferedReader()
-            reader.use {
-                var lineCount = 0
-                for (line in it.lineSequence()) {
-                    if (lineCount++ > 200) break // ponytail: don't scan entire files, directives are always at the top
-                    val trimmed = line.trim()
-                    if (trimmed.startsWith(JBangPlugin.SHEBANG)) return true
-                    if (isDirectiveLine(trimmed)) return true
-                }
-            }
-        } catch (_: Exception) {
-            // unreadable file
+    fun hasJBangMarkers(content: CharSequence): Boolean {
+        var lineCount = 0
+        for (line in content.lineSequence()) {
+            if (lineCount++ > 200) break
+            val trimmed = line.trim()
+            if (trimmed.startsWith(JBangPlugin.SHEBANG)) return true
+            if (isDirectiveLine(trimmed)) return true
         }
         return false
+    }
+
+    private fun hasJBangMarkers(file: VirtualFile): Boolean {
+        return try {
+            file.inputStream.bufferedReader().use { hasJBangMarkers(it.readText()) }
+        } catch (_: Exception) {
+            false
+        }
     }
 
     /**

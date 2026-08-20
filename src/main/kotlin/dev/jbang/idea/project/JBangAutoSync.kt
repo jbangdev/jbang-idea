@@ -9,7 +9,6 @@ import com.intellij.openapi.roots.AdditionalLibraryRootsListener
 import com.intellij.openapi.startup.ProjectActivity
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.vfs.VirtualFile
-import com.intellij.openapi.vfs.VirtualFileManager
 import com.intellij.openapi.vfs.newvfs.BulkFileListener
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.openapi.vfs.newvfs.events.VFileContentChangeEvent
@@ -34,36 +33,23 @@ class JBangStartupActivity : ProjectActivity {
     override suspend fun execute(project: Project) {
         if (ApplicationManager.getApplication().isUnitTestMode) return
 
-        // Initial scan: find jbang root scripts in the project
-        val projectDir = project.basePath?.let {
-            VirtualFileManager.getInstance().findFileByUrl("file://$it")
-        } ?: return
+        // Wait for indexing to finish, then use the persisted index
+        com.intellij.openapi.project.DumbService.getInstance(project).waitForSmartMode()
 
         val service = JBangProjectService.getInstance(project)
-        log.debug { "Scanning project for jbang scripts: ${project.basePath}" }
-        scanDirectory(projectDir, service)
-        log.debug { "Found ${service.allRoots.size} jbang root scripts" }
+        val roots = JBangScriptFileIndex.findRootScripts(project)
+        log.debug { "Found ${roots.size} jbang root scripts from index" }
 
-        // Set the first root as active if none is set
+        for (file in roots) {
+            service.resolve(file)
+        }
+
         if (service.activeRootPath == null) {
             service.allRoots.keys.firstOrNull()?.let { service.setActiveRoot(it) }
         }
 
-        // Notify library change after scan completes
         if (service.allRoots.isNotEmpty()) {
             fireLibraryChange(project)
-        }
-    }
-
-    private fun scanDirectory(dir: VirtualFile, service: JBangProjectService) {
-        for (child in dir.children) {
-            if (child.isDirectory) {
-                // ponytail: skip common non-source dirs, scan deeper later if needed
-                if (child.name.startsWith(".") || child.name == "build" || child.name == "target" || child.name == "node_modules") continue
-                scanDirectory(child, service)
-            } else if (JBangScriptDetector.isRootScript(child)) {
-                service.resolve(child)
-            }
         }
     }
 }
