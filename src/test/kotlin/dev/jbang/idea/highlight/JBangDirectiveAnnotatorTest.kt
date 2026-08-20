@@ -127,7 +127,10 @@ class JBangDirectiveAnnotatorTest : LightJavaCodeInsightFixtureTestCase() {
         comments.forEach { holder.runAnnotatorWithContext(it, JBangDirectiveAnnotator()) }
         val errors = holder.filter { it.severity == com.intellij.lang.annotation.HighlightSeverity.ERROR }
 
-        assertEquals("Errors: ${errors.map { it.message to file.text.substring(it.startOffset, it.endOffset) }}", 1, errors.size)
+        val cachedPath = file.virtualFile.path
+        val cachedInfo = JBangProjectService.getInstance(project).getInfo(cachedPath)
+        assertNotNull("ScriptInfo should be cached for $cachedPath", cachedInfo)
+        assertEquals("Errors (path=$cachedPath, info=${cachedInfo?.files?.map { it.error }}): ${errors.map { it.message to file.text.substring(it.startOffset, it.endOffset) }}", 1, errors.size)
         assertEquals("jbang-mu", file.text.substring(errors.single().startOffset, errors.single().endOffset))
     }
 
