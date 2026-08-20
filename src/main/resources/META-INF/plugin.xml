@@ -36,6 +36,7 @@
         <java.elementFinder implementation="dev.jbang.idea.project.JBangSourceElementFinder"/>
 
         <!-- File detection -->
+        <fileBasedIndex implementation="dev.jbang.idea.project.JBangScriptFileIndex"/>
         <fileIconProvider implementation="dev.jbang.idea.JBangIconProvider"/>
         <fileType implementationClass="dev.jbang.idea.JBangFileType" name="JBang"
             fieldName="INSTANCE" extensions="jbang"/>
