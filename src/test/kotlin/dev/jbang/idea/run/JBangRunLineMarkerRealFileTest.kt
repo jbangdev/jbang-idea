@@ -87,6 +87,27 @@ class tako implements Callable<Integer> {
     }
 
     @Test
+    fun testRunMarkerOnKotlinShebang() {
+        val psiFile = myFixture.configureByText("Main.kt", """
+            ///usr/bin/env jbang "${'$'}0" "${'$'}@" ; exit ${'$'}?
+
+            public fun main() {
+                println("Hello World")
+            }
+        """.trimIndent())
+
+        assertNotNull(
+            "Kotlin shebang should get a run marker",
+            JBangRunLineMarker().getInfo(psiFile.findElementAt(0)!!),
+        )
+        myFixture.doHighlighting()
+        assertTrue(
+            "Kotlin registration should expose the JBang gutter icon",
+            myFixture.findAllGutters().any { it.tooltipText?.contains("JBang") == true },
+        )
+    }
+
+    @Test
     fun testRunMarkerOnKotlinDepsComment() {
         val psiFile = myFixture.configureByText("hello.kt", """
             //DEPS com.google.guava:guava:33.0-jre
