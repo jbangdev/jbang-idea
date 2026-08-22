@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Changed
+- Run/Debug configurations now use IntelliJ's standard parameter controls, including macro
+  expansion, structured environment variables, parent-environment selection, and consistent
+  options and working-directory handling in terminal mode.
+
 ## [0.100.0]
 
 Complete rewrite of the JBang IntelliJ plugin. The plugin now uses `jbang info tools` as its
