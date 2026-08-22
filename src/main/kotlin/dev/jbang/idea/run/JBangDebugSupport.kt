@@ -17,7 +17,6 @@ import com.intellij.execution.runners.ExecutionEnvironmentBuilder
 import com.intellij.execution.runners.ProgramRunner
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.util.Key
-import com.intellij.util.execution.ParametersListUtil
 import dev.jbang.idea.cli.JBangCli
 import dev.jbang.idea.debug
 import dev.jbang.idea.jbangLog
@@ -89,19 +88,33 @@ class JBangDebugRunState(
         const val DEFAULT_DEBUG_PORT = 4004
 
         fun buildDebugCommandLine(config: JBangRunConfiguration, port: Int): GeneralCommandLine {
-            val jbang = JBangCli.findJBangCmd()
-            val args = mutableListOf(jbang, "run", "--debug=$port", config.scriptPath)
-            args += ParametersListUtil.parse(config.scriptArgs)
+            val resolved = JBangRunState.resolve(config)
+            val args = mutableListOf(JBangCli.findJBangCmd(), "run", "--debug=$port")
+            args += resolved.jbangOptions
+            args += resolved.scriptPath
+            args += resolved.scriptArgs
             return PtyCommandLine(args)
-                .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
+                .withParentEnvironmentType(if (resolved.passParentEnvs) {
+                    GeneralCommandLine.ParentEnvironmentType.CONSOLE
+                } else {
+                    GeneralCommandLine.ParentEnvironmentType.NONE
+                })
+                .withEnvironment(resolved.environment)
+                .withWorkDirectory(resolved.workingDirectory)
         }
 
         fun buildDebugShellCommand(config: JBangRunConfiguration, port: Int): String {
-            val jbang = JBangRunState.quote(JBangCli.findJBangCmd())
-            val script = JBangRunState.quote(config.scriptPath)
-            val parts = mutableListOf(jbang, "run", "--debug=$port", script)
-            parts += ParametersListUtil.parse(config.scriptArgs).map(JBangRunState::quote)
-            return parts.joinToString(" ")
+            val resolved = JBangRunState.resolve(config)
+            val parts = mutableListOf(JBangRunState.quote(JBangCli.findJBangCmd()), "run", "--debug=$port")
+            parts += resolved.jbangOptions.map(JBangRunState::quote)
+            parts += JBangRunState.quote(resolved.scriptPath)
+            parts += resolved.scriptArgs.map(JBangRunState::quote)
+
+            val environment = resolved.environment.map { (key, value) ->
+                "$key=${JBangRunState.quote(value)}"
+            }.toMutableList()
+            if (!resolved.passParentEnvs) environment.add(0, "env -i")
+            return "cd ${JBangRunState.quote(resolved.workingDirectory)} && ${(environment + parts).joinToString(" ")}"
         }
     }
 }

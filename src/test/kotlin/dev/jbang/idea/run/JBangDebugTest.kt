@@ -2,10 +2,12 @@ package dev.jbang.idea.run
 
 import com.intellij.execution.RunManager
 import com.intellij.execution.executors.DefaultDebugExecutor
+import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import org.junit.Test
+import java.io.File
 
 class JBangDebugTest : LightJavaCodeInsightFixtureTestCase() {
 
@@ -24,6 +26,29 @@ class JBangDebugTest : LightJavaCodeInsightFixtureTestCase() {
         assertTrue("Should contain run", cmdLine.contains("run"))
         assertTrue("Should contain script", cmdLine.contains("/tmp/tako.java"))
         assertEquals(listOf("run", "--debug=4004", "/tmp/tako.java", "--name", "hello world"), cmd.parametersList.list)
+    }
+
+    @Test
+    fun testDebugCommandUsesCommonOptionsEnvironmentWorkingDirectoryAndMacros() {
+        val config = RunManager.getInstance(project)
+            .createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
+            .configuration as JBangRunConfiguration
+        config.scriptPath = "${'$'}PROJECT_DIR${'$'}/tako.java"
+        config.jbangOptions = "--fresh"
+        config.scriptArgs = "--root ${'$'}PROJECT_DIR${'$'}"
+        config.environmentVariables = "GREETING=hello"
+        config.workingDirectory = "${'$'}PROJECT_DIR${'$'}"
+        config.isPassParentEnvs = false
+
+        val command = JBangDebugRunState.buildDebugCommandLine(config, 4004)
+
+        assertEquals(
+            listOf("run", "--debug=4004", "--fresh", project.basePath + "/tako.java", "--root", project.basePath),
+            command.parametersList.list,
+        )
+        assertEquals("hello", command.environment["GREETING"])
+        assertEquals(File(project.basePath!!), command.workDirectory)
+        assertEquals(GeneralCommandLine.ParentEnvironmentType.NONE, command.parentEnvironmentType)
     }
 
     @Test

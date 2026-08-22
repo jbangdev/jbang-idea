@@ -4,14 +4,45 @@ import com.intellij.execution.RunManager
 import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
+import com.intellij.execution.configuration.EnvironmentVariablesTextFieldWithBrowseButton
+import com.intellij.execution.ui.CommonProgramParametersPanel
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.util.PsiTreeUtil
 import java.io.File
 import com.intellij.psi.PsiComment
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
+import com.intellij.util.ui.UIUtil
 import org.junit.Test
 
 class JBangRunConfigTest : LightJavaCodeInsightFixtureTestCase() {
+
+    @Test
+    fun testSettingsEditorUsesStandardEnvironmentVariablesControl() {
+        val config = RunManager.getInstance(project)
+            .createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
+            .configuration as JBangRunConfiguration
+
+        val environmentControl = UIUtil.findComponentOfType(
+            config.configurationEditor.component,
+            EnvironmentVariablesTextFieldWithBrowseButton::class.java,
+        )
+
+        assertNotNull("Environment variables should use IntelliJ's table editor", environmentControl)
+    }
+
+    @Test
+    fun testSettingsEditorUsesCommonProgramParametersPanel() {
+        val config = RunManager.getInstance(project)
+            .createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
+            .configuration as JBangRunConfiguration
+
+        val commonParameters = UIUtil.findComponentOfType(
+            config.configurationEditor.component,
+            CommonProgramParametersPanel::class.java,
+        )
+
+        assertNotNull("Arguments, environment and working directory should use IntelliJ's standard panel", commonParameters)
+    }
 
     @Test
     fun testOptionsClassIsJBangRunConfigOptions() {
@@ -119,6 +150,44 @@ class JBangRunConfigTest : LightJavaCodeInsightFixtureTestCase() {
         assertEquals("hello world", command.environment["GREETING"])
         assertEquals("2", command.environment["COUNT"])
         assertEquals(File("/tmp/work"), command.workDirectory)
+    }
+
+    @Test
+    fun testStructuredEnvironmentPreservesSeparatorsInValues() {
+        val config = RunManager.getInstance(project)
+            .createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
+            .configuration as JBangRunConfiguration
+        config.scriptPath = "/tmp/tako.java"
+        config.envs = linkedMapOf("CLASSPATH" to "one;two")
+
+        val command = JBangRunState.buildCommandLine(config)
+        val shellCommand = JBangRunState.buildShellCommand(config)
+
+        assertEquals("one;two", command.environment["CLASSPATH"])
+        assertTrue(shellCommand.contains("CLASSPATH='one;two'"))
+    }
+
+    @Test
+    fun testBuildCommandExpandsProjectMacrosAndHonorsParentEnvironment() {
+        val config = RunManager.getInstance(project)
+            .createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
+            .configuration as JBangRunConfiguration
+        config.scriptPath = "${'$'}PROJECT_DIR${'$'}/script.java"
+        config.jbangOptions = "--java ${'$'}PROJECT_DIR${'$'}/jdk"
+        config.scriptArgs = "--root ${'$'}PROJECT_DIR${'$'}"
+        config.workingDirectory = "${'$'}PROJECT_DIR${'$'}"
+        config.isPassParentEnvs = false
+
+        val command = JBangRunState.buildCommandLine(config)
+
+        assertEquals(project.basePath + "/script.java", command.parametersList.list[3])
+        assertTrue(command.parametersList.list.contains(project.basePath + "/jdk"))
+        assertTrue(command.parametersList.list.contains(project.basePath))
+        assertEquals(File(project.basePath!!), command.workDirectory)
+        assertEquals(
+            com.intellij.execution.configurations.GeneralCommandLine.ParentEnvironmentType.NONE,
+            command.parentEnvironmentType,
+        )
     }
 
     @Test
