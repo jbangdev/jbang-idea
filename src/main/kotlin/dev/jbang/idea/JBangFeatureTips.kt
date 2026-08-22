@@ -13,6 +13,7 @@ import java.net.URI
 import javax.swing.JComponent
 
 object JBangFeatureTips {
+    private val log = jbangLog<JBangFeatureTips>()
     private const val STATUS_ID = "jbang.features.status"
     private const val RUN_ID = "jbang.features.run"
     private const val DEPENDENCIES_ID = "jbang.features.dependencies"
@@ -78,11 +79,10 @@ object JBangFeatureTips {
             if (project.isDisposed || project.getUserData(key) == true) return@invokeLater
             val target = component()?.takeIf(JComponent::isShowing) ?: return@invokeLater
             val tip = create(project)
-            if (!tip.canShow()) {
+            tip.setOnBalloonCreated {
+                log.debug { "Showing feature tip ${tip.id}" }
                 project.putUserData(key, true)
-                return@invokeLater
             }
-            tip.setOnBalloonCreated { project.putUserData(key, true) }
             show(tip, target)
         }
     }

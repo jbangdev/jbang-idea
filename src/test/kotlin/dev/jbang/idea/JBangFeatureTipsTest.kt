@@ -26,6 +26,29 @@ class JBangFeatureTipsTest : BasePlatformTestCase() {
         assertNull(project.getUserData(key))
     }
 
+    fun testScheduleLetsGotItTooltipHandleDisplayAvailability() {
+        val key = Key.create<Boolean>("jbang.features.unavailable.scheduled")
+        val visibleComponent = object : JPanel() {
+            override fun isShowing() = true
+        }
+        var showAttempts = 0
+
+        val unavailable = GotItTooltip("jbang.features.unavailable", "Test", testRootDisposable)
+        unavailable.gotIt()
+        assertFalse(unavailable.canShow())
+
+        JBangFeatureTips.schedule(
+            project,
+            key,
+            { visibleComponent },
+            { unavailable },
+        ) { _, _ -> showAttempts++ }
+        PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
+
+        assertEquals(1, showAttempts)
+        assertNull(project.getUserData(key))
+    }
+
     fun testFeatureTipsUseStableIds() {
         val parent = Disposer.newDisposable(testRootDisposable, "JBang feature tips")
 
