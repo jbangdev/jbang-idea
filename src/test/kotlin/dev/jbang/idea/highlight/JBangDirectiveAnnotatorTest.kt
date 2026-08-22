@@ -108,7 +108,7 @@ class JBangDirectiveAnnotatorTest : LightJavaCodeInsightFixtureTestCase() {
 
     @Test
     fun testMappedFilesErrorHighlightsMissingSourceAfterEqualsOnly() {
-        val file = myFixture.configureByText(
+        val file = myFixture.addFileToProject(
             "MappedFilesError.java",
             "//DEPS example:test:1\n//FILES jbang-multi-root.iml=jbang-mu\n//FILES jbang-multi-root.iml\nclass MappedFilesError {}"
         )
@@ -120,6 +120,7 @@ class JBangDirectiveAnnotatorTest : LightJavaCodeInsightFixtureTestCase() {
             )),
             emptyList(),
         )
+        myFixture.configureFromExistingVirtualFile(file.virtualFile)
         val comments = PsiTreeUtil.findChildrenOfType(file, PsiComment::class.java)
         val holder = com.intellij.codeInsight.daemon.impl.AnnotationHolderImpl(
             com.intellij.lang.annotation.AnnotationSession(file), false

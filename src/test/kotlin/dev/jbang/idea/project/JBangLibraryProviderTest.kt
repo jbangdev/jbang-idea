@@ -6,6 +6,7 @@ import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.openapi.vfs.newvfs.events.VFileDeleteEvent
+import com.intellij.testFramework.IndexingTestUtil
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import dev.jbang.idea.cli.ScriptInfo
@@ -192,7 +193,7 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
         )))
         fireLibraryChange(project)
         PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
-        com.intellij.openapi.project.DumbService.getInstance(project).waitForSmartMode()
+        IndexingTestUtil.waitUntilIndexesAreReady(project)
         assertEquals(
             listOf(helper),
             JBangProjectService.getInstance(project).getSourceFilesForFile(root.virtualFile.path),
@@ -221,7 +222,7 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
         installInfo(rootB.virtualFile.path, ScriptInfo(sources = listOf(dev.jbang.idea.cli.SourceEntry(fileB.path, fileB.path))))
         fireLibraryChange(project)
         PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
-        com.intellij.openapi.project.DumbService.getInstance(project).waitForSmartMode()
+        IndexingTestUtil.waitUntilIndexesAreReady(project)
         myFixture.configureFromExistingVirtualFile(rootA.virtualFile)
         val reference = com.intellij.psi.util.PsiTreeUtil.findChildrenOfType(
             rootA,
@@ -407,7 +408,7 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
         assertEquals(1, completedCount)
 
         fireLibraryChange(project) { completedCount++ }
-        com.intellij.openapi.project.DumbService.getInstance(project).waitForSmartMode()
+        IndexingTestUtil.waitUntilIndexesAreReady(project)
         repeat(3) { PlatformTestUtil.dispatchAllEventsInIdeEventQueue() }
         assertEquals(2, completedCount)
         assertEquals("Identical roots must not invalidate PSI twice", 1, changeCount)
