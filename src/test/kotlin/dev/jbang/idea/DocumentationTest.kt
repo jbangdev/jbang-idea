@@ -10,6 +10,12 @@ class DocumentationTest {
     private val docs = Path.of("docs/modules/ROOT/pages")
 
     @Test
+    fun `release draft uses notes for the configured plugin version`() {
+        val workflow = Files.readString(Path.of(".github/workflows/build.yml"))
+        assertFalse("Release draft ignores the versioned changelog", workflow.contains("getChangelog --unreleased"))
+    }
+
+    @Test
     fun `documentation describes overlay workflows instead of removed integrations`() {
         val pages = listOf("index.adoc", "features.adoc", "installation.adoc", "usage.adoc")
         val all = pages
