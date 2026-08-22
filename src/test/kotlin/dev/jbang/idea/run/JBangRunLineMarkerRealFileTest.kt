@@ -1,8 +1,10 @@
 package dev.jbang.idea.run
 
+import com.intellij.openapi.editor.ex.EditorGutterComponentEx
 import com.intellij.psi.*
 import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
+import dev.jbang.idea.JBangFeatureTips
 import dev.jbang.idea.project.JBangScriptDetector
 import org.junit.Test
 
@@ -104,6 +106,14 @@ class tako implements Callable<Integer> {
         assertTrue(
             "Kotlin registration should expose the JBang gutter icon",
             myFixture.findAllGutters().any { it.tooltipText?.contains("JBang") == true },
+        )
+        val gutter = myFixture.editor.gutter as EditorGutterComponentEx
+        val markerBounds = gutter.getGutterRenderersAndRectangles(0)
+            .first { it.first.tooltipText?.contains("JBang") == true }
+            .second
+        assertEquals(
+            java.awt.Point(markerBounds.x + markerBounds.width / 2, markerBounds.y + markerBounds.height / 2),
+            JBangFeatureTips.runMarkerPoint(gutter, 0),
         )
     }
 

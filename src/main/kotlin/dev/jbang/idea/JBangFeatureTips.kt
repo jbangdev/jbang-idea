@@ -3,12 +3,14 @@ package dev.jbang.idea
 import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.editor.ex.EditorGutterComponentEx
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.Balloon
 import com.intellij.openapi.util.Key
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.GotItTooltip
+import java.awt.Point
 import java.net.URI
 import javax.swing.JComponent
 
@@ -50,14 +52,23 @@ object JBangFeatureTips {
         tip.withPosition(Balloon.Position.above).show(component, GotItTooltip.TOP_MIDDLE)
     }
 
-    fun showRun(project: Project) = schedule(
+    fun showRun(project: Project, line: Int) = schedule(
         project,
         runScheduled,
-        { FileEditorManager.getInstance(project).selectedTextEditor?.gutter as? JComponent },
+        { FileEditorManager.getInstance(project).selectedTextEditor?.gutter as? EditorGutterComponentEx },
         ::createRun,
     ) { tip, component ->
-        tip.withPosition(Balloon.Position.atRight).show(component, GotItTooltip.RIGHT_MIDDLE)
+        val gutter = component as EditorGutterComponentEx
+        runMarkerPoint(gutter, line)?.let { point ->
+            tip.withPosition(Balloon.Position.atRight).show(gutter) { _, _ -> point }
+        }
     }
+
+    internal fun runMarkerPoint(gutter: EditorGutterComponentEx, line: Int): Point? =
+        gutter.getGutterRenderersAndRectangles(line)
+            .firstOrNull { it.first.tooltipText?.contains("JBang") == true }
+            ?.second
+            ?.let { Point(it.x + it.width / 2, it.y + it.height / 2) }
 
     fun showDependencies(project: Project, editor: Editor) = schedule(
         project,
