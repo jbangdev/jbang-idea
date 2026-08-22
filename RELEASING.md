@@ -33,6 +33,18 @@
    - Uploads the artifact to the GitHub Release
    - Creates a changelog update PR
 
+## Early access channel
+
+Every successful build of `main` publishes a uniquely versioned build to the `eap` Marketplace channel.
+To receive these builds, add this custom plugin repository in IntelliJ IDEA under
+**Settings → Plugins → ⚙ → Manage Plugin Repositories**:
+
+```text
+https://plugins.jetbrains.com/plugins/eap/18257
+```
+
+Stable releases are also uploaded to `eap` because custom channels take precedence over the default channel.
+
 ## Common Pitfalls
 
 - **Draft releases don't trigger the workflow** — you must publish them.

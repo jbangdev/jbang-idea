@@ -11,6 +11,17 @@ class DocumentationTest {
     private val docs = Path.of("docs/modules/ROOT/pages")
 
     @Test
+    fun `successful main builds publish an EAP version`() {
+        val workflow = Files.readString(Path.of(".github/workflows/build.yml"))
+
+        assertTrue("Missing EAP publication job", workflow.contains("publishEarlyAccess:"))
+        assertTrue("EAP versions must be unique", workflow.contains("-eap.\${{ github.run_number }}"))
+        assertTrue("EAP publication needs the Marketplace token", workflow.contains("PUBLISH_TOKEN: \${{ secrets.PUBLISH_TOKEN }}"))
+        assertTrue("Stable releases must also reach EAP subscribers", Files.readString(Path.of(".github/workflows/release.yml")).contains("-PpluginChannel=eap"))
+        assertTrue("Gradle must support an explicit channel", Files.readString(Path.of("build.gradle.kts")).contains("pluginChannel"))
+    }
+
+    @Test
     fun `CI identifies and bounds hanging tests`() {
         val workflow = Files.readString(Path.of(".github/workflows/build.yml"))
         val build = Files.readString(Path.of("build.gradle.kts"))
