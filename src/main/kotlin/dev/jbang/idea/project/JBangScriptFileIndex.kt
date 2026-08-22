@@ -2,6 +2,7 @@ package dev.jbang.idea.project
 
 import com.intellij.openapi.application.ReadAction
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.roots.ProjectFileIndex
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.psi.search.GlobalSearchScope
 import com.intellij.util.indexing.*
@@ -34,8 +35,9 @@ class JBangScriptFileIndex : ScalarIndexExtension<String>() {
 
         /** Returns all JBang root script files in the project. */
         fun findRootScripts(project: Project): Collection<VirtualFile> =
-            ReadAction.compute<Collection<VirtualFile>, Throwable> {
+            ReadAction.computeBlocking<Collection<VirtualFile>, Throwable> {
                 FileBasedIndex.getInstance().getContainingFiles(NAME, KEY, GlobalSearchScope.projectScope(project))
+                    .filter(ProjectFileIndex.getInstance(project)::isInContent)
             }
     }
 }
