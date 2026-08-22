@@ -67,7 +67,7 @@ object JBangFeatureTips {
         tip.withPosition(Balloon.Position.below).show(component, GotItTooltip.TOP_MIDDLE)
     }
 
-    private fun schedule(
+    internal fun schedule(
         project: Project,
         key: Key<Boolean>,
         component: () -> JComponent?,
@@ -77,8 +77,13 @@ object JBangFeatureTips {
         ApplicationManager.getApplication().invokeLater {
             if (project.isDisposed || project.getUserData(key) == true) return@invokeLater
             val target = component()?.takeIf(JComponent::isShowing) ?: return@invokeLater
-            project.putUserData(key, true)
-            create(project).takeIf(GotItTooltip::canShow)?.let { show(it, target) }
+            val tip = create(project)
+            if (!tip.canShow()) {
+                project.putUserData(key, true)
+                return@invokeLater
+            }
+            tip.setOnBalloonCreated { project.putUserData(key, true) }
+            show(tip, target)
         }
     }
 }
