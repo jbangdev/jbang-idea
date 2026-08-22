@@ -4,6 +4,7 @@ import com.intellij.ide.BrowserUtil
 import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.actionSystem.*
+import com.intellij.openapi.application.WriteIntentReadAction
 import com.intellij.openapi.options.ShowSettingsUtil
 import com.intellij.openapi.project.DumbAwareAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
@@ -52,7 +53,10 @@ class JBangSyncAction : DumbAwareAction() {
         }
 
         internal fun save(file: com.intellij.openapi.vfs.VirtualFile) {
-            FileDocumentManager.getInstance().getDocument(file)?.let(FileDocumentManager.getInstance()::saveDocument)
+            val documents = FileDocumentManager.getInstance()
+            WriteIntentReadAction.compute<com.intellij.openapi.editor.Document?> {
+                documents.getDocument(file)
+            }?.let(documents::saveDocument)
         }
 
         internal fun sync(project: Project, selectedPath: String? = null) {
