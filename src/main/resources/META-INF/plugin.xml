@@ -13,17 +13,6 @@
     <depends optional="true" config-file="jbang-withGroovy.xml">org.intellij.groovy</depends>
     <depends>org.jetbrains.plugins.terminal</depends>
 
-    <description><![CDATA[
-    <p><b>JBang plugin</b> integrates <a href="https://www.jbang.dev/">JBang</a> into IntelliJ IDEA.</p>
-    <ul>
-      <li>Auto-sync: resolves classpath from jbang directives on save</li>
-      <li>Run & debug jbang scripts with gutter icons and run configurations</li>
-      <li>Directive completion and syntax highlighting</li>
-      <li>Coexists with Gradle/Maven projects</li>
-      <li>JSON Schema for jbang-catalog.json</li>
-    </ul>
-    ]]></description>
-
     <extensions defaultExtensionNs="org.jetbrains.kotlin">
         <supportsKotlinPluginMode/>
     </extensions>

@@ -3,7 +3,7 @@ package dev.jbang.idea.run
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.*
 import com.intellij.execution.executors.DefaultDebugExecutor
-import javax.swing.Icon
+import com.intellij.icons.AllIcons
 import com.intellij.execution.process.KillableColoredProcessHandler
 import com.intellij.execution.process.ProcessHandler
 import com.intellij.execution.process.ProcessTerminatedListener
@@ -13,9 +13,11 @@ import com.intellij.openapi.options.SettingsEditor
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.ui.LayeredIcon
 import com.intellij.ui.components.JBTextField
 import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.ui.FormBuilder
+import dev.jbang.idea.JBangPlugin
 import dev.jbang.idea.cli.JBangCli
 import javax.swing.JCheckBox
 import javax.swing.JComponent
@@ -23,22 +25,14 @@ import javax.swing.JPanel
 
 // --- Configuration Type ---
 
+private val jbangRunIcon = LayeredIcon.layeredIcon(arrayOf(JBangPlugin.icon16, AllIcons.Nodes.RunnableMark))
+
 class JBangConfigurationType : ConfigurationType {
     override fun getDisplayName() = "JBang"
     override fun getConfigurationTypeDescription() = "Run a JBang script"
-    override fun getIcon() = JBangRunIcons.configIcon
+    override fun getIcon() = jbangRunIcon
     override fun getId() = "JBangRunConfiguration"
     override fun getConfigurationFactories() = arrayOf(JBangConfigurationFactory(this))
-}
-
-object JBangRunIcons {
-    /** JBang icon with a small run triangle overlay in the bottom-right corner. */
-    val configIcon: Icon by lazy {
-        com.intellij.ui.LayeredIcon.layeredIcon(arrayOf(
-            dev.jbang.idea.JBangPlugin.icon16,
-            com.intellij.icons.AllIcons.Nodes.RunnableMark
-        ))
-    }
 }
 
 class JBangConfigurationFactory(type: ConfigurationType) : ConfigurationFactory(type) {

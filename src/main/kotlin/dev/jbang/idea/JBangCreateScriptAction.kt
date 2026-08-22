@@ -45,8 +45,7 @@ class JBangCreateScriptAction : DumbAwareAction() {
             override fun run(indicator: ProgressIndicator) {
                 try {
                     val path = File(directory.path, name).path
-                    if (template != null) JBangCli.initScript(template, path)
-                    else JBangCli.initScript(path)
+                    JBangCli.initScript(path, template)
                 } catch (e: Exception) {
                     error = e
                 }

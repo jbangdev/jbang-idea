@@ -34,12 +34,3 @@ inline fun Logger.debug(lazyMessage: () -> String) {
         debug(lazyMessage())
     }
 }
-
-/**
- * Lazy trace — even cheaper than debug.
- */
-inline fun Logger.trace(lazyMessage: () -> String) {
-    if (isTraceEnabled) {
-        trace(lazyMessage())
-    }
-}

@@ -8,6 +8,7 @@ import com.intellij.openapi.ui.MessageDialogBuilder
 import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.openapi.wm.ToolWindowManager
+import com.intellij.ui.DocumentAdapter
 import com.intellij.util.ui.FormBuilder
 import com.intellij.util.ui.UIUtil
 import dev.jbang.idea.cli.JBangCli
@@ -33,10 +34,8 @@ class JBangConfigurable : Configurable {
             FileChooserDescriptorFactory.createSingleFileNoJarsDescriptor()
         )
         // ponytail: addBrowseFolderListener is deprecated but replacement API is not yet stable. Revisit.
-        pathField.textField.document.addDocumentListener(object : javax.swing.event.DocumentListener {
-            override fun insertUpdate(e: javax.swing.event.DocumentEvent) = updateResolved()
-            override fun removeUpdate(e: javax.swing.event.DocumentEvent) = updateResolved()
-            override fun changedUpdate(e: javax.swing.event.DocumentEvent) = updateResolved()
+        pathField.textField.document.addDocumentListener(object : DocumentAdapter() {
+            override fun textChanged(e: javax.swing.event.DocumentEvent) = updateResolved()
         })
     }
 

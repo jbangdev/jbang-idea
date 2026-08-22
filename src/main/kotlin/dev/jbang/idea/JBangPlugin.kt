@@ -4,9 +4,6 @@ import com.intellij.openapi.util.IconLoader
 import javax.swing.Icon
 
 object JBangPlugin {
-    const val ID = "dev.jbang.intellij.JBangPlugin"
-    const val NAME = "JBang"
-
     val icon16: Icon = IconLoader.getIcon("/icons/jbang.svg", JBangPlugin::class.java)
 
     /** Directives that mark a file as a jbang root script (has its own classpath). */

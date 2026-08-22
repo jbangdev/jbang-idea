@@ -189,20 +189,12 @@ object JBangCli {
         }
     }
 
-    /**
-     * Calls `jbang init --template <template> --force <filePath>`.
-     */
-    fun initScript(templateName: String, filePath: String) {
+    /** Calls `jbang init [--template <template>] --force <filePath>`. */
+    fun initScript(filePath: String, templateName: String? = null) {
         val wsl = if (SystemInfo.isWindows) WslPath.parseWindowsUncPath(filePath) else null
         val effectivePath = wsl?.linuxPath ?: filePath
-        exec("jbang", "init", "--template", templateName, "--force", effectivePath,
-            wslDistributionId = wsl?.distributionId)
-    }
-
-    fun initScript(filePath: String) {
-        val wsl = if (SystemInfo.isWindows) WslPath.parseWindowsUncPath(filePath) else null
-        val effectivePath = wsl?.linuxPath ?: filePath
-        exec("jbang", "init", "--force", effectivePath, wslDistributionId = wsl?.distributionId)
+        val templateArgs = templateName?.let { arrayOf("--template", it) }.orEmpty()
+        exec("jbang", "init", *templateArgs, "--force", effectivePath, wslDistributionId = wsl?.distributionId)
     }
 
     private fun exec(

@@ -3,6 +3,7 @@ package dev.jbang.idea
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.components.JBList
 import com.intellij.ui.components.JBScrollPane
 import com.intellij.ui.components.JBTextField
@@ -11,7 +12,6 @@ import dev.jbang.idea.cli.TemplateInfo
 import javax.swing.JComponent
 import javax.swing.ListSelectionModel
 import javax.swing.event.DocumentEvent
-import javax.swing.event.DocumentListener
 
 /**
  * Single dialog for creating a JBang script: template (optional) + file name.
@@ -53,10 +53,8 @@ class JBangCreateScriptDialog(
                 lastSuggested = suggested
             }
         }
-        nameField.document.addDocumentListener(object : DocumentListener {
-            override fun insertUpdate(e: DocumentEvent) = updateOk()
-            override fun removeUpdate(e: DocumentEvent) = updateOk()
-            override fun changedUpdate(e: DocumentEvent) = updateOk()
+        nameField.document.addDocumentListener(object : DocumentAdapter() {
+            override fun textChanged(e: DocumentEvent) = updateOk()
         })
         init()
         updateOk()

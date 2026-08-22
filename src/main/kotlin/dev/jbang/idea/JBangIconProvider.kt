@@ -11,10 +11,6 @@ import javax.swing.Icon
  */
 class JBangIconProvider : FileIconProvider {
 
-    override fun getIcon(file: VirtualFile, flags: Int, project: Project?): Icon? {
-        if (file.name in JBangPlugin.BUILD_FILE_NAMES) return JBangPlugin.icon16
-        if (file.extension == "jbang") return JBangPlugin.icon16
-        if (JBangScriptDetector.isRootScript(file)) return JBangPlugin.icon16
-        return null
-    }
+    override fun getIcon(file: VirtualFile, flags: Int, project: Project?): Icon? =
+        JBangPlugin.icon16.takeIf { JBangScriptDetector.isRootScript(file) }
 }
