@@ -1,6 +1,7 @@
 package dev.jbang.idea.project
 
 import com.intellij.openapi.application.ApplicationManager
+import com.intellij.openapi.application.ModalityState
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
@@ -171,15 +172,15 @@ private val announcedLibraryRoots = Key.create<Collection<VirtualFile>>("jbang.a
 
 internal fun fireLibraryChange(project: Project, completed: () -> Unit = {}) {
     if (project.isDisposed) return
-    com.intellij.openapi.project.DumbService.getInstance(project).smartInvokeLater {
-        if (project.isDisposed) return@smartInvokeLater
+    ApplicationManager.getApplication().invokeLater({
+        if (project.isDisposed) return@invokeLater
         val newRoots = JBangLibraryProvider().getAdditionalProjectLibraries(project)
             .flatMap { it.binaryRoots + it.sourceRoots }
         val oldRoots = project.getUserData(announcedLibraryRoots).orEmpty()
         if (oldRoots.toSet() == newRoots.toSet()) {
             WindowManager.getInstance().getStatusBar(project)?.updateWidget("JBangActiveRoot")
             completed()
-            return@smartInvokeLater
+            return@invokeLater
         }
         com.intellij.openapi.application.runWriteAction {
             if (!project.isDisposed) {
@@ -192,5 +193,5 @@ internal fun fireLibraryChange(project: Project, completed: () -> Unit = {}) {
                 completed()
             }
         }
-    }
+    }, ModalityState.nonModal())
 }
