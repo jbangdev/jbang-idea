@@ -5,9 +5,18 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.Properties
 
 class DocumentationTest {
     private val docs = Path.of("docs/modules/ROOT/pages")
+
+    @Test
+    fun `marketplace title is JBang`() {
+        val properties = Properties().apply {
+            Files.newInputStream(Path.of("gradle.properties")).use(::load)
+        }
+        assertTrue("Marketplace title should be JBang", properties.getProperty("pluginName") == "JBang")
+    }
 
     @Test
     fun `release draft uses notes for the configured plugin version`() {

@@ -99,10 +99,9 @@ jobs:
           path: ${{ steps.properties.outputs.pluginVerifierHomeDir }}/ides
           key: plugin-verifier-${{ hashFiles('build/printProductsReleases.txt') }}
 
-      # The muted template-word checks apply to the existing Marketplace ID/name,
-      # which cannot change without publishing a different plugin.
+      # The Marketplace ID is stable and cannot change without publishing a different plugin.
       - name: Run Plugin Verification
-        run: ./gradlew verifyPlugin --args='-mute TemplateWordInPluginId,TemplateWordInPluginName'
+        run: ./gradlew verifyPlugin --args='-mute TemplateWordInPluginId'
 
       - name: Collect Plugin Verifier Result
         if: ${{ always() }}
