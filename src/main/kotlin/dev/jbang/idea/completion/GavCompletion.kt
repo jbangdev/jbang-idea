@@ -19,6 +19,7 @@ import com.intellij.repository.search.completion.api.DependencyCompletionRequest
 import com.intellij.repository.search.completion.api.DependencyCompletionService
 import com.intellij.repository.search.completion.api.DependencyVersionCompletionRequest
 import com.intellij.util.ProcessingContext
+import dev.jbang.idea.JBangFeatureTips
 import dev.jbang.idea.JBangPlugin
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
@@ -73,6 +74,8 @@ private object GavCompletionProvider : CompletionProvider<CompletionParameters>(
         val rawSearch = text.substring(7).trim()
         val searchText = trimDummy(rawSearch)
         if (searchText.isBlank()) return
+
+        JBangFeatureTips.showDependencies(comment.project, parameters.editor)
 
         val startOffset = comment.textRange.startOffset + 7
         val parts = searchText.split(':')

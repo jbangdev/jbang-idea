@@ -33,6 +33,22 @@ class JBangStatusBarWidgetTest : LightJavaCodeInsightFixtureTestCase() {
         super.tearDown()
     }
 
+    fun testActiveRootTriggersFeatureTipOnce() {
+        val root = myFixture.addFileToProject("Root.java", "//DEPS example:a:1\nclass Root {}")
+        JBangProjectService.getInstance(project).apply {
+            cacheResolved(root.virtualFile.path, ScriptInfo(), emptyList())
+            setActiveRoot(root.virtualFile.path)
+        }
+        var tips = 0
+        val widget = JBangStatusWidget(project, showFeatureTip = { tips++ })
+
+        assertNotNull(widget.getSelectedValue())
+        assertNotNull(widget.getSelectedValue())
+
+        assertEquals(1, tips)
+        widget.dispose()
+    }
+
     fun testSelectingDifferentRootCanOpenAndRememberChoice() {
         val rootA = myFixture.addFileToProject("RootA.java", "//DEPS example:a:1\nclass RootA {}")
         val rootBPath = Files.writeString(Files.createTempFile("RootB", ".java"), "//DEPS example:b:1\nclass RootB {}")

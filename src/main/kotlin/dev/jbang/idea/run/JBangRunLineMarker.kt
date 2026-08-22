@@ -4,6 +4,7 @@ import com.intellij.execution.lineMarker.ExecutorAction
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
 import com.intellij.psi.*
 import com.intellij.psi.javadoc.PsiDocComment
+import dev.jbang.idea.JBangFeatureTips
 import dev.jbang.idea.JBangPlugin
 import dev.jbang.idea.project.JBangScriptDetector
 
@@ -33,7 +34,7 @@ class JBangRunLineMarker : RunLineMarkerContributor() {
             val isShebang = text.startsWith(JBangPlugin.SHEBANG)
             val isDirective = JBangScriptDetector.isRootDirectiveLine(text)
             if ((isShebang || isDirective) && isFirstJBangMarker(comment)) {
-                return jbangInfo(file.name)
+                return jbangInfo(file.name, element.project)
             }
             return null
         }
@@ -47,19 +48,20 @@ class JBangRunLineMarker : RunLineMarkerContributor() {
         // Case 2: class name identifier — first/only class
         if (parent is PsiClass && element == parent.nameIdentifier) {
             if (isFirstClass(parent)) {
-                return jbangInfo(file.name)
+                return jbangInfo(file.name, element.project)
             }
         }
 
         // Case 3: main() method identifier
         if (parent is PsiMethod && element == parent.nameIdentifier && parent.name == "main") {
-            return jbangInfo(file.name)
+            return jbangInfo(file.name, element.project)
         }
 
         return null
     }
 
-    private fun jbangInfo(fileName: String): Info {
+    private fun jbangInfo(fileName: String, project: com.intellij.openapi.project.Project): Info {
+        JBangFeatureTips.showRun(project)
         val actions = ExecutorAction.getActions(0)
         return Info(JBangPlugin.icon16, actions) { "Run $fileName with JBang" }
     }

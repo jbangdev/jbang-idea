@@ -17,6 +17,7 @@ import com.intellij.openapi.wm.StatusBar
 import com.intellij.openapi.wm.StatusBarWidget
 import com.intellij.openapi.wm.StatusBarWidgetFactory
 import com.intellij.openapi.wm.impl.status.EditorBasedWidget
+import dev.jbang.idea.JBangFeatureTips
 import dev.jbang.idea.JBangPlugin
 import dev.jbang.idea.settings.JBangSettings
 import java.io.File
@@ -34,6 +35,7 @@ class JBangStatusBarWidgetFactory : StatusBarWidgetFactory {
 
 internal class JBangStatusWidget(
     project: Project,
+    private val showFeatureTip: (Project) -> Unit = JBangFeatureTips::showStatus,
     private val confirmOpen: (Project, String, DoNotAskOption) -> Boolean = { dialogProject, rootName, doNotAsk ->
         MessageDialogBuilder.yesNo("JBang Root Selected", "Open $rootName in the editor?")
             .yesText("Open")
@@ -42,6 +44,8 @@ internal class JBangStatusWidget(
             .ask(dialogProject)
     },
 ) : EditorBasedWidget(project), StatusBarWidget.MultipleTextValuesPresentation {
+
+    private var featureTipShown = false
 
     override fun ID(): String = "JBangActiveRoot"
 
@@ -62,6 +66,10 @@ internal class JBangStatusWidget(
         val service = JBangProjectService.getInstance(project)
         service.syncingRootPath?.let { return "jbang: syncing ${File(it).name}…" }
         val active = service.activeRootPath ?: return null
+        if (!featureTipShown) {
+            featureTipShown = true
+            showFeatureTip(project)
+        }
         val result = when (active) {
             service.lastFailedRootPath -> " (sync failed: ${service.lastSyncErrorCount} ${if (service.lastSyncErrorCount == 1) "error" else "errors"})"
             service.lastSucceededRootPath -> " (synced)"
