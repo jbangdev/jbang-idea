@@ -1,5 +1,6 @@
 import org.jetbrains.changelog.Changelog
 import org.jetbrains.changelog.markdownToHTML
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 plugins {
     id("java")
@@ -35,6 +36,15 @@ dependencies {
 // IntelliJ IDEA 2026.2 runs on JBR 25.
 kotlin {
     jvmToolchain(25)
+}
+
+tasks.test {
+    if (providers.environmentVariable("CI").isPresent) {
+        testLogging {
+            events(TestLogEvent.STARTED, TestLogEvent.FAILED, TestLogEvent.SKIPPED)
+            showStandardStreams = true
+        }
+    }
 }
 
 intellijPlatform {

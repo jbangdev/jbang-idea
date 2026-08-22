@@ -38,7 +38,8 @@ jobs:
           java-version: 25
           cache: gradle
       - name: Run Tests
-        run: ./gradlew test
+        timeout-minutes: 15
+        run: ./gradlew test --stacktrace --console=plain
       - name: Collect Test Results
         if: ${{ failure() }}
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

@@ -11,6 +11,15 @@ class DocumentationTest {
     private val docs = Path.of("docs/modules/ROOT/pages")
 
     @Test
+    fun `CI identifies and bounds hanging tests`() {
+        val workflow = Files.readString(Path.of(".github/workflows/build.yml"))
+        val build = Files.readString(Path.of("build.gradle.kts"))
+
+        assertTrue("CI test step needs a timeout", workflow.contains("timeout-minutes: 15"))
+        assertTrue("CI needs per-test progress", build.contains("testLogging") && build.contains("TestLogEvent.STARTED"))
+    }
+
+    @Test
     fun `marketplace title is JBang`() {
         val properties = Properties().apply {
             Files.newInputStream(Path.of("gradle.properties")).use(::load)
