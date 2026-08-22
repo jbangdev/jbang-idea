@@ -1,7 +1,6 @@
 package dev.jbang.idea.project
 
 import com.intellij.openapi.application.ApplicationManager
-import com.intellij.openapi.application.readAction
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.fileEditor.FileEditorManagerListener
 import com.intellij.openapi.project.Project
@@ -75,14 +74,12 @@ class JBangFileListener(private val project: Project) : BulkFileListener {
 
     override fun after(events: List<VFileEvent>) {
         val service = JBangProjectService.getInstance(project)
-        var changed = false
 
         for (event in events) {
             when (event) {
                 is VFileDeleteEvent -> if (service.getInfo(event.path) != null) {
                     service.evict(event.path)
                     fireLibraryChange(project)
-                    changed = true
                 }
                 is com.intellij.openapi.vfs.newvfs.events.VFilePropertyChangeEvent -> {
                     if (event.propertyName == VirtualFile.PROP_NAME) {
@@ -99,7 +96,6 @@ class JBangFileListener(private val project: Project) : BulkFileListener {
                             } else {
                                 fireLibraryChange(project)
                             }
-                            changed = true
                         }
                     }
                 }
@@ -117,7 +113,6 @@ class JBangFileListener(private val project: Project) : BulkFileListener {
                         } else {
                             fireLibraryChange(project)
                         }
-                        changed = true
                     }
                 }
                 is VFileContentChangeEvent -> {
@@ -129,11 +124,9 @@ class JBangFileListener(private val project: Project) : BulkFileListener {
                             service.resolve(file)
                             fireLibraryChange(project)
                         }
-                        changed = true
                     } else if (service.getInfo(file.path) != null) {
                         service.evict(file.path)
                         fireLibraryChange(project)
-                        changed = true
                     }
                 }
             }
@@ -183,6 +176,11 @@ internal fun fireLibraryChange(project: Project, completed: () -> Unit = {}) {
         val newRoots = JBangLibraryProvider().getAdditionalProjectLibraries(project)
             .flatMap { it.binaryRoots + it.sourceRoots }
         val oldRoots = project.getUserData(announcedLibraryRoots).orEmpty()
+        if (oldRoots.toSet() == newRoots.toSet()) {
+            WindowManager.getInstance().getStatusBar(project)?.updateWidget("JBangActiveRoot")
+            completed()
+            return@smartInvokeLater
+        }
         com.intellij.openapi.application.runWriteAction {
             if (!project.isDisposed) {
                 project.putUserData(announcedLibraryRoots, newRoots)

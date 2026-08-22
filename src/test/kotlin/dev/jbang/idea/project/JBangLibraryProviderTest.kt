@@ -376,6 +376,31 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
     }
 
     @Test
+    fun testUnchangedLibrariesAreNotReannounced() {
+        val jar = Files.createTempFile("jbang-overlay", ".jar").toFile()
+        JarOutputStream(jar.outputStream()).use { }
+        val script = myFixture.addFileToProject("overlay.java", "//DEPS example:overlay:1\nclass overlay {}")
+        installInfo(script.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(jar.path)))
+
+        var changeCount = 0
+        var completedCount = 0
+        project.messageBus.connect(testRootDisposable).subscribe(
+            AdditionalLibraryRootsListener.TOPIC,
+            AdditionalLibraryRootsListener { _, _, _, _ -> changeCount++ },
+        )
+
+        fireLibraryChange(project) { completedCount++ }
+        repeat(3) { PlatformTestUtil.dispatchAllEventsInIdeEventQueue() }
+        assertEquals(1, completedCount)
+
+        fireLibraryChange(project) { completedCount++ }
+        com.intellij.openapi.project.DumbService.getInstance(project).waitForSmartMode()
+        repeat(3) { PlatformTestUtil.dispatchAllEventsInIdeEventQueue() }
+        assertEquals(2, completedCount)
+        assertEquals("Identical roots must not invalidate PSI twice", 1, changeCount)
+    }
+
+    @Test
     fun testLibraryChangeAnnouncesRootsForIndexing() {
         val jar = Files.createTempFile("jbang-overlay", ".jar").toFile()
         JarOutputStream(jar.outputStream()).use { }
