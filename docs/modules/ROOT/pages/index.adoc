@@ -32,4 +32,4 @@ Each JBang root has its own resolved metadata, dependency roots, declared source
 The active root controls the classpath and JDK used for its included sources.
 Dependencies appear under *External Libraries* as synthetic JBang libraries; existing Gradle and Maven models remain untouched.
 
-See xref:usage.adoc[Usage] for the complete workflow and xref:installation.adoc[Installation] for executable discovery and configuration.
+See xref:features.adoc[Features] for a visual tour, xref:usage.adoc[Usage] for the complete workflow, and xref:installation.adoc[Installation] for executable discovery and configuration.

@@ -1,3 +1,4 @@
 * xref:jbang-idea:ROOT:index.adoc[]
+* xref:jbang-idea:ROOT:features.adoc[]
 * xref:jbang-idea:ROOT:installation.adoc[]
 * xref:jbang-idea:ROOT:usage.adoc[]

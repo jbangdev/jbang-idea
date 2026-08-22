@@ -11,7 +11,8 @@ class DocumentationTest {
 
     @Test
     fun `documentation describes overlay workflows instead of removed integrations`() {
-        val all = listOf("index.adoc", "installation.adoc", "usage.adoc")
+        val pages = listOf("index.adoc", "features.adoc", "installation.adoc", "usage.adoc")
+        val all = pages
             .joinToString("\n") { Files.readString(docs.resolve(it)) }
 
         listOf(
@@ -31,7 +32,19 @@ class DocumentationTest {
             "== Creating scripts",
         ).forEach { assertTrue("Missing usage section: $it", usage.contains(it)) }
 
-        listOf("index.adoc", "installation.adoc", "usage.adoc").forEach { page ->
+        val features = Files.readString(docs.resolve("features.adoc"))
+        listOf(
+            "== Project integration and synchronization",
+            "== Multiple JBang roots",
+            "== Completion and diagnostics",
+            "== Sources and navigation",
+            "== Run and Debug",
+            "== Java versions and dependencies",
+            "== Creating scripts",
+        ).forEach { assertTrue("Missing feature section: $it", features.contains(it)) }
+        assertTrue("Feature overview should be screenshot-rich", Regex("image:").findAll(features).count() >= 7)
+
+        pages.forEach { page ->
             Regex("image:([^\\[]+)").findAll(Files.readString(docs.resolve(page))).forEach { image ->
                 val path = docs.parent.resolve("assets/images").resolve(image.groupValues[1])
                 assertTrue("Missing documentation image: $path", Files.exists(path))
