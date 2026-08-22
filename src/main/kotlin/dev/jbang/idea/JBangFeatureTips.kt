@@ -4,6 +4,7 @@ import com.intellij.openapi.Disposable
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.editor.Editor
 import com.intellij.openapi.editor.ex.EditorGutterComponentEx
+import com.intellij.codeInsight.daemon.GutterMark
 import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.Balloon
@@ -14,6 +15,7 @@ import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.GotItTooltip
 import com.intellij.util.ui.UIUtil
 import java.awt.Point
+import java.awt.Rectangle
 import java.net.URI
 import javax.swing.JComponent
 import javax.swing.JTree
@@ -77,8 +79,10 @@ object JBangFeatureTips {
     }
 
     internal fun runMarkerPoint(gutter: EditorGutterComponentEx, line: Int): Point? =
-        gutter.getGutterRenderersAndRectangles(line)
-            .firstOrNull { it.first.tooltipText?.contains("JBang") == true }
+        runMarkerPoint(gutter.getGutterRenderersAndRectangles(line).map { it.first to it.second })
+
+    internal fun runMarkerPoint(renderers: List<Pair<GutterMark, Rectangle>>): Point? =
+        renderers.firstOrNull { it.first.icon == JBangPlugin.icon16 }
             ?.second
             ?.let { Point(it.x + it.width / 2, it.y + it.height / 2) }
 

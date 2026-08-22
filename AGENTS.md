@@ -33,6 +33,13 @@ Checklist before saying "done":
 - [ ] For UI features (gutter icons, buttons, menu items): is there a test that checks registration/visibility via IntelliJ's APIs (`ProgramRunner.getRunner()`, `findAllGutters()`, etc.)?
 - [ ] For run configurations: can both Run AND Debug executors find a runner?
 - [ ] For completions/inspections: does the test use `myFixture.complete()`/`myFixture.doHighlighting()` on realistic input?
+- [ ] Is `CHANGELOG.md` updated for every user-visible feature, fix, regression, or deprecation?
+
+## Changelog
+
+Every user-visible feature, fix, regression, and deprecation must be documented under
+`[Unreleased]` in `CHANGELOG.md` before committing. Documentation-only and internal refactoring
+changes do not require an entry unless they affect users.
 
 ## IntelliJ Platform conventions
 

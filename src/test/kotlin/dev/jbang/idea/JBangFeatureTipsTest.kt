@@ -1,10 +1,13 @@
 package dev.jbang.idea
 
+import com.intellij.openapi.editor.markup.GutterIconRenderer
 import com.intellij.openapi.util.Disposer
 import com.intellij.openapi.util.Key
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.ui.GotItTooltip
+import java.awt.Rectangle
+import javax.swing.Icon
 import javax.swing.JPanel
 import javax.swing.JTree
 import javax.swing.tree.DefaultMutableTreeNode
@@ -49,6 +52,21 @@ class JBangFeatureTipsTest : BasePlatformTestCase() {
 
         assertEquals(1, showAttempts)
         assertNull(project.getUserData(key))
+    }
+
+    fun testRunTipFindsJBangMarkerWithoutEvaluatingTooltip() {
+        val marker = object : GutterIconRenderer() {
+            override fun getIcon(): Icon = JBangPlugin.icon16
+            override fun getTooltipText(): String = error("Tooltip evaluation may access indexes")
+            override fun equals(other: Any?) = this === other
+            override fun hashCode() = System.identityHashCode(this)
+        }
+        val bounds = Rectangle(10, 20, 16, 16)
+
+        assertEquals(
+            java.awt.Point(18, 28),
+            JBangFeatureTips.runMarkerPoint(listOf(marker to bounds)),
+        )
     }
 
     fun testClasspathTipPointsAtVisibleJBangLibraryEntry() {

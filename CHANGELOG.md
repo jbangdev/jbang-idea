@@ -9,6 +9,10 @@
   expansion, structured environment variables, parent-environment selection, and consistent
   options and working-directory handling in terminal mode.
 
+### Fixed
+- Avoid evaluating run-marker tooltips on the EDT when positioning feature tips, which could
+  trigger IntelliJ's "Slow operations are prohibited on EDT" assertion.
+
 ## [0.100.0]
 
 Complete rewrite of the JBang IntelliJ plugin. The plugin now uses `jbang info tools` as its
