@@ -9,6 +9,7 @@ import com.intellij.openapi.roots.SyntheticLibrary
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.pom.Navigatable
+import dev.jbang.idea.JBangFeatureTips
 import dev.jbang.idea.JBangPlugin
 import java.io.File
 
@@ -19,7 +20,9 @@ import java.io.File
  *
  * Coexists with Gradle/Maven — their libraries are separate.
  */
-class JBangLibraryProvider : AdditionalLibraryRootsProvider() {
+class JBangLibraryProvider(
+    private val showFeatureTip: (Project) -> Unit = JBangFeatureTips::showClasspath,
+) : AdditionalLibraryRootsProvider() {
 
     override fun getAdditionalProjectLibraries(project: Project): Collection<SyntheticLibrary> {
         val service = JBangProjectService.getInstance(project)
@@ -44,6 +47,7 @@ class JBangLibraryProvider : AdditionalLibraryRootsProvider() {
             ))
         }
 
+        if (libs.isNotEmpty()) showFeatureTip(project)
         return libs
     }
 }

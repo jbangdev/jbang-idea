@@ -41,6 +41,19 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
     }
 
     @Test
+    fun testProviderTriggersClasspathFeatureTip() {
+        val jar = Files.createTempFile("jbang-overlay", ".jar").toFile()
+        JarOutputStream(jar.outputStream()).use { }
+        val script = myFixture.addFileToProject("overlay.java", "//DEPS example:overlay:1\nclass overlay {}")
+        installInfo(script.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(jar.path)))
+        var tips = 0
+
+        JBangLibraryProvider(showFeatureTip = { tips++ }).getAdditionalProjectLibraries(project)
+
+        assertEquals(1, tips)
+    }
+
+    @Test
     fun testProviderDoesNotLoadUncachedClasspathPathsOnEdt() {
         val jar = Files.createDirectories(Files.createTempDirectory("jbang-overlay").resolve("deep/maven/path"))
             .resolve("overlay.jar").toFile()

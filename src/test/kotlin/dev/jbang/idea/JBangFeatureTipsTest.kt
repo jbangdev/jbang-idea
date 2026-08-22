@@ -6,6 +6,8 @@ import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.ui.GotItTooltip
 import javax.swing.JPanel
+import javax.swing.JTree
+import javax.swing.tree.DefaultMutableTreeNode
 
 class JBangFeatureTipsTest : BasePlatformTestCase() {
 
@@ -49,11 +51,31 @@ class JBangFeatureTipsTest : BasePlatformTestCase() {
         assertNull(project.getUserData(key))
     }
 
+    fun testClasspathTipPointsAtVisibleJBangLibraryEntry() {
+        val root = DefaultMutableTreeNode("Project")
+        val libraries = DefaultMutableTreeNode("External Libraries")
+        libraries.add(DefaultMutableTreeNode("jbang: Root.java"))
+        root.add(libraries)
+        val tree = JTree(root).apply {
+            expandRow(0)
+            expandRow(1)
+            setSize(300, 300)
+            doLayout()
+        }
+        val bounds = tree.getRowBounds(2)
+
+        assertEquals(
+            java.awt.Point(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2),
+            JBangFeatureTips.classpathPoint(tree),
+        )
+    }
+
     fun testFeatureTipsUseStableIds() {
         val parent = Disposer.newDisposable(testRootDisposable, "JBang feature tips")
 
         assertEquals("jbang.features.status", JBangFeatureTips.createStatus(parent).id)
         assertEquals("jbang.features.run", JBangFeatureTips.createRun(parent).id)
         assertEquals("jbang.features.dependencies", JBangFeatureTips.createDependencies(parent).id)
+        assertEquals("jbang.features.classpath", JBangFeatureTips.createClasspath(parent).id)
     }
 }

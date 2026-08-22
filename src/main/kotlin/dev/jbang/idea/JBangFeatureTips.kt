@@ -8,22 +8,28 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.popup.Balloon
 import com.intellij.openapi.util.Key
+import com.intellij.openapi.wm.ToolWindowId
+import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.openapi.wm.WindowManager
 import com.intellij.ui.GotItTooltip
+import com.intellij.util.ui.UIUtil
 import java.awt.Point
 import java.net.URI
 import javax.swing.JComponent
+import javax.swing.JTree
 
 object JBangFeatureTips {
     private val log = jbangLog<JBangFeatureTips>()
     private const val STATUS_ID = "jbang.features.status"
     private const val RUN_ID = "jbang.features.run"
     private const val DEPENDENCIES_ID = "jbang.features.dependencies"
+    private const val CLASSPATH_ID = "jbang.features.classpath"
     private val FEATURES_URL = URI("https://github.com/jbangdev/jbang-idea/blob/main/docs/modules/ROOT/pages/features.adoc").toURL()
 
     private val statusScheduled = Key.create<Boolean>("$STATUS_ID.scheduled")
     private val runScheduled = Key.create<Boolean>("$RUN_ID.scheduled")
     private val dependenciesScheduled = Key.create<Boolean>("$DEPENDENCIES_ID.scheduled")
+    private val classpathScheduled = Key.create<Boolean>("$CLASSPATH_ID.scheduled")
 
     internal fun createStatus(parent: Disposable) = GotItTooltip(
         STATUS_ID,
@@ -42,6 +48,12 @@ object JBangFeatureTips {
         "Complete local and remote Maven coordinates and see dependency errors directly in the editor.",
         parent,
     ).withHeader("JBang dependency completion").withBrowserLink("View all features", FEATURES_URL)
+
+    internal fun createClasspath(parent: Disposable) = GotItTooltip(
+        CLASSPATH_ID,
+        "Each JBang root exposes its resolved dependencies as an isolated classpath under External Libraries.",
+        parent,
+    ).withHeader("JBang classpath").withBrowserLink("View all features", FEATURES_URL)
 
     fun showStatus(project: Project) = schedule(
         project,
@@ -78,6 +90,31 @@ object JBangFeatureTips {
     ) { tip, component ->
         tip.withPosition(Balloon.Position.below).show(component, GotItTooltip.TOP_MIDDLE)
     }
+
+    fun showClasspath(project: Project) = schedule(
+        project,
+        classpathScheduled,
+        { ToolWindowManager.getInstance(project).getToolWindow(ToolWindowId.PROJECT_VIEW)?.component },
+        ::createClasspath,
+    ) { tip, component ->
+        val tree = UIUtil.findComponentOfType(component, JTree::class.java)
+        val point = tree?.let(::classpathPoint)
+        if (tree != null && point != null) {
+            tip.withPosition(Balloon.Position.atRight).show(tree) { _, _ -> point }
+        } else {
+            tip.withPosition(Balloon.Position.below).show(component, GotItTooltip.TOP_MIDDLE)
+        }
+    }
+
+    internal fun classpathPoint(tree: JTree): Point? = sequenceOf("jbang:", "External Libraries")
+        .mapNotNull { text ->
+            (0 until tree.rowCount).firstOrNull { row ->
+                tree.getPathForRow(row)?.lastPathComponent.toString().contains(text, ignoreCase = true)
+            }
+        }
+        .firstOrNull()
+        ?.let(tree::getRowBounds)
+        ?.let { Point(it.x + it.width / 2, it.y + it.height / 2) }
 
     internal fun schedule(
         project: Project,
