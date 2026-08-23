@@ -6,6 +6,8 @@ import com.intellij.psi.util.PsiTreeUtil
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import dev.jbang.idea.JBangFeatureTips
 import dev.jbang.idea.project.JBangScriptDetector
+import org.jetbrains.kotlin.psi.KtClass
+import org.jetbrains.kotlin.psi.KtNamedFunction
 import org.junit.Test
 
 /**
@@ -143,6 +145,42 @@ class tako implements Callable<Integer> {
         val depsComment = comments.find { it.text.startsWith("//DEPS") }
         assertNotNull("Should find //DEPS in Groovy file", depsComment)
         assertNotNull("Groovy //DEPS should get a run marker", marker.getInfo(depsComment!!))
+    }
+
+    @Test
+    fun testRunMarkerOnKotlinMainFunction() {
+        val psiFile = myFixture.configureByText("hello.kt", """
+            //DEPS com.google.guava:guava:33.0-jre
+            fun main() { println("hello") }
+        """.trimIndent())
+
+        val marker = JBangRunLineMarker()
+        val mainFun = PsiTreeUtil.findChildrenOfType(psiFile, KtNamedFunction::class.java)
+            .find { it.name == "main" }
+        assertNotNull("Should find fun main() in Kotlin file", mainFun)
+        assertNotNull(
+            "Kotlin main function should get a run marker",
+            marker.getInfo(mainFun!!.nameIdentifier!!),
+        )
+    }
+
+    @Test
+    fun testRunMarkerOnKotlinClass() {
+        val psiFile = myFixture.configureByText("Hello.kt", """
+            //DEPS com.google.guava:guava:33.0-jre
+            class Hello {
+                fun run() { println("hello") }
+            }
+        """.trimIndent())
+
+        val marker = JBangRunLineMarker()
+        val clazz = PsiTreeUtil.findChildrenOfType(psiFile, KtClass::class.java)
+            .find { it.name == "Hello" }
+        assertNotNull("Should find class Hello in Kotlin file", clazz)
+        assertNotNull(
+            "Kotlin class name should get a run marker",
+            marker.getInfo(clazz!!.nameIdentifier!!),
+        )
     }
 
     @Test

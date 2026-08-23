@@ -10,6 +10,8 @@
   options and working-directory handling in terminal mode.
 
 ### Fixed
+- Run gutter icon now appears on Kotlin class names and `fun main()` declarations, not just
+  on directive comments. Previously only Java PSI types were handled ([#164](https://github.com/jbangdev/jbang-idea/issues/164)).
 - Avoid evaluating run-marker tooltips on the EDT when positioning feature tips, which could
   trigger IntelliJ's "Slow operations are prohibited on EDT" assertion.
 
