@@ -12,6 +12,7 @@ import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import dev.jbang.idea.cli.ScriptInfo
 import dev.jbang.idea.settings.JBangSettings
 import org.junit.Test
+import java.io.File
 import java.nio.file.Files
 import java.util.jar.JarEntry
 import java.util.jar.JarOutputStream
@@ -102,6 +103,81 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
         assertTrue(
             "A jbang script's Java resolve scope must include its dependency classes",
             JBangResolveScopeEnlarger().getAdditionalResolveScope(script.virtualFile, project)!!.contains(dependencyClass)
+        )
+    }
+
+    /** Compile a single .java source and return the directory containing the .class files. */
+    private fun compileToDir(source: String, className: String): File {
+        val dir = Files.createTempDirectory("jbang-compile").toFile()
+        val srcFile = File(dir, "$className.java")
+        srcFile.writeText(source)
+        val javac = ProcessBuilder("javac", "-d", dir.path, srcFile.path)
+            .redirectErrorStream(true).start()
+        assertEquals("javac failed: ${javac.inputStream.bufferedReader().readText()}", 0, javac.waitFor())
+        return dir
+    }
+
+    /** Create a JAR with a compiled class file at the proper package path. */
+    private fun jarWithClass(packageDir: String, className: String, source: String): File {
+        val compileDir = compileToDir(source, className)
+        val jar = Files.createTempFile("jbang-dep", ".jar").toFile()
+        JarOutputStream(jar.outputStream()).use { jos ->
+            val classFile = File(compileDir, "$packageDir/$className.class")
+            assertTrue("Compiled class must exist: ${classFile.path}", classFile.exists())
+            jos.putNextEntry(JarEntry("$packageDir/$className.class"))
+            jos.write(classFile.readBytes())
+            jos.closeEntry()
+        }
+        return jar
+    }
+
+    @Test
+    fun testJbangDependencyClassResolvesInJavaScript() {
+        val jar = jarWithClass("example", "Greeter",
+            "package example; public class Greeter { public static String greet() { return \"hi\"; } }")
+
+        val script = myFixture.addFileToProject(
+            "hello.java",
+            "//DEPS example:greeter:1\nimport example.Greeter;\nclass hello { Greeter g; }",
+        )
+        installInfo(script.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(jar.path)))
+        fireLibraryChange(project)
+        PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
+        IndexingTestUtil.waitUntilIndexesAreReady(project)
+
+        myFixture.configureFromExistingVirtualFile(script.virtualFile)
+        val ref = com.intellij.psi.util.PsiTreeUtil.findChildrenOfType(
+            script, com.intellij.psi.PsiJavaCodeReferenceElement::class.java,
+        ).find { it.text == "Greeter" }
+        assertNotNull("Should find reference to Greeter", ref)
+        assertNotNull(
+            "Dependency class from JAR must resolve in jbang script",
+            ref!!.resolve(),
+        )
+    }
+
+    @Test
+    fun testJbangResolveScopeEnlargerWorksForKotlinFiles() {
+        val jar = jarWithClass("example", "Greeter",
+            "package example; public class Greeter { public static String greet() { return \"hi\"; } }")
+
+        val script = myFixture.addFileToProject(
+            "hello.kt",
+            "//DEPS example:greeter:1\nfun main() { example.Greeter.greet() }",
+        )
+        installInfo(script.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(jar.path)))
+        fireLibraryChange(project)
+        PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
+        IndexingTestUtil.waitUntilIndexesAreReady(project)
+
+        val scope = JBangResolveScopeEnlarger().getAdditionalResolveScope(script.virtualFile, project)
+        assertNotNull("Kotlin jbang file must get an enlarged resolve scope", scope)
+
+        val depClass = JBangLibraryProvider().getAdditionalProjectLibraries(project)
+            .single().binaryRoots.single().findFileByRelativePath("example/Greeter.class")!!
+        assertTrue(
+            "Kotlin file's resolve scope must include dependency classes",
+            scope!!.contains(depClass),
         )
     }
 
