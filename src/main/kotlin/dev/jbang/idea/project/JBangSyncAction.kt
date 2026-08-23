@@ -54,9 +54,9 @@ class JBangSyncAction : DumbAwareAction() {
 
         internal fun save(file: com.intellij.openapi.vfs.VirtualFile) {
             val documents = FileDocumentManager.getInstance()
-            WriteIntentReadAction.compute<com.intellij.openapi.editor.Document?> {
-                documents.getDocument(file)
-            }?.let(documents::saveDocument)
+            WriteIntentReadAction.run {
+                documents.getDocument(file)?.let(documents::saveDocument)
+            }
         }
 
         internal fun sync(project: Project, selectedPath: String? = null) {

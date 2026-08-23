@@ -12,6 +12,8 @@
 ### Fixed
 - Run gutter icon now appears on Kotlin class names and `fun main()` declarations, not just
   on directive comments. Previously only Java PSI types were handled ([#164](https://github.com/jbangdev/jbang-idea/issues/164)).
+- Fix crash when syncing from the status bar widget: `saveDocument` was called outside
+  `WriteIntentReadAction`, causing a threading assertion on EDT ([#166](https://github.com/jbangdev/jbang-idea/issues/166)).
 - Avoid evaluating run-marker tooltips on the EDT when positioning feature tips, which could
   trigger IntelliJ's "Slow operations are prohibited on EDT" assertion.
 
