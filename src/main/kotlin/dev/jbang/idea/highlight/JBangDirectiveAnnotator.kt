@@ -64,7 +64,7 @@ class JBangDirectiveAnnotator : Annotator {
             val dependency = argument.substringBefore(' ')
             if (!dependency.isValidDependency()) {
                 val offset = text.indexOf(dependency, directiveEnd)
-                holder.newAnnotation(HighlightSeverity.ERROR, "Invalid dependency; expected group:artifact:version")
+                holder.newAnnotation(HighlightSeverity.ERROR, "Invalid dependency; expected group:artifact[:version]")
                     .range(TextRange(start + offset, start + offset + dependency.length))
                     .create()
             } else {
@@ -108,6 +108,7 @@ class JBangDirectiveAnnotator : Annotator {
     private fun String.isValidDependency(): Boolean {
         if (startsWith("/") || startsWith("./") || startsWith("../") || endsWith(".jar")) return true
         val parts = split(':')
-        return parts.size >= 3 && parts.take(3).all { it.isNotBlank() }
+        return parts.size >= 2 && parts[0].isNotBlank() && parts[1].isNotBlank() &&
+            (parts.size == 2 || parts[2].isNotBlank())
     }
 }

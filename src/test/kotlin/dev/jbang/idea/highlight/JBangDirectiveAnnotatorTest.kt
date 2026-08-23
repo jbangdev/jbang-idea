@@ -210,20 +210,21 @@ class JBangDirectiveAnnotatorTest : LightJavaCodeInsightFixtureTestCase() {
 
         val errors = safeHighlight().filter { it.severity == com.intellij.lang.annotation.HighlightSeverity.ERROR }
 
-        assertTrue(errors.any { it.text == "com.google.guava" && it.description == "Invalid dependency; expected group:artifact:version" })
+        assertTrue(errors.any { it.text == "com.google.guava" && it.description == "Invalid dependency; expected group:artifact[:version]" })
     }
 
     @Test
     fun testValidDepsFormsAreAccepted() {
         val file = myFixture.addFileToProject("ValidDeps.java", """
             //DEPS com.google.guava:guava:33.4.0-jre
+            //DEPS org.acme:managed-version
             //DEPS /tmp/local.jar
             class ValidDeps {}
         """.trimIndent())
         myFixture.configureFromExistingVirtualFile(file.virtualFile)
 
         val invalidGavErrors = safeHighlight().filter {
-            it.description == "Invalid dependency; expected group:artifact:version"
+            it.description == "Invalid dependency; expected group:artifact[:version]"
         }
 
         assertTrue(invalidGavErrors.isEmpty())
