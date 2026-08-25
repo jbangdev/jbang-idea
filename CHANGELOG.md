@@ -4,6 +4,11 @@
 
 ## [Unreleased]
 
+### Added
+- Template creation now displays declared template properties in an IntelliJ-style key/value
+  table, resolves free-form catalog-qualified template IDs, reports the exact resolved template
+  and catalog, and passes user overrides to `jbang init` ([#46](https://github.com/jbangdev/jbang-idea/issues/46)).
+
 ### Changed
 - Run/Debug configurations now use IntelliJ's standard parameter controls, including macro
   expansion, structured environment variables, parent-environment selection, and consistent

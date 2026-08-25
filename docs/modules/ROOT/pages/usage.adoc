@@ -128,8 +128,12 @@ image:current/external-libraries.png[Root-specific Java version and dependency o
 == Creating scripts
 
 In the Project view, choose *New > JBang Script*.
-The plugin loads templates from `jbang template list`, asks for a template, suggests a filename such as `readme.md`, `hello.kt`, or `<template>.java`, and creates the file with `jbang init`.
-The filename remains editable before creation.
+The plugin loads templates and their declared properties from `jbang template list`, asks for a template,
+suggests a filename such as `readme.md`, `hello.kt`, or `<template>.java`, and creates the file with `jbang init`.
+The filename remains editable before creation. You can also enter a catalog-qualified template ID such as
+`q-aws-lambda@jbang-cloud` directly. The plugin resolves it against the named catalog, reports the exact
+resolved template and catalog, and loads its property descriptions and defaults into the key/value table.
+Only changed values are passed to `jbang init` as `-Dkey=value` overrides.
 
 image:current/create-script.png[Creating a script from a JBang template]
 
