@@ -77,7 +77,10 @@ image:current/external-libraries.png[JBang JDK and dependency overlay under Exte
 == Creating scripts
 
 Choose *New > JBang Script* in the Project view to load templates from the JBang CLI.
-Select a template, edit the suggested filename, and create the script with `jbang init` without leaving the IDE.
+Select a template or enter a catalog-qualified ID such as `template@catalog`. The plugin resolves qualified
+IDs against that catalog, loads their declared properties, and reports the exact resolved template and catalog.
+Edit the suggested filename and property values as needed; the plugin passes only changed values to
+`jbang init` and leaves unchanged defaults to JBang.
 
 image:current/create-script.png[Creating a JBang script from a template]
 

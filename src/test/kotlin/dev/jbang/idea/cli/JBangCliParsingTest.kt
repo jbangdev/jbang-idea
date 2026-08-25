@@ -134,6 +134,110 @@ class JBangCliParsingTest {
     }
 
     @Test
+    fun `parse template properties with descriptions and defaults`() {
+        val json = """
+        [
+          {
+            "name": "service",
+            "fullName": "service@acme",
+            "description": "Service template",
+            "properties": {
+              "region": {
+                "description": "Deployment region",
+                "default": "eu-central-1"
+              },
+              "native": {
+                "description": "Build a native executable",
+                "default": "false"
+              }
+            }
+          }
+        ]
+        """.trimIndent()
+
+        val template = gson.fromJson(json, Array<TemplateInfo>::class.java).single()
+
+        assertEquals("service@acme", template.fullName)
+        assertEquals("Deployment region", template.properties.getValue("region").description)
+        assertEquals("eu-central-1", template.properties.getValue("region").defaultValue)
+        assertEquals("false", template.properties.getValue("native").defaultValue)
+    }
+
+    @Test
+    fun `template list requests declared properties`() {
+        assertEquals(
+            listOf("jbang", "template", "list", "--show-properties", "--format=json"),
+            JBangCli.buildTemplateListCommand(),
+        )
+    }
+
+    @Test
+    fun `qualified template lookup targets its catalog`() {
+        assertEquals(
+            listOf(
+                "jbang", "template", "list", "nandorholozsnyak/jbang-cloud",
+                "--show-properties", "--show-origin", "--format=json",
+            ),
+            JBangCli.buildTemplateLookupCommand("q-aws-lambda-sqs-tf@nandorholozsnyak/jbang-cloud"),
+        )
+    }
+
+    @Test
+    fun `catalog response resolves qualified template with properties and origin`() {
+        val json = """
+        [
+          {
+            "name": "nandorholozsnyak/jbang-cloud",
+            "resourceRef": "https://github.com/nandorholozsnyak/jbang-cloud/blob/HEAD/jbang-catalog.json",
+            "templates": [
+              {
+                "name": "q-aws-lambda-sqs-tf",
+                "catalogName": "nandorholozsnyak/jbang-cloud",
+                "fullName": "q-aws-lambda-sqs-tf@nandorholozsnyak/jbang-cloud",
+                "properties": {
+                  "aws-sqs-enabled": {
+                    "description": "Generate an SQS queue",
+                    "default": "true"
+                  }
+                }
+              }
+            ]
+          }
+        ]
+        """.trimIndent()
+
+        val result = JBangCli.parseTemplateLookup(
+            "q-aws-lambda-sqs-tf@nandorholozsnyak/jbang-cloud",
+            json,
+        )
+
+        assertEquals("q-aws-lambda-sqs-tf@nandorholozsnyak/jbang-cloud", result.template?.fullName)
+        assertEquals("true", result.template?.properties?.get("aws-sqs-enabled")?.defaultValue)
+        assertEquals("nandorholozsnyak/jbang-cloud", result.catalogName)
+        assertEquals(
+            "https://github.com/nandorholozsnyak/jbang-cloud/blob/HEAD/jbang-catalog.json",
+            result.catalogRef,
+        )
+    }
+
+    @Test
+    fun `init arguments include template property overrides`() {
+        assertEquals(
+            listOf(
+                "jbang", "init",
+                "-Dregion=us-east-1", "-Dnative=true",
+                "--template", "service@acme",
+                "--force", "/tmp/MyService.java",
+            ),
+            JBangCli.buildInitCommand(
+                "/tmp/MyService.java",
+                "service@acme",
+                linkedMapOf("region" to "us-east-1", "native" to "true"),
+            ),
+        )
+    }
+
+    @Test
     fun `unknown fields are ignored`() {
         val json = """
         {

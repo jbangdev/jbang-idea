@@ -34,18 +34,24 @@ class JBangCreateScriptAction : DumbAwareAction() {
                 if (!dialog.showAndGet()) return
                 val name = dialog.scriptName
                 val template = dialog.selectedTemplate
-                create(project, directory, name, template)
+                create(project, directory, name, template, dialog.propertyOverrides)
             }
         }.queue()
     }
 
-    private fun create(project: com.intellij.openapi.project.Project, directory: VirtualFile, name: String, template: String?) {
+    private fun create(
+        project: com.intellij.openapi.project.Project,
+        directory: VirtualFile,
+        name: String,
+        template: String?,
+        properties: Map<String, String>,
+    ) {
         object : Task.Backgroundable(project, "Creating JBang script", true) {
             private var error: Exception? = null
             override fun run(indicator: ProgressIndicator) {
                 try {
                     val path = File(directory.path, name).path
-                    JBangCli.initScript(path, template)
+                    JBangCli.initScript(path, template, properties)
                 } catch (e: Exception) {
                     error = e
                 }
@@ -62,11 +68,13 @@ class JBangCreateScriptAction : DumbAwareAction() {
     }
 
     companion object {
-        internal fun suggestFileName(template: String?): String =
-            when {
-                template == null -> ""
-                listOf(".java", ".kt", ".groovy", ".jsh", ".md").any(template::endsWith) -> template
-                else -> "$template.java"
+        internal fun suggestFileName(template: String?): String {
+            val templateName = template?.substringBefore('@')
+            return when {
+                templateName == null -> ""
+                listOf(".java", ".kt", ".groovy", ".jsh", ".md").any(templateName::endsWith) -> templateName
+                else -> "$templateName.java"
             }
+        }
     }
 }

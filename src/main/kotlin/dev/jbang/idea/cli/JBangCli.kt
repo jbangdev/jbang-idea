@@ -1,6 +1,7 @@
 package dev.jbang.idea.cli
 
 import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import com.google.gson.reflect.TypeToken
 import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.process.CapturingProcessHandler
@@ -60,9 +61,30 @@ data class ScriptInfo(
         get() = commandErrors + dependencyErrors + sources.mapNotNull { it.error } + files.mapNotNull { it.error }
 }
 
+data class TemplateProperty(
+    val description: String = "",
+    @SerializedName("default") val defaultValue: String? = null,
+)
+
 data class TemplateInfo(
     val name: String = "",
+    val fullName: String = "",
     val description: String = "",
+    val properties: Map<String, TemplateProperty> = emptyMap(),
+)
+
+data class TemplateLookupResult(
+    val reference: String,
+    val template: TemplateInfo? = null,
+    val catalogName: String? = null,
+    val catalogRef: String? = null,
+    val error: String? = null,
+)
+
+private data class TemplateCatalogInfo(
+    val name: String = "",
+    val resourceRef: String? = null,
+    val templates: List<TemplateInfo> = emptyList(),
 )
 
 private val gson = Gson()
@@ -181,7 +203,7 @@ object JBangCli {
      */
     fun listTemplates(): List<TemplateInfo> {
         return try {
-            val output = exec(findJBangCmd(), "template", "list", "--format=json")
+            val output = exec(*buildTemplateListCommand().toTypedArray())
             gson.fromJson<List<TemplateInfo>>(output, object : TypeToken<List<TemplateInfo>>() {}.type)
         } catch (e: Exception) {
             log.warn("jbang template list failed: ${e.message}")
@@ -189,12 +211,77 @@ object JBangCli {
         }
     }
 
-    /** Calls `jbang init [--template <template>] --force <filePath>`. */
-    fun initScript(filePath: String, templateName: String? = null) {
+    internal fun buildTemplateListCommand(): List<String> =
+        listOf("jbang", "template", "list", "--show-properties", "--format=json")
+
+    fun lookupTemplate(reference: String): TemplateLookupResult {
+        val catalogName = reference.substringAfterLast('@', missingDelimiterValue = "")
+        if (catalogName.isBlank()) {
+            return TemplateLookupResult(reference, error = "Use a catalog-qualified ID such as template@catalog")
+        }
+        return try {
+            val output = exec(*buildTemplateLookupCommand(reference).toTypedArray())
+            parseTemplateLookup(reference, output)
+        } catch (e: Exception) {
+            log.warn("jbang template lookup failed for $reference: ${e.message}")
+            TemplateLookupResult(reference, catalogName = catalogName, error = e.message ?: "Template lookup failed")
+        }
+    }
+
+    internal fun buildTemplateLookupCommand(reference: String): List<String> {
+        val catalogName = reference.substringAfterLast('@', missingDelimiterValue = "")
+        require(catalogName.isNotBlank()) { "Template reference must include @catalog" }
+        return listOf(
+            "jbang", "template", "list", catalogName,
+            "--show-properties", "--show-origin", "--format=json",
+        )
+    }
+
+    internal fun parseTemplateLookup(reference: String, json: String): TemplateLookupResult {
+        val catalogName = reference.substringAfterLast('@', missingDelimiterValue = "")
+        val catalogs = gson.fromJson<List<TemplateCatalogInfo>>(
+            json,
+            object : TypeToken<List<TemplateCatalogInfo>>() {}.type,
+        )
+        val catalog = catalogs.firstOrNull { it.name == catalogName } ?: catalogs.firstOrNull()
+        val templateName = reference.substringBeforeLast('@')
+        val template = catalog?.templates?.firstOrNull {
+            it.fullName == reference || it.name == templateName
+        }
+        return TemplateLookupResult(
+            reference = reference,
+            template = template,
+            catalogName = catalog?.name ?: catalogName,
+            catalogRef = catalog?.resourceRef,
+            error = if (template == null) "Template '$templateName' was not found" else null,
+        )
+    }
+
+    /** Calls `jbang init [properties] [--template <template>] --force <filePath>`. */
+    fun initScript(
+        filePath: String,
+        templateName: String? = null,
+        properties: Map<String, String> = emptyMap(),
+    ) {
         val wsl = if (SystemInfo.isWindows) WslPath.parseWindowsUncPath(filePath) else null
         val effectivePath = wsl?.linuxPath ?: filePath
-        val templateArgs = templateName?.let { arrayOf("--template", it) }.orEmpty()
-        exec("jbang", "init", *templateArgs, "--force", effectivePath, wslDistributionId = wsl?.distributionId)
+        exec(*buildInitCommand(effectivePath, templateName, properties).toTypedArray(), wslDistributionId = wsl?.distributionId)
+    }
+
+    internal fun buildInitCommand(
+        filePath: String,
+        templateName: String? = null,
+        properties: Map<String, String> = emptyMap(),
+    ): List<String> = buildList {
+        add("jbang")
+        add("init")
+        properties.forEach { (key, value) -> add("-D$key=$value") }
+        templateName?.let {
+            add("--template")
+            add(it)
+        }
+        add("--force")
+        add(filePath)
     }
 
     private fun exec(
