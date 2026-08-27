@@ -21,7 +21,9 @@ class SampleProjectsTest {
             "catalog/jbang-catalog.json",
             "catalog/scripts/hello.java",
             "errors/Broken.java",
-            "README.md",
+            "kotlin-deps/KotlinLibrary.java",
+            "kotlin-deps/KotlinLibrary.kt",
+            "README.md", 
         )
 
         expected.forEach { assertTrue("Missing sample: $it", Files.isRegularFile(samples.resolve(it))) }
@@ -29,7 +31,10 @@ class SampleProjectsTest {
 
     @Test
     fun `runnable samples use complete dependency coordinates`() {
-        listOf("single-root/Hello.java", "multi-root/RootA.java", "multi-root/RootB.java").forEach { sample ->
+        listOf(
+            "single-root/Hello.java", "multi-root/RootA.java", "multi-root/RootB.java",
+            "kotlin-deps/KotlinLibrary.java", "kotlin-deps/KotlinLibrary.kt",
+        ).forEach { sample ->
             Files.readAllLines(samples.resolve(sample))
                 .filter { it.startsWith("//DEPS ") }
                 .forEach { directive ->
