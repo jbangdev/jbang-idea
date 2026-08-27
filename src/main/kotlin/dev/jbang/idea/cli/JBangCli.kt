@@ -109,24 +109,41 @@ object JBangCli {
      * Resolves the actual jbang executable path, or null if not found.
      * Checks: settings → JBANG_HOME/bin → ~/.jbang/bin → PATH lookup.
      */
-    fun resolveJBangPath(): String? {
-        val fromSettings = JBangSettings.instance.jbangPath
-        if (fromSettings.isNotBlank() && File(fromSettings).canExecute()) return fromSettings
+    fun resolveJBangPath(): String? = resolveJBangPath(
+        settingsPath = JBangSettings.instance.jbangPath,
+        isWindows = SystemInfo.isWindows,
+        jbangHome = System.getenv("JBANG_HOME"),
+        userHome = System.getProperty("user.home"),
+        pathDirs = System.getenv("PATH")?.split(File.pathSeparatorChar).orEmpty(),
+    )
 
-        val jbangHome = System.getenv("JBANG_HOME")
+    /**
+     * Testable path resolution logic — all environment dependencies injected.
+     */
+    internal fun resolveJBangPath(
+        settingsPath: String,
+        isWindows: Boolean,
+        jbangHome: String?,
+        userHome: String,
+        pathDirs: List<String>,
+    ): String? {
+        if (settingsPath.isNotBlank() && File(settingsPath).canExecute()) return settingsPath
+
+        // On Windows, the extensionless "jbang" file is a bash script that
+        // File.canExecute() matches but CreateProcess cannot run (error=193).
+        // Always prefer jbang.cmd on Windows.
+        val binaryName = if (isWindows) "jbang.cmd" else "jbang"
+
         if (!jbangHome.isNullOrBlank()) {
-            val cmd = File(jbangHome, "bin/jbang").absolutePath
+            val cmd = File(jbangHome, "bin/$binaryName").absolutePath
             if (File(cmd).canExecute()) return cmd
         }
 
-        val userDir = File(System.getProperty("user.home"), ".jbang/bin/jbang")
+        val userDir = File(userHome, ".jbang/bin/$binaryName")
         if (userDir.canExecute()) return userDir.absolutePath
 
-        // Check PATH
-        val pathName = if (SystemInfo.isWindows) "jbang.cmd" else "jbang"
-        val pathDirs = System.getenv("PATH")?.split(File.pathSeparatorChar).orEmpty()
         for (dir in pathDirs) {
-            val candidate = File(dir, pathName)
+            val candidate = File(dir, binaryName)
             if (candidate.canExecute()) return candidate.absolutePath
         }
 
