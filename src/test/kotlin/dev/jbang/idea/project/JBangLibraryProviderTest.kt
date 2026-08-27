@@ -82,6 +82,42 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
     }
 
     @Test
+    fun testOnlyKotlinLibrariesAreMirroredToActiveStandaloneModule() {
+        val kotlinJar = Files.createTempFile("jbang-kotlin", ".jar").toFile()
+        JarOutputStream(kotlinJar.outputStream()).use { it.putNextEntry(JarEntry("META-INF/test.kotlin_module")); it.closeEntry() }
+        val javaJar = Files.createTempFile("jbang-java", ".jar").toFile()
+        JarOutputStream(javaJar.outputStream()).use { }
+        val root = myFixture.addFileToProject("KotlinDep.java", "//DEPS example:kotlin:1\nclass KotlinDep {}")
+        installInfo(root.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(kotlinJar.path, javaJar.path)))
+        JBangProjectService.getInstance(project).setActiveRoot(root.virtualFile.path)
+        PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
+        assertEquals(module, com.intellij.openapi.module.ModuleUtilCore.findModuleForFile(root.virtualFile, project))
+        assertNull(com.intellij.openapi.externalSystem.ExternalSystemModulePropertyManager.getInstance(module).getExternalSystemId())
+        val kotlinRoot = JBangProjectService.getInstance(project).getLibraryRoots(root.virtualFile.path)
+            .single { it.name == kotlinJar.name }
+        assertNotNull(kotlinRoot.findFileByRelativePath("META-INF/test.kotlin_module"))
+
+        com.intellij.openapi.application.runWriteAction { JBangKotlinLibraryMirror.update(project, root.virtualFile) }
+
+        val rootModel = com.intellij.openapi.roots.ModuleRootManager.getInstance(module).modifiableModel
+        val library = rootModel.moduleLibraryTable.getLibraryByName("JBang Kotlin (active root)")
+        assertNotNull("Kotlin dependencies must be visible to K2 through a module library", library)
+        val roots = library!!.getUrls(com.intellij.openapi.roots.OrderRootType.CLASSES).toList()
+        rootModel.dispose()
+        assertEquals(listOf("jar://${kotlinJar.path}!/"), roots)
+        assertFalse("Plain Java dependencies stay per-script synthetic roots", roots.contains("jar://${javaJar.path}!/"))
+
+        val javaOnly = myFixture.addFileToProject("JavaOnly.java", "//DEPS example:java:1\nclass JavaOnly {}")
+        installInfo(javaOnly.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(javaJar.path)))
+        JBangProjectService.getInstance(project).setActiveRoot(javaOnly.virtualFile.path)
+        com.intellij.openapi.application.runWriteAction { JBangKotlinLibraryMirror.update(project, javaOnly.virtualFile) }
+
+        val afterSwitch = com.intellij.openapi.roots.ModuleRootManager.getInstance(module).modifiableModel
+        assertNull("The Kotlin module library must be removed after leaving its root", afterSwitch.moduleLibraryTable.getLibraryByName("JBang Kotlin (active root)"))
+        afterSwitch.dispose()
+    }
+
+    @Test
     fun testJbangFileResolveScopeIncludesDependencyClasses() {
         val jar = Files.createTempFile("jbang-overlay", ".jar").toFile()
         JarOutputStream(jar.outputStream()).use {

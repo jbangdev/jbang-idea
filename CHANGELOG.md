@@ -17,6 +17,9 @@
 ### Fixed
 - Windows: `CreateProcess error=193` when running scripts — the plugin resolved to the
   extensionless `jbang` bash script instead of `jbang.cmd` in `~/.jbang/bin` and `JBANG_HOME`.
+- Kotlin-compiled dependencies now resolve in standalone JBang scripts under Kotlin K2 mode.
+  The active script's Kotlin JARs are mirrored to a module library only when required; Java-only
+  JBang dependencies remain isolated per script ([#165](https://github.com/jbangdev/jbang-idea/issues/165)).
 - Run gutter icon now appears on Kotlin class names and `fun main()` declarations, not just
   on directive comments. Previously only Java PSI types were handled ([#164](https://github.com/jbangdev/jbang-idea/issues/164)).
 - Fix crash when syncing from the status bar widget: `saveDocument` was called outside
