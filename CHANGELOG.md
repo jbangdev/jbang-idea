@@ -15,6 +15,8 @@
   options and working-directory handling in terminal mode.
 
 ### Fixed
+- Windows: `CreateProcess error=193` when running scripts — the plugin resolved to the
+  extensionless `jbang` bash script instead of `jbang.cmd` in `~/.jbang/bin` and `JBANG_HOME`.
 - Run gutter icon now appears on Kotlin class names and `fun main()` declarations, not just
   on directive comments. Previously only Java PSI types were handled ([#164](https://github.com/jbangdev/jbang-idea/issues/164)).
 - Fix crash when syncing from the status bar widget: `saveDocument` was called outside
