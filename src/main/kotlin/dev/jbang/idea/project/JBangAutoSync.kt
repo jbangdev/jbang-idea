@@ -177,21 +177,18 @@ internal fun fireLibraryChange(project: Project, completed: () -> Unit = {}) {
         val newRoots = JBangLibraryProvider().getAdditionalProjectLibraries(project)
             .flatMap { it.binaryRoots + it.sourceRoots }
         val oldRoots = project.getUserData(announcedLibraryRoots).orEmpty()
-        if (oldRoots.toSet() == newRoots.toSet()) {
-            WindowManager.getInstance().getStatusBar(project)?.updateWidget("JBangActiveRoot")
-            completed()
-            return@invokeLater
-        }
         com.intellij.openapi.application.runWriteAction {
-            if (!project.isDisposed) {
+            if (project.isDisposed) return@runWriteAction
+            JBangKotlinLibraryMirror.update(project)
+            if (oldRoots.toSet() != newRoots.toSet()) {
                 project.putUserData(announcedLibraryRoots, newRoots)
                 AdditionalLibraryRootsListener.fireAdditionalLibraryChanged(
                     project, /* presentableLibraryName = */ "JBang",
                     oldRoots, newRoots, /* libraryNameForDebug = */ "JBang"
                 )
-                WindowManager.getInstance().getStatusBar(project)?.updateWidget("JBangActiveRoot")
-                completed()
             }
+            WindowManager.getInstance().getStatusBar(project)?.updateWidget("JBangActiveRoot")
+            completed()
         }
     }, ModalityState.nonModal())
 }

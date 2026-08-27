@@ -152,6 +152,7 @@ class JBangProjectService(private val project: Project) {
     fun setActiveRoot(path: String) {
         activeRootPath = path
         cache[path]?.let { JBangJdkSync.applyToStandaloneProject(project, it) }
+        fireLibraryChange(project)
         updateWidget()
     }
 
