@@ -1,4 +1,5 @@
-#!/usr/bin/env jbang
+///usr/bin/env jbang
+//KOTLIN 1.9.25
 //DEPS com.openai:openai-java:4.52.0
 
 // The same Kotlin-compiled dependency, consumed from a Kotlin JBang script.
