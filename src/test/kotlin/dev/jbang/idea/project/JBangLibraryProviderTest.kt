@@ -104,7 +104,7 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
         assertNotNull("Kotlin dependencies must be visible to K2 through a script-specific module library", library)
         val roots = library!!.getUrls(com.intellij.openapi.roots.OrderRootType.CLASSES).toList()
         rootModel.dispose()
-        assertEquals(listOf("jar://${kotlinJar.path}!/"), roots)
+        assertEquals(listOf(kotlinRoot.url), roots)
         assertFalse("Plain Java dependencies stay per-script synthetic roots", roots.contains("jar://${javaJar.path}!/"))
 
         val otherRoot = myFixture.addFileToProject("nested/OtherKotlinDep.java", "//DEPS example:kotlin:1\nclass OtherKotlinDep {}")
