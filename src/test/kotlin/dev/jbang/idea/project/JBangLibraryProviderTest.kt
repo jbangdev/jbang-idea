@@ -100,12 +100,22 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
         com.intellij.openapi.application.runWriteAction { JBangKotlinLibraryMirror.update(project, root.virtualFile) }
 
         val rootModel = com.intellij.openapi.roots.ModuleRootManager.getInstance(module).modifiableModel
-        val library = rootModel.moduleLibraryTable.getLibraryByName("JBang Kotlin (active root)")
-        assertNotNull("Kotlin dependencies must be visible to K2 through a module library", library)
+        val library = rootModel.moduleLibraryTable.getLibraryByName("JBang Kotlin support — KotlinDep.java")
+        assertNotNull("Kotlin dependencies must be visible to K2 through a script-specific module library", library)
         val roots = library!!.getUrls(com.intellij.openapi.roots.OrderRootType.CLASSES).toList()
         rootModel.dispose()
         assertEquals(listOf("jar://${kotlinJar.path}!/"), roots)
         assertFalse("Plain Java dependencies stay per-script synthetic roots", roots.contains("jar://${javaJar.path}!/"))
+
+        val otherRoot = myFixture.addFileToProject("nested/OtherKotlinDep.java", "//DEPS example:kotlin:1\nclass OtherKotlinDep {}")
+        installInfo(otherRoot.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(kotlinJar.path)))
+        JBangProjectService.getInstance(project).setActiveRoot(otherRoot.virtualFile.path)
+        com.intellij.openapi.application.runWriteAction { JBangKotlinLibraryMirror.update(project, otherRoot.virtualFile) }
+
+        val afterKotlinSwitch = com.intellij.openapi.roots.ModuleRootManager.getInstance(module).modifiableModel
+        assertNull("The previous script name must not remain visible", afterKotlinSwitch.moduleLibraryTable.getLibraryByName("JBang Kotlin support — KotlinDep.java"))
+        assertNotNull("The library name must identify the relevant script", afterKotlinSwitch.moduleLibraryTable.getLibraryByName("JBang Kotlin support — nested/OtherKotlinDep.java"))
+        afterKotlinSwitch.dispose()
 
         val javaOnly = myFixture.addFileToProject("JavaOnly.java", "//DEPS example:java:1\nclass JavaOnly {}")
         installInfo(javaOnly.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(javaJar.path)))
@@ -113,7 +123,7 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
         com.intellij.openapi.application.runWriteAction { JBangKotlinLibraryMirror.update(project, javaOnly.virtualFile) }
 
         val afterSwitch = com.intellij.openapi.roots.ModuleRootManager.getInstance(module).modifiableModel
-        assertNull("The Kotlin module library must be removed after leaving its root", afterSwitch.moduleLibraryTable.getLibraryByName("JBang Kotlin (active root)"))
+        assertNull("The Kotlin module library must be removed after leaving its root", afterSwitch.moduleLibraryTable.getLibraryByName("JBang Kotlin support — nested/OtherKotlinDep.java"))
         afterSwitch.dispose()
     }
 
