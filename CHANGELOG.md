@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.101.0]
+
 ### Added
 - Template creation now displays declared template properties in an IntelliJ-style key/value
   table, resolves free-form catalog-qualified template IDs, reports the exact resolved template
