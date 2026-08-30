@@ -15,6 +15,10 @@
 - Run/Debug configurations now use IntelliJ's standard parameter controls, including macro
   expansion, structured environment variables, parent-environment selection, and consistent
   options and working-directory handling in terminal mode.
+- New Script dialog shows a live command preview at the bottom so users can see the
+  exact `jbang init` command that will be executed.
+- CLI commands are now logged at INFO level (visible in `idea.log` without enabling debug
+  logging), making it easier to troubleshoot sync and init issues.
 
 ### Fixed
 - Windows: `CreateProcess error=193` when running scripts — the plugin resolved to the

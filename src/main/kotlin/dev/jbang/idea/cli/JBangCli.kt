@@ -332,7 +332,7 @@ object JBangCli {
             }
         }
 
-        log.debug { "exec: ${cmd.commandLineString}" }
+        log.info("exec: ${cmd.commandLineString}")
         val handler = CapturingProcessHandler(cmd)
         val result = handler.runProcess(30_000)
 

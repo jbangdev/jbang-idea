@@ -94,6 +94,10 @@ class JBangCreateScriptDialog internal constructor(
     }
     private val templateLookupTimer = Timer(600) { lookupTypedTemplate() }.apply { isRepeats = false }
     internal val nameField = JBTextField(30)
+    private val commandPreview = JBLabel("").apply {
+        foreground = javax.swing.UIManager.getColor("Label.disabledForeground")
+        font = font.deriveFont(font.size2D - 1f)
+    }
 
     private val propertyColumns: Array<ColumnInfo<TemplatePropertyRow, *>> = arrayOf(
         object : ColumnInfo<TemplatePropertyRow, String>("Property") {
@@ -208,6 +212,7 @@ class JBangCreateScriptDialog internal constructor(
         }
         lastSuggested = suggested
         updateProperties(template)
+        updateCommandPreview()
     }
 
     private fun lookupTypedTemplate() {
@@ -255,6 +260,17 @@ class JBangCreateScriptDialog internal constructor(
 
     private fun updateOk() {
         isOKActionEnabled = nameField.text.isNotBlank()
+        updateCommandPreview()
+    }
+
+    private fun updateCommandPreview() {
+        val name = nameField.text.trim()
+        if (name.isBlank()) {
+            commandPreview.text = " "
+            return
+        }
+        val cmd = JBangCli.buildInitCommand(name, selectedTemplate, propertyOverrides)
+        commandPreview.text = cmd.joinToString(" ")
     }
 
     public override fun createCenterPanel(): JComponent {
@@ -266,6 +282,8 @@ class JBangCreateScriptDialog internal constructor(
             .addLabeledComponent("Template (optional):", templateInput)
             .addLabeledComponent("File name:", nameField)
             .addComponent(propertyComponent)
+            .addSeparator()
+            .addLabeledComponent("Command:", commandPreview)
             .panel
     }
 
