@@ -14,11 +14,13 @@
 ## [0.101.0]
 
 ### Added
+
 - Template creation now displays declared template properties in an IntelliJ-style key/value
   table, resolves free-form catalog-qualified template IDs, reports the exact resolved template
   and catalog, and passes user overrides to `jbang init` ([#46](https://github.com/jbangdev/jbang-idea/issues/46)).
 
 ### Changed
+
 - Run/Debug configurations now use IntelliJ's standard parameter controls, including macro
   expansion, structured environment variables, parent-environment selection, and consistent
   options and working-directory handling in terminal mode.
@@ -28,6 +30,7 @@
   logging), making it easier to troubleshoot sync and init issues.
 
 ### Fixed
+
 - Windows: `CreateProcess error=193` when running scripts — the plugin resolved to the
   extensionless `jbang` bash script instead of `jbang.cmd` in `~/.jbang/bin` and `JBANG_HOME`.
 - Kotlin-compiled dependencies now resolve in standalone JBang scripts under Kotlin K2 mode.
@@ -48,6 +51,7 @@ single source of truth and overlays dependencies as synthetic libraries — Grad
 IntelliJ module models are never modified.
 
 ### Added
+
 - Multi-root classpath isolation: each JBang root script keeps its own resolved dependencies,
   declared sources, and requested Java version.
 - Active-root switching via the status bar widget, with an option to open the selected root file.
@@ -80,11 +84,13 @@ IntelliJ module models are never modified.
 - Documentation with full screenshot walkthrough and contract tests.
 
 ### Changed
+
 - Synchronization is now overlay-based: dependencies appear under External Libraries as synthetic
   JBang libraries. No module dependencies, Gradle mirroring, or project-model mutation.
 - Run/Debug context actions are always visible for JBang scripts (not hidden inside source roots).
 
 ### Removed
+
 - Module builder/wizard — just open a folder containing JBang scripts.
 - Gradle dependency mirroring (`jbang-withGradle.xml` was empty).
 - `DependencyModifier` (was `return false` — never functional).
@@ -110,3 +116,10 @@ IntelliJ module models are never modified.
 - Feat: Add JBang Path in settings
 - Feat: Allow install into IntelliJ IDEA EAP
 - Fix: Select proper directory when creating script
+
+[Unreleased]: https://github.com/jbangdev/jbang-idea/compare/v0.101.0...HEAD
+[0.101.0]: https://github.com/jbangdev/jbang-idea/compare/v0.100.0...v0.101.0
+[0.100.0]: https://github.com/jbangdev/jbang-idea/compare/v0.26.1...v0.100.0
+[0.26.1]: https://github.com/jbangdev/jbang-idea/compare/v0.25.2...v0.26.1
+[0.25.2]: https://github.com/jbangdev/jbang-idea/compare/v0.25.1...v0.25.2
+[0.25.1]: https://github.com/jbangdev/jbang-idea/commits/v0.25.1
