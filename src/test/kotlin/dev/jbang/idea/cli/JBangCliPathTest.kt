@@ -117,6 +117,23 @@ class JBangCliPathTest : BasePlatformTestCase() {
         assertEquals(expected.absolutePath, result)
     }
 
+    fun testConsolePathLookupUnix() {
+        val ideBinDir = File(tmpDir, "ide-bin")
+        val consoleBinDir = File(tmpDir, "console-bin")
+        createExe(ideBinDir, "jbang")
+        val expected = createExe(consoleBinDir, "jbang")
+
+        val result = JBangCli.resolveJBangPath(
+            settingsPath = "",
+            isWindows = false,
+            jbangHome = null,
+            userHome = File(tmpDir, "empty-home").absolutePath,
+            pathDirs = listOf(ideBinDir.absolutePath),
+            consolePathDirs = listOf(consoleBinDir.absolutePath),
+        )
+        assertEquals(expected.absolutePath, result)
+    }
+
     fun testPathLookupWindows() {
         val binDir = File(tmpDir, "usr-bin")
         createExe(binDir, "jbang")          // bash script — skipped

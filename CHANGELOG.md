@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+### Fixed
+- JBang auto-detection now uses IntelliJ's console/shell environment PATH before
+  the IDE process PATH, so installs from tools such as SDKMAN are found when
+  IntelliJ was launched outside that shell.
+- Persisted JBang settings now read and write the loaded state correctly after
+  IDE restart.
+
 ## [0.101.0]
 
 ### Added

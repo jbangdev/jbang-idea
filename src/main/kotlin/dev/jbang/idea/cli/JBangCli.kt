@@ -8,6 +8,7 @@ import com.intellij.execution.process.CapturingProcessHandler
 import com.intellij.execution.wsl.WSLCommandLineOptions
 import com.intellij.execution.wsl.WslPath
 import com.intellij.openapi.util.SystemInfo
+import com.intellij.util.EnvironmentUtil
 import dev.jbang.idea.debug
 import dev.jbang.idea.jbangLog
 import dev.jbang.idea.settings.JBangSettings
@@ -101,20 +102,21 @@ object JBangCli {
 
     /**
      * Resolve the absolute path to the `jbang` command.
-     * Checks: settings → JBANG_HOME/bin → ~/.jbang/bin → PATH.
+     * Checks: settings → JBANG_HOME/bin → ~/.jbang/bin → IntelliJ console PATH → process PATH.
      */
     fun findJBangCmd(): String = resolveJBangPath() ?: if (SystemInfo.isWindows) "jbang.cmd" else "jbang"
 
     /**
      * Resolves the actual jbang executable path, or null if not found.
-     * Checks: settings → JBANG_HOME/bin → ~/.jbang/bin → PATH lookup.
+     * Checks: settings → JBANG_HOME/bin → ~/.jbang/bin → IntelliJ console PATH → process PATH.
      */
     fun resolveJBangPath(): String? = resolveJBangPath(
         settingsPath = JBangSettings.instance.jbangPath,
         isWindows = SystemInfo.isWindows,
         jbangHome = System.getenv("JBANG_HOME"),
         userHome = System.getProperty("user.home"),
-        pathDirs = System.getenv("PATH")?.split(File.pathSeparatorChar).orEmpty(),
+        pathDirs = splitPath(System.getenv("PATH")),
+        consolePathDirs = splitPath(EnvironmentUtil.getValue("PATH")),
     )
 
     /**
@@ -126,6 +128,7 @@ object JBangCli {
         jbangHome: String?,
         userHome: String,
         pathDirs: List<String>,
+        consolePathDirs: List<String> = emptyList(),
     ): String? {
         if (settingsPath.isNotBlank() && File(settingsPath).canExecute()) return settingsPath
 
@@ -142,13 +145,23 @@ object JBangCli {
         val userDir = File(userHome, ".jbang/bin/$binaryName")
         if (userDir.canExecute()) return userDir.absolutePath
 
-        for (dir in pathDirs) {
-            val candidate = File(dir, binaryName)
-            if (candidate.canExecute()) return candidate.absolutePath
+        val searchedDirs = mutableSetOf<String>()
+        fun findInDirs(dirs: List<String>): String? {
+            for (dir in dirs) {
+                if (!searchedDirs.add(dir)) continue
+                val candidate = File(dir, binaryName)
+                if (candidate.canExecute()) return candidate.absolutePath
+            }
+            return null
         }
+        findInDirs(consolePathDirs)?.let { return it }
+        findInDirs(pathDirs)?.let { return it }
 
         return null
     }
+
+    private fun splitPath(path: String?): List<String> =
+        path?.split(File.pathSeparatorChar)?.filter { it.isNotBlank() }.orEmpty()
 
     /**
      * Detects shim errors from tool managers (mise, asdf, sdkman) and returns
