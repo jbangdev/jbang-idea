@@ -33,11 +33,25 @@ object JBangScriptDetector {
      */
     fun hasJBangMarkers(content: CharSequence): Boolean {
         var lineCount = 0
+        var inBlockComment = false
         for (line in content.lineSequence()) {
-            if (lineCount++ > 200) break
+            if (lineCount++ >= 200) break
+            if (line.startsWith(JBangPlugin.SHEBANG) || isDirectiveLine(line)) return true
+
             val trimmed = line.trim()
-            if (trimmed.startsWith(JBangPlugin.SHEBANG)) return true
-            if (isDirectiveLine(trimmed)) return true
+            if (trimmed.isEmpty()) continue
+            if (inBlockComment) {
+                if ("*/" in trimmed) inBlockComment = false
+                continue
+            }
+            if (trimmed.startsWith("/*")) {
+                inBlockComment = "*/" !in trimmed
+                continue
+            }
+            if (line.startsWith("//")) continue
+
+            // JBang only reads directives from the initial comment block.
+            return false
         }
         return false
     }

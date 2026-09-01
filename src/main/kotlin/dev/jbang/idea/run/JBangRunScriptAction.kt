@@ -8,18 +8,30 @@ import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.openapi.actionSystem.*
 import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.project.Project
+import com.intellij.openapi.vfs.VfsUtilCore
 import com.intellij.openapi.vfs.VirtualFile
+import com.intellij.openapi.project.guessProjectDir
 import dev.jbang.idea.JBangPlugin
 import dev.jbang.idea.project.JBangScriptDetector
 
+internal fun prepareJBangConfiguration(project: Project, file: VirtualFile): com.intellij.execution.RunnerAndConfigurationSettings {
+    val runManager = RunManager.getInstance(project)
+    runManager.allSettings.firstOrNull {
+        val configuration = it.configuration as? JBangRunConfiguration
+        configuration?.scriptPath == file.path
+    }?.let { return it }
+
+    val relativePath = project.guessProjectDir()?.let { VfsUtilCore.getRelativePath(file, it) }
+    val configName = "jbang ${relativePath ?: file.name}"
+    return runManager.createConfiguration(configName, JBangConfigurationFactory(JBangConfigurationType())).also {
+        (it.configuration as JBangRunConfiguration).scriptPath = file.path
+        runManager.setTemporaryConfiguration(it)
+    }
+}
+
 private fun runJBang(project: Project, file: VirtualFile, executor: Executor) {
     val runManager = RunManager.getInstance(project)
-    val factory = JBangConfigurationFactory(JBangConfigurationType())
-    val configName = "jbang ${file.name}"
-    val settings = runManager.findConfigurationByName(configName) ?: runManager.createConfiguration(configName, factory).also {
-        (it.configuration as JBangRunConfiguration).scriptPath = file.path
-        runManager.addConfiguration(it)
-    }
+    val settings = prepareJBangConfiguration(project, file)
     runManager.selectedConfiguration = settings
     ProgramRunnerUtil.executeConfiguration(settings, executor)
 }

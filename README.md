@@ -44,7 +44,7 @@ No project wizard or module setup required — just open a folder.
 Version 0.100.0 is a ground-up rewrite of the plugin. The old plugin (≤ 0.26) mutated IntelliJ modules, mirrored dependencies into Gradle, and used a custom tool window. The new plugin:
 
 * Uses `jbang info tools` as the single source of truth — no module mutation, no Gradle mirroring
-* Overlays dependencies as synthetic libraries — existing Gradle/Maven projects are never touched
+* Overlays dependencies as synthetic libraries — existing Gradle/Maven projects keep their own model (see [Architecture](docs/modules/ROOT/pages/architecture.adoc) for the one narrow Kotlin K2 exception)
 * Supports multiple root scripts with isolated classpaths and JDKs
 * Adds Debug support, terminal execution, WSL support, and detailed diagnostics
 * Replaces the tool window with a status bar widget and External Libraries integration
@@ -81,7 +81,7 @@ Install it via <kbd>Settings</kbd> > <kbd>Plugins</kbd> > <kbd>⚙</kbd> > <kbd>
 
 ## Contributing
 
-See [AGENTS.md](AGENTS.md) for test-first workflow, IntelliJ platform conventions, and architecture notes.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for the test-first workflow, IntelliJ platform conventions, and architecture notes.
 
 ```sh
 ./gradlew test                              # run all tests

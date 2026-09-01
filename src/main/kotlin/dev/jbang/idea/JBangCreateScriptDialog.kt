@@ -1,11 +1,13 @@
 package dev.jbang.idea
 
+import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.progress.ProgressIndicator
 import com.intellij.openapi.progress.Task
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.ui.DialogWrapper
 import com.intellij.openapi.ui.LabeledComponent
 import com.intellij.openapi.ui.ValidationInfo
+import com.intellij.openapi.vfs.VirtualFile
 import com.intellij.ui.DocumentAdapter
 import com.intellij.ui.components.JBLabel
 import com.intellij.ui.components.JBList
@@ -19,6 +21,9 @@ import dev.jbang.idea.cli.JBangCli
 import dev.jbang.idea.cli.TemplateInfo
 import dev.jbang.idea.cli.TemplateLookupResult
 import java.awt.BorderLayout
+import java.awt.datatransfer.StringSelection
+import java.nio.file.InvalidPathException
+import java.nio.file.Path
 import javax.swing.JButton
 import javax.swing.JComponent
 import javax.swing.ListSelectionModel
@@ -58,10 +63,14 @@ class JBangCreateScriptDialog internal constructor(
     project: Project,
     templates: List<TemplateInfo>,
     private val templateResolver: TemplateResolver,
+    private val destinationDirectory: VirtualFile? = null,
 ) : DialogWrapper(project) {
 
     constructor(project: Project, templates: List<TemplateInfo>) :
         this(project, templates, backgroundTemplateResolver(project))
+
+    internal constructor(project: Project, templates: List<TemplateInfo>, destinationDirectory: VirtualFile) :
+        this(project, templates, backgroundTemplateResolver(project), destinationDirectory)
 
     internal val templateList = JBList(templates).apply {
         selectionMode = ListSelectionModel.SINGLE_SELECTION
@@ -97,6 +106,17 @@ class JBangCreateScriptDialog internal constructor(
     private val commandPreview = JBLabel("").apply {
         foreground = javax.swing.UIManager.getColor("Label.disabledForeground")
         font = font.deriveFont(font.size2D - 1f)
+    }
+    private val copyCommandButton = JButton("Copy").apply {
+        toolTipText = "Copy command to clipboard"
+        isEnabled = false
+        addActionListener {
+            CopyPasteManager.getInstance().setContents(StringSelection(commandPreview.text))
+        }
+    }
+    private val commandPreviewPanel = JPanel(BorderLayout(6, 0)).apply {
+        add(commandPreview, BorderLayout.CENTER)
+        add(copyCommandButton, BorderLayout.EAST)
     }
 
     private val propertyColumns: Array<ColumnInfo<TemplatePropertyRow, *>> = arrayOf(
@@ -259,7 +279,9 @@ class JBangCreateScriptDialog internal constructor(
     }
 
     private fun updateOk() {
-        isOKActionEnabled = nameField.text.isNotBlank()
+        val problem = validateDestination()
+        isOKActionEnabled = problem == null
+        setErrorText(problem?.message, problem?.component)
         updateCommandPreview()
     }
 
@@ -267,10 +289,12 @@ class JBangCreateScriptDialog internal constructor(
         val name = nameField.text.trim()
         if (name.isBlank()) {
             commandPreview.text = " "
+            copyCommandButton.isEnabled = false
             return
         }
         val cmd = JBangCli.buildInitCommand(name, selectedTemplate, propertyOverrides)
         commandPreview.text = cmd.joinToString(" ")
+        copyCommandButton.isEnabled = true
     }
 
     public override fun createCenterPanel(): JComponent {
@@ -283,7 +307,7 @@ class JBangCreateScriptDialog internal constructor(
             .addLabeledComponent("File name:", nameField)
             .addComponent(propertyComponent)
             .addSeparator()
-            .addLabeledComponent("Command:", commandPreview)
+            .addLabeledComponent("Command:", commandPreviewPanel)
             .panel
     }
 
@@ -292,10 +316,29 @@ class JBangCreateScriptDialog internal constructor(
         super.dispose()
     }
 
-    override fun doValidate(): ValidationInfo? {
-        if (nameField.text.isBlank()) return ValidationInfo("File name is required", nameField)
+    internal fun validateDestination(): ValidationInfo? {
+        val name = nameField.text.trim()
+        if (name.isBlank()) return ValidationInfo("File name is required", nameField)
+        val path = try {
+            Path.of(name.replace('\\', '/'))
+        } catch (_: InvalidPathException) {
+            return ValidationInfo("File name is not valid", nameField)
+        }
+        if (path.isAbsolute || Regex("^[A-Za-z]:[/\\\\]").containsMatchIn(name)) {
+            return ValidationInfo("File name must be relative to the selected directory", nameField)
+        }
+        val normalized = path.normalize()
+        if (normalized.nameCount == 0 || normalized.firstOrNull()?.toString() == "..") {
+            return ValidationInfo("File name must stay inside the selected directory", nameField)
+        }
+        val relativePath = normalized.toString().replace(java.io.File.separatorChar, '/')
+        if (destinationDirectory?.findFileByRelativePath(relativePath) != null) {
+            return ValidationInfo("A file named $name already exists", nameField)
+        }
         return null
     }
+
+    override fun doValidate(): ValidationInfo? = validateDestination()
 
     override fun getPreferredFocusedComponent() = nameField
 }

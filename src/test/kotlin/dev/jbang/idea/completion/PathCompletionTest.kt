@@ -35,6 +35,21 @@ class PathCompletionTest : LightJavaCodeInsightFixtureTestCase() {
     }
 
     @Test
+    fun testSourcesCompletesAfterEarlierPath() {
+        myFixture.addFileToProject("helpers/A.java", "class A {}")
+        myFixture.addFileToProject("helpers/B.java", "class B {}")
+        val root = myFixture.addFileToProject(
+            "Root.java",
+            "//SOURCES helpers/A.java helpers/B<caret>\nclass Root {}",
+        )
+        myFixture.configureFromExistingVirtualFile(root.virtualFile)
+
+        myFixture.complete(CompletionType.BASIC)
+
+        assertTrue("Should complete the current path token", "B.java" in myFixture.lookupElementStrings.orEmpty())
+    }
+
+    @Test
     fun testFilesCompletesSourceAfterTargetMappingWithoutDirectiveSuggestions() {
         myFixture.addFileToProject("jbang-multi-root.txt", "payload")
         val root = myFixture.addFileToProject("Root.java", "//FILES somepath=jbang-mu<caret>\nclass Root {}")

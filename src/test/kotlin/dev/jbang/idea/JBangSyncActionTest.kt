@@ -6,6 +6,7 @@ import com.intellij.openapi.application.runWriteAction
 import com.intellij.openapi.fileEditor.FileDocumentManager
 import com.intellij.openapi.vfs.VfsUtilCore
 import dev.jbang.idea.project.JBangSyncAction
+import kotlinx.coroutines.isActive
 import com.intellij.testFramework.PlatformTestUtil
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 
@@ -37,6 +38,15 @@ class JBangSyncActionTest : BasePlatformTestCase() {
         PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
 
         assertNull(error)
+    }
+
+    fun testProjectServiceScopeIsCancelledOnDispose() {
+        val service = dev.jbang.idea.project.JBangProjectService.getInstance(project)
+        assertTrue("Service scope must be active while the project is open", service.scope.isActive)
+
+        service.dispose()
+
+        assertFalse("Disposing the project must cancel background sync work", service.scope.isActive)
     }
 
     fun testSyncActionIsRegistered() {

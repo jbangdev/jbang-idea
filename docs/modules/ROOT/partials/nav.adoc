@@ -2,3 +2,6 @@
 * xref:jbang-idea:ROOT:features.adoc[]
 * xref:jbang-idea:ROOT:installation.adoc[]
 * xref:jbang-idea:ROOT:usage.adoc[]
+* xref:jbang-idea:ROOT:architecture.adoc[]
+* xref:jbang-idea:ROOT:troubleshooting.adoc[]
+* xref:jbang-idea:ROOT:known-limitations.adoc[]

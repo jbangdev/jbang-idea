@@ -39,6 +39,8 @@
             implementationClass="dev.jbang.idea.completion.GavCompletion"/>
         <completion.contributor language="JAVA"
             implementationClass="dev.jbang.idea.completion.PathCompletion"/>
+        <completion.contributor language="JAVA"
+            implementationClass="dev.jbang.idea.completion.DirectiveArgumentCompletion"/>
         <completion.contributor language="JSON"
             implementationClass="dev.jbang.idea.completion.CatalogCompletion"/>
         <completion.contributor language="JSON5"

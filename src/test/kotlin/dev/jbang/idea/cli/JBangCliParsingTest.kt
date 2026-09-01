@@ -227,7 +227,7 @@ class JBangCliParsingTest {
                 "jbang", "init",
                 "-Dregion=us-east-1", "-Dnative=true",
                 "--template", "service@acme",
-                "--force", "/tmp/MyService.java",
+                "/tmp/MyService.java",
             ),
             JBangCli.buildInitCommand(
                 "/tmp/MyService.java",

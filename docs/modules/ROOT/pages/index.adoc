@@ -7,7 +7,8 @@ endif::[]
 
 The JBang plugin brings https://www.jbang.dev/[JBang] scripts into IntelliJ IDEA while keeping JBang itself as the source of truth.
 It reads script metadata with `jbang info tools` and exposes dependencies and declared sources as project overlays.
-It does not rewrite IntelliJ modules, Gradle builds, or Maven projects.
+It exposes dependencies as project overlays and does not rewrite Gradle builds or Maven projects.
+Externally managed IntelliJ modules are left intact; the one narrow exception is a transient Kotlin support library for standalone K2 scripts, described in xref:architecture.adoc[Architecture].
 
 == Highlights
 

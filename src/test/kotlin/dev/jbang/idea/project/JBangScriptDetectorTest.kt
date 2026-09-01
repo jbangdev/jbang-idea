@@ -10,6 +10,22 @@ import org.junit.Test
 class JBangScriptDetectorTest {
 
     @Test
+    fun `directives must be at column zero in the initial comment block`() {
+        assertFalse(JBangScriptDetector.hasJBangMarkers("    //DEPS org.example:demo:1\nclass Demo {}"))
+        assertFalse(JBangScriptDetector.hasJBangMarkers("class Demo {}\n//DEPS org.example:demo:1"))
+        assertTrue(JBangScriptDetector.hasJBangMarkers("// ordinary introduction\n\n//DEPS org.example:demo:1\nclass Demo {}"))
+    }
+
+    @Test
+    fun `only first 200 lines are scanned`() {
+        val atLimit = List(199) { "// comment" }.joinToString("\n") + "\n//JAVA 21"
+        val afterLimit = List(200) { "// comment" }.joinToString("\n") + "\n//JAVA 21"
+
+        assertTrue(JBangScriptDetector.hasJBangMarkers(atLimit))
+        assertFalse(JBangScriptDetector.hasJBangMarkers(afterLimit))
+    }
+
+    @Test
     fun `shebang line is a directive`() {
         assertTrue(JBangScriptDetector.isDirectiveLine("///usr/bin/env jbang"))
     }

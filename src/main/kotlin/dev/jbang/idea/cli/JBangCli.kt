@@ -287,7 +287,7 @@ object JBangCli {
         )
     }
 
-    /** Calls `jbang init [properties] [--template <template>] --force <filePath>`. */
+    /** Calls `jbang init [properties] [--template <template>] <filePath>`. */
     fun initScript(
         filePath: String,
         templateName: String? = null,
@@ -310,7 +310,6 @@ object JBangCli {
             add("--template")
             add(it)
         }
-        add("--force")
         add(filePath)
     }
 

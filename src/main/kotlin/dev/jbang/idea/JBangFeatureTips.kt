@@ -26,7 +26,7 @@ object JBangFeatureTips {
     private const val RUN_ID = "jbang.features.run"
     private const val DEPENDENCIES_ID = "jbang.features.dependencies"
     private const val CLASSPATH_ID = "jbang.features.classpath"
-    private val FEATURES_URL = URI("https://github.com/jbangdev/jbang-idea/blob/main/docs/modules/ROOT/pages/features.adoc").toURL()
+    private val FEATURES_URL = URI("https://www.jbang.dev/documentation/jbang-idea/latest/features.html").toURL()
 
     private val statusScheduled = Key.create<Boolean>("$STATUS_ID.scheduled")
     private val runScheduled = Key.create<Boolean>("$RUN_ID.scheduled")

@@ -1,0 +1,15 @@
+= Known limitations
+:idprefix:
+:idseparator: -
+
+== Wildcard imports
+
+Wildcard imports may not resolve JBang dependencies in every case. Prefer explicit imports when a type does not resolve. See https://github.com/jbangdev/jbang-idea/issues/163[issue #163].
+
+== Partial language support
+
+Java, Kotlin, and Groovy receive directive completion, argument completion, diagnostics, navigation, and Run/Debug gutter markers. JShell (`.jsh`) and `.jbang` build files are recognized as roots and receive directive and directive-argument completion, but not the full set of language-specific features, because their PSI does not expose the same structure.
+
+== Remote catalog navigation
+
+Completion and navigation cover local `script-ref` values. HTTP and HTTPS references are left to JBang and are not resolved inside the editor.

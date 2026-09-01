@@ -94,7 +94,11 @@
               "18",
               "19",
               "20",
-              "21"
+              "21",
+              "22",
+              "23",
+              "24",
+              "25"
             ],
             "description": "Java version, such as 8, 11, 17"
           },
@@ -205,6 +209,23 @@
           "description": {
             "type": "string",
             "description": "Description for template"
+          },
+          "properties": {
+            "type": "object",
+            "description": "Properties requested by the template",
+            "additionalProperties": {
+              "type": "object",
+              "properties": {
+                "description": {
+                  "type": "string",
+                  "description": "Description shown when requesting the property"
+                },
+                "default": {
+                  "type": "string",
+                  "description": "Default property value"
+                }
+              }
+            }
           }
         }
       }

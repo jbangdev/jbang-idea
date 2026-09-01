@@ -5,8 +5,13 @@ import com.intellij.notification.NotificationGroupManager
 import com.intellij.notification.NotificationType
 import com.intellij.openapi.application.ApplicationManager
 import com.intellij.openapi.application.ModalityState
+import com.intellij.openapi.Disposable
 import com.intellij.openapi.components.Service
 import com.intellij.openapi.project.Project
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import com.intellij.openapi.util.text.StringUtil
 import com.intellij.openapi.vfs.JarFileSystem
 import com.intellij.openapi.vfs.LocalFileSystem
@@ -24,9 +29,16 @@ import java.util.concurrent.ConcurrentHashMap
  * Maps root script paths → resolved ScriptInfo from `jbang info tools`.
  */
 @Service(Service.Level.PROJECT)
-class JBangProjectService(private val project: Project) {
+class JBangProjectService(private val project: Project) : Disposable {
 
     private val log = jbangLog<JBangProjectService>()
+
+    /** Project-scoped scope for background sync; cancelled when the project closes. */
+    val scope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    override fun dispose() {
+        scope.cancel()
+    }
 
     /** Cached script info keyed by absolute file path. */
     private val cache = ConcurrentHashMap<String, ScriptInfo>()
@@ -81,7 +93,7 @@ class JBangProjectService(private val project: Project) {
                         ?.let(JarFileSystem.getInstance()::getJarRootForLocalFile)
                 })
                 ApplicationManager.getApplication().invokeLater {
-                    if (!project.isDisposed) PsiManager.getInstance(project).findFile(file)?.let {
+                    if (!project.isDisposed && file.isValid) PsiManager.getInstance(project).findFile(file)?.let {
                         DaemonCodeAnalyzer.getInstance(project).restart(it, this)
                     }
                 }

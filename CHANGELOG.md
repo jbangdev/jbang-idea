@@ -4,12 +4,38 @@
 
 ## [Unreleased]
 
+### Added
+- The New JBang Script dialog now has a Copy button beside the generated `jbang init`
+  command preview.
+- Directive-argument completion for `//JAVA` versions, `//REPOS` shortcuts, and `//MAIN`
+  classes, plus multi-value completion for additional `//DEPS`, `//SOURCES`, and `//FILES`
+  entries on the same directive.
+- Quick fixes to uppercase a mis-cased directive and to remove a duplicate `//DEPS` entry.
+- JShell (`.jsh`) scripts now receive directive and directive-argument completion.
+- Settings now link to the documentation and issue tracker.
+- Troubleshooting, known-limitations, and architecture documentation pages, plus a
+  `CONTRIBUTING.md`.
+
+### Changed
+- New Script creation validates the destination and no longer overwrites files silently:
+  existing files, absolute paths, and paths escaping the selected directory are rejected,
+  while nested destinations are created and opened.
+- Run/Debug configurations created from context are matched by script path (not just name)
+  and created as temporary configurations, so same-named scripts in different directories no
+  longer collide.
+- Script detection now only recognises directives in the initial comment block at column
+  zero, matching JBang, and consistently scans the first 200 lines.
+- The catalog JSON schema accepts current Java versions and template properties.
+- Feature tips link to the published documentation instead of GitHub source.
+
 ### Fixed
 - JBang auto-detection now uses IntelliJ's console/shell environment PATH before
   the IDE process PATH, so installs from tools such as SDKMAN are found when
   IntelliJ was launched outside that shell.
 - Persisted JBang settings now read and write the loaded state correctly after
   IDE restart.
+- Run configurations validate the script, working directory, and JBang availability before
+  launching.
 
 ## [0.101.0]
 

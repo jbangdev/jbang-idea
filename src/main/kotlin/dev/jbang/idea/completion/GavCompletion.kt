@@ -71,13 +71,14 @@ private object GavCompletionProvider : CompletionProvider<CompletionParameters>(
         val text = comment.text
         if (!text.startsWith("//DEPS ")) return
 
-        val rawSearch = text.substring(7).trim()
-        val searchText = trimDummy(rawSearch)
+        val argument = trimDummy(text.substring(7))
+        val tokenStart = argument.indexOfLast(Char::isWhitespace) + 1
+        val searchText = argument.substring(tokenStart).trim()
         if (searchText.isBlank()) return
 
         JBangFeatureTips.showDependencies(comment.project, parameters.editor)
 
-        val startOffset = comment.textRange.startOffset + 7
+        val startOffset = comment.textRange.startOffset + 7 + tokenStart
         val parts = searchText.split(':')
         val isVersionSearch = parts.size == 3
 

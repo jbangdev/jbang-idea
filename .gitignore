@@ -150,3 +150,6 @@ gradle-app.setting
 
 !src/main/libs/jbang.jar
 bin
+
+# macOS metadata
+.DS_Store

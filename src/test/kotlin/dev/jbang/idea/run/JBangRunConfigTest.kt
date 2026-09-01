@@ -5,6 +5,7 @@ import com.intellij.execution.actions.ConfigurationContext
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.execution.configuration.EnvironmentVariablesTextFieldWithBrowseButton
+import com.intellij.execution.configurations.RuntimeConfigurationError
 import com.intellij.execution.ui.CommonProgramParametersPanel
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.psi.util.PsiTreeUtil
@@ -15,6 +16,44 @@ import com.intellij.util.ui.UIUtil
 import org.junit.Test
 
 class JBangRunConfigTest : LightJavaCodeInsightFixtureTestCase() {
+
+    @Test
+    fun testContextRunConfigurationsArePathSpecificAndTemporary() {
+        val first = myFixture.addFileToProject("a/Hello.java", "//JAVA 21\nclass Hello {}")
+        val second = myFixture.addFileToProject("b/Hello.java", "//JAVA 21\nclass Hello {}")
+        val runManager = RunManager.getInstance(project)
+
+        val firstSettings = prepareJBangConfiguration(project, first.virtualFile)
+        val reused = prepareJBangConfiguration(project, first.virtualFile)
+        val secondSettings = prepareJBangConfiguration(project, second.virtualFile)
+
+        assertSame("The same script path should reuse its configuration", firstSettings, reused)
+        assertNotSame("Scripts with the same filename need distinct configurations", firstSettings, secondSettings)
+        assertEquals(first.virtualFile.path, (firstSettings.configuration as JBangRunConfiguration).scriptPath)
+        assertEquals(second.virtualFile.path, (secondSettings.configuration as JBangRunConfiguration).scriptPath)
+        assertFalse(firstSettings.name == secondSettings.name)
+        assertTrue(runManager.tempConfigurationsList.contains(firstSettings))
+        assertTrue(runManager.tempConfigurationsList.contains(secondSettings))
+
+        // Light fixtures share the project; do not leak temp configs pointing at deleted files.
+        runManager.removeConfiguration(firstSettings)
+        runManager.removeConfiguration(secondSettings)
+    }
+
+    @Test
+    fun testConfigurationValidatesScriptAndWorkingDirectory() {
+        val config = RunManager.getInstance(project)
+            .createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
+            .configuration as JBangRunConfiguration
+
+        config.scriptPath = project.basePath + "/missing.java"
+        assertThrows(RuntimeConfigurationError::class.java) { config.checkConfiguration() }
+
+        val script = myFixture.addFileToProject("Hello.java", "//JAVA 21\nclass Hello {}")
+        config.scriptPath = script.virtualFile.path
+        config.workingDirectory = project.basePath + "/missing-directory"
+        assertThrows(RuntimeConfigurationError::class.java) { config.checkConfiguration() }
+    }
 
     @Test
     fun testSettingsEditorUsesStandardEnvironmentVariablesControl() {
