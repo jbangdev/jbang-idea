@@ -4,6 +4,8 @@
 
 ## [Unreleased]
 
+## [0.102.0]
+
 ### Added
 - The New JBang Script dialog now has a Copy button beside the generated `jbang init`
   command preview.
