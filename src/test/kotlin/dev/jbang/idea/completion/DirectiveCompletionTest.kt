@@ -30,6 +30,44 @@ class DirectiveCompletionTest : LightJavaCodeInsightFixtureTestCase() {
     }
 
     @Test
+    fun testJavaAndRepositoryArgumentsComplete() {
+        myFixture.configureByText("Hello.java", "//JAVA 2<caret>\nclass Hello {}")
+        myFixture.complete(CompletionType.BASIC)
+        assertTrue("Current Java versions should be offered", "25" in myFixture.lookupElementStrings.orEmpty())
+
+        myFixture.configureByText("Hello.java", "//REPOS ji<caret>\nclass Hello {}")
+        myFixture.complete(CompletionType.BASIC)
+        assertTrue(
+            "JBang repository shortcuts should be offered",
+            "jitpack" in myFixture.lookupElementStrings.orEmpty() || myFixture.file.text.contains("//REPOS jitpack"),
+        )
+    }
+
+    @Test
+    fun testMainClassCompletesFromCurrentScript() {
+        myFixture.configureByText(
+            "Hello.java",
+            "//MAIN Hel<caret>\nclass Hello {}\nclass Alternative {}",
+        )
+
+        myFixture.complete(CompletionType.BASIC)
+
+        assertTrue(
+            "Classes in the script should be offered",
+            "Hello" in myFixture.lookupElementStrings.orEmpty() || myFixture.file.text.contains("//MAIN Hello"),
+        )
+    }
+
+    @Test
+    fun testJShellDirectiveArgumentsComplete() {
+        myFixture.configureByText("hello.jsh", "//JAVA 2<caret>\nSystem.out.println(\"hello\");")
+
+        myFixture.complete(CompletionType.BASIC)
+
+        assertTrue("JShell scripts should receive JBang completion", "25" in myFixture.lookupElementStrings.orEmpty())
+    }
+
+    @Test
     fun testAllDirectivesAreDefined() {
         // Sanity: all directive names are non-empty and the map is populated
         assertTrue(JBangPlugin.ALL_DIRECTIVES.isNotEmpty())

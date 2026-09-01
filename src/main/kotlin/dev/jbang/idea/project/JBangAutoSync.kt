@@ -90,7 +90,7 @@ class JBangFileListener(private val project: Project) : BulkFileListener {
                             service.evict(oldPath)
                             updateRunConfigs(oldPath, newPath)
                             if (JBangScriptDetector.isRootScript(event.file)) {
-                                CoroutineScope(Dispatchers.IO).launch {
+                                service.scope.launch {
                                     service.resolve(event.file)
                                     fireLibraryChange(project)
                                 }
@@ -107,7 +107,7 @@ class JBangFileListener(private val project: Project) : BulkFileListener {
                         service.evict(oldPath)
                         updateRunConfigs(oldPath, newPath)
                         if (JBangScriptDetector.isRootScript(event.file)) {
-                            CoroutineScope(Dispatchers.IO).launch {
+                            service.scope.launch {
                                 service.resolve(event.file)
                                 fireLibraryChange(project)
                             }
@@ -121,7 +121,7 @@ class JBangFileListener(private val project: Project) : BulkFileListener {
                     val file = event.file
                     if (!JBangScriptDetector.isScriptExtension(file)) continue
                     if (JBangScriptDetector.isRootScript(file)) {
-                        CoroutineScope(Dispatchers.IO).launch {
+                        service.scope.launch {
                             service.resolve(file)
                             fireLibraryChange(project)
                         }
@@ -149,7 +149,7 @@ class JBangEditorListener(private val project: Project) : FileEditorManagerListe
             val path = file.path
             log.debug { "Editor opened jbang root: $path" }
             if (service.getInfo(path) == null) {
-                CoroutineScope(Dispatchers.IO).launch {
+                service.scope.launch {
                     service.resolve(file)
                     service.setActiveRoot(path)
                     fireLibraryChange(project)

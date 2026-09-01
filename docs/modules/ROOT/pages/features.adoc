@@ -81,6 +81,8 @@ Select a template or enter a catalog-qualified ID such as `template@catalog`. Th
 IDs against that catalog, loads their declared properties, and reports the exact resolved template and catalog.
 Edit the suggested filename and property values as needed; the plugin passes only changed values to
 `jbang init` and leaves unchanged defaults to JBang.
+A live command preview shows the exact `jbang init` invocation, with a *Copy* button that copies it to the clipboard.
+Destinations are validated before creation: existing files, absolute paths, and paths that escape the selected directory are rejected.
 
 image:current/create-script.png[Creating a JBang script from a template]
 

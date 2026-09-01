@@ -30,7 +30,7 @@ class JBangCreateScriptAction : DumbAwareAction() {
             private var templates = emptyList<TemplateInfo>()
             override fun run(indicator: ProgressIndicator) { templates = JBangCli.listTemplates() }
             override fun onSuccess() {
-                val dialog = JBangCreateScriptDialog(project, templates)
+                val dialog = JBangCreateScriptDialog(project, templates, directory)
                 if (!dialog.showAndGet()) return
                 val name = dialog.scriptName
                 val template = dialog.selectedTemplate
@@ -48,10 +48,13 @@ class JBangCreateScriptAction : DumbAwareAction() {
     ) {
         object : Task.Backgroundable(project, "Creating JBang script", true) {
             private var error: Exception? = null
+            private var destination: File? = null
             override fun run(indicator: ProgressIndicator) {
                 try {
-                    val path = File(directory.path, name).path
-                    JBangCli.initScript(path, template, properties)
+                    val target = File(directory.path, name).normalize()
+                    target.parentFile?.mkdirs()
+                    JBangCli.initScript(target.path, template, properties)
+                    destination = target
                 } catch (e: Exception) {
                     error = e
                 }
@@ -61,8 +64,13 @@ class JBangCreateScriptAction : DumbAwareAction() {
                     Messages.showErrorDialog(project, it.message ?: "JBang init failed", "New JBang Script")
                     return
                 }
-                directory.refresh(false, false)
-                directory.findChild(name)?.let { FileEditorManager.getInstance(project).openFile(it, true) }
+                val created = destination ?: return
+                val file = com.intellij.openapi.vfs.LocalFileSystem.getInstance().refreshAndFindFileByIoFile(created)
+                if (file == null) {
+                    Messages.showErrorDialog(project, "JBang did not create ${created.path}", "New JBang Script")
+                    return
+                }
+                FileEditorManager.getInstance(project).openFile(file, true)
             }
         }.queue()
     }

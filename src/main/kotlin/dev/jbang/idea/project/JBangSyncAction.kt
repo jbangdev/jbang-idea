@@ -68,7 +68,7 @@ class JBangSyncAction : DumbAwareAction() {
                 notifyJBangNotFound(project)
                 return
             }
-            CoroutineScope(Dispatchers.IO).launch {
+            service.scope.launch {
                 val info = service.resolve(file, deferStatusCompletion = true)
                 val errors = info?.resolutionErrors.orEmpty().ifEmpty {
                     if (info != null) emptyList() else listOf("jbang info tools failed; see idea.log for command output")

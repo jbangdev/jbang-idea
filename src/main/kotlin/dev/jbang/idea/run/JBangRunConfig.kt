@@ -3,6 +3,7 @@ package dev.jbang.idea.run
 import com.intellij.execution.CommonProgramRunConfigurationParameters
 import com.intellij.execution.Executor
 import com.intellij.execution.configurations.*
+import com.intellij.execution.configurations.RuntimeConfigurationError
 import com.intellij.execution.executors.DefaultDebugExecutor
 import com.intellij.icons.AllIcons
 import com.intellij.execution.process.KillableColoredProcessHandler
@@ -23,6 +24,7 @@ import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.ui.FormBuilder
 import dev.jbang.idea.JBangPlugin
 import dev.jbang.idea.cli.JBangCli
+import java.io.File
 import javax.swing.JCheckBox
 import javax.swing.JComponent
 import javax.swing.JPanel
@@ -108,6 +110,22 @@ class JBangRunConfiguration(
         set(value) { options.runInTerminal = value }
 
     override fun getConfigurationEditor(): SettingsEditor<out RunConfiguration> = JBangSettingsEditor(project)
+
+    override fun checkConfiguration() {
+        val script = scriptPath.trim()
+        if (script.isEmpty()) throw RuntimeConfigurationError("Script path is required")
+        if ('$' !in script) {
+            val scriptFile = File(script)
+            if (!scriptFile.isFile) throw RuntimeConfigurationError("JBang script does not exist: $script")
+        }
+        val directory = workingDirectory.trim()
+        if (directory.isNotEmpty() && '$' !in directory && !File(directory).isDirectory) {
+            throw RuntimeConfigurationError("Working directory does not exist: $directory")
+        }
+        if (JBangCli.resolveJBangPath() == null) {
+            throw RuntimeConfigurationError("JBang is not installed or configured in Settings > Tools > JBang")
+        }
+    }
 
     override fun getState(executor: Executor, environment: ExecutionEnvironment): RunProfileState {
         val isDebug = executor.id == DefaultDebugExecutor.EXECUTOR_ID

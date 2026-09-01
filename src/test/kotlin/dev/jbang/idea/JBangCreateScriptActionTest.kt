@@ -1,12 +1,16 @@
 package dev.jbang.idea
 
+import com.intellij.openapi.ide.CopyPasteManager
 import com.intellij.openapi.actionSystem.ActionManager
 import com.intellij.testFramework.fixtures.BasePlatformTestCase
 import com.intellij.ui.table.TableView
 import com.intellij.util.ui.UIUtil
+import dev.jbang.idea.cli.JBangCli
 import dev.jbang.idea.cli.TemplateInfo
 import dev.jbang.idea.cli.TemplateLookupResult
 import dev.jbang.idea.cli.TemplateProperty
+import java.awt.datatransfer.DataFlavor
+import javax.swing.JButton
 
 class JBangCreateScriptActionTest : BasePlatformTestCase() {
 
@@ -198,6 +202,47 @@ class JBangCreateScriptActionTest : BasePlatformTestCase() {
         assertTrue("Command should contain init", cmd.contains("init"))
         assertTrue("Command should contain --template", cmd.contains("--template"))
         assertTrue("Command should contain the file name", cmd.contains("hello.java"))
+    }
+
+    fun testRejectsExistingAndUnsafeDestinations() {
+        val directory = myFixture.tempDirFixture.findOrCreateDir("scripts")
+        myFixture.addFileToProject("scripts/existing.java", "class Existing {}")
+        val dialog = JBangCreateScriptDialog(project, emptyList(), destinationDirectory = directory)
+
+        dialog.nameField.text = "existing.java"
+        assertEquals("A file named existing.java already exists", dialog.validateDestination()?.message)
+
+        dialog.nameField.text = "../outside.java"
+        assertEquals("File name must stay inside the selected directory", dialog.validateDestination()?.message)
+
+        dialog.nameField.text = java.io.File("/tmp/outside.java").absolutePath
+        assertEquals("File name must be relative to the selected directory", dialog.validateDestination()?.message)
+    }
+
+    fun testNestedDestinationIsAccepted() {
+        val directory = myFixture.tempDirFixture.findOrCreateDir("scripts")
+        val dialog = JBangCreateScriptDialog(project, emptyList(), destinationDirectory = directory)
+
+        dialog.nameField.text = "examples/Hello.java"
+
+        assertNull(dialog.validateDestination())
+        assertTrue(dialog.isOKActionEnabled)
+    }
+
+    fun testCommandPreviewHasCopyButtonThatCopiesCommand() {
+        val dialog = JBangCreateScriptDialog(project, emptyList())
+        dialog.nameField.text = "hello.java"
+        val panel = dialog.createCenterPanel()
+        val copyButton = UIUtil.findComponentsOfType(panel, JButton::class.java)
+            .singleOrNull { it.text == "Copy" }
+
+        assertNotNull("Command preview should have a Copy button", copyButton)
+        copyButton!!.doClick()
+
+        assertEquals(
+            JBangCli.buildInitCommand("hello.java", null, emptyMap()).joinToString(" "),
+            CopyPasteManager.getInstance().getContents(DataFlavor.stringFlavor),
+        )
     }
 
     fun testNewScriptActionIsRegistered() {

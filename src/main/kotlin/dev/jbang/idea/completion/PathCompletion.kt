@@ -40,9 +40,12 @@ private object PathCompletionProvider : CompletionProvider<CompletionParameters>
         val argument = argumentWithDummy
             .replace(CompletionUtil.DUMMY_IDENTIFIER, "")
             .replace(CompletionUtil.DUMMY_IDENTIFIER_TRIMMED, "")
+        val tokenStart = argument.indexOfLast(Char::isWhitespace) + 1
+        val currentToken = argument.substring(tokenStart)
         // JBang //FILES mappings are target=source.
-        val mappingTarget = argument.substringBeforeLast('=', "").takeIf { directive == "FILES" && '=' in argument }
-        val rawPath = mappingTarget?.let { argument.substringAfterLast('=') } ?: argument
+        val mappingTarget = currentToken.substringBeforeLast('=', "")
+            .takeIf { directive == "FILES" && '=' in currentToken }
+        val rawPath = mappingTarget?.let { currentToken.substringAfterLast('=') } ?: currentToken
         val slash = rawPath.lastIndexOfAny(charArrayOf('/', '\\'))
         val directoryPath = if (slash >= 0) rawPath.substring(0, slash + 1) else ""
         val prefix = rawPath.substring(slash + 1)
@@ -57,13 +60,13 @@ private object PathCompletionProvider : CompletionProvider<CompletionParameters>
             .forEach { file ->
                 val name = file.name + if (file.isDirectory) "/" else ""
                 val icon = if (file.isDirectory) AllIcons.Nodes.Folder else file.fileType.icon
-                matcher.addElement(LookupElementBuilder.create(name).withIcon(icon).withInsertHandler { context, _ ->
-                    if (mappingTarget != null) {
-                        val commentStart = comment.textRange.startOffset
-                        val argumentStart = commentStart + comment.text.indexOf(' ') + 1
-                        context.document.replaceString(argumentStart, context.tailOffset, "$mappingTarget=$directoryPath$name")
-                        context.editor.caretModel.moveToOffset(argumentStart + mappingTarget.length + 1 + directoryPath.length + name.length)
-                    }
+                matcher.addElement(LookupElementBuilder.create(name).withIcon(icon).withInsertHandler { insertion, _ ->
+                    val commentStart = comment.textRange.startOffset
+                    val argumentStart = commentStart + comment.text.indexOf(' ') + 1
+                    val mappingOffset = mappingTarget?.length?.plus(1) ?: 0
+                    val replacementStart = argumentStart + tokenStart + mappingOffset + directoryPath.length
+                    insertion.document.replaceString(replacementStart, insertion.tailOffset, name)
+                    insertion.editor.caretModel.moveToOffset(replacementStart + name.length)
                 })
             }
     }

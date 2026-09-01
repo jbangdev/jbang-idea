@@ -6,6 +6,8 @@
             implementationClass="dev.jbang.idea.completion.GavCompletion"/>
         <completion.contributor language="kotlin"
             implementationClass="dev.jbang.idea.completion.PathCompletion"/>
+        <completion.contributor language="kotlin"
+            implementationClass="dev.jbang.idea.completion.DirectiveArgumentCompletion"/>
         <psi.referenceContributor language="kotlin"
             implementation="dev.jbang.idea.navigation.JBangNavigation"/>
         <runLineMarkerContributor language="kotlin"

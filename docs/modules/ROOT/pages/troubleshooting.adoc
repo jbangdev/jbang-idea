@@ -1,0 +1,32 @@
+= Troubleshooting
+:idprefix:
+:idseparator: -
+
+== Show the logs
+
+Use *Help > Show Log in Finder/Explorer* and inspect `idea.log`. Filter for `jbang` to see every command the plugin runs and any failures. Enable verbose output with *Help > Diagnostic Tools > Debug Log Settings* and add `#dev.jbang.idea`.
+
+== JBang executable not found
+
+The plugin resolves the executable in this order:
+
+. The path configured under *Settings/Preferences > Tools > JBang*
+. `$JBANG_HOME/bin/jbang`
+. `~/.jbang/bin/jbang`
+. `jbang` on `PATH` (`jbang.cmd` on Windows)
+
+If IntelliJ is launched from a desktop shortcut it may not inherit your shell `PATH`. Set the full path in settings, or install JBang from the same settings page.
+
+Tool-manager shims (mise, asdf, sdkman) report a distinct error when JBang is not activated. Run the manager's activation, for example `mise use -g jbang@latest`, or install JBang directly.
+
+== Sync failures
+
+Open the JBang status widget in the status bar. A failed status lists every JBang error on hover; the same details appear on the failing directive. Re-run *Sync JBang Project* from the editor, Project view, or status menu. Enable *Show sync errors as notifications* in settings for balloon reporting.
+
+== WSL
+
+On Windows, scripts stored under `\\wsl.localhost\<distro>\...` are executed inside the matching WSL distribution. Ensure JBang is installed in that distribution.
+
+== Kotlin K2
+
+Kotlin-compiled dependencies resolve for a standalone JBang script through a transient module support library named after the active script. If a Kotlin import does not resolve, confirm sync succeeded and that the script is the active root, then re-sync.

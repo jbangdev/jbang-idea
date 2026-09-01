@@ -44,6 +44,19 @@ class GavCompletionTest : LightJavaCodeInsightFixtureTestCase() {
         }
     }
 
+    fun testCompletesSecondDependencyOnSameDirective() {
+        withLocalArtifact("org/apache/commons/commons-lang3/3.17.0") {
+            myFixture.configureByText(
+                "Hello.java",
+                "//DEPS org.example:first:1 org.apache.commons:commons-lang3:<caret>\nclass Hello {}",
+            )
+
+            myFixture.complete(CompletionType.BASIC)
+
+            assertTrue("Should complete the dependency under the caret", "3.17.0" in myFixture.lookupElementStrings.orEmpty())
+        }
+    }
+
     fun testShowsArtifactAndSnapshotStatusForLocalVersion() {
         withLocalArtifact("org/apache/commons/commons-lang3/3.18.0-SNAPSHOT") {
             myFixture.configureByText(

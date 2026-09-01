@@ -185,6 +185,18 @@ class JBangDirectiveAnnotatorTest : LightJavaCodeInsightFixtureTestCase() {
     }
 
     @Test
+    fun testWrongCaseDirectiveOffersUppercaseQuickFix() {
+        myFixture.configureByText("WrongCase.java", "//Deps org.example:demo:1\nclass WrongCase {}")
+        safeHighlight()
+
+        val fix = myFixture.filterAvailableIntentions("Change to //DEPS").singleOrNull()
+        assertNotNull("Wrong-case directives should have a quick fix", fix)
+        myFixture.launchAction(fix!!)
+
+        assertTrue(myFixture.file.text.startsWith("//DEPS "))
+    }
+
+    @Test
     fun testUnknownDirectiveIsWarning() {
         val file = myFixture.addFileToProject("Unknown.java", "//WAT value\nclass Unknown {}")
         myFixture.configureFromExistingVirtualFile(file.virtualFile)
@@ -242,6 +254,22 @@ class JBangDirectiveAnnotatorTest : LightJavaCodeInsightFixtureTestCase() {
         val warnings = safeHighlight().filter { it.severity == com.intellij.lang.annotation.HighlightSeverity.WARNING }
 
         assertEquals(1, warnings.count { it.description == "Duplicate //DEPS: com.google.guava:guava:33.4.0-jre" })
+    }
+
+    @Test
+    fun testDuplicateDependencyOffersRemoveQuickFix() {
+        myFixture.configureByText(
+            "DuplicateDeps.java",
+            "//DEPS org.example:demo:1\n//DEPS org.example:demo:1\nclass DuplicateDeps {}",
+        )
+        safeHighlight()
+        myFixture.editor.caretModel.moveToOffset(myFixture.file.text.indexOf("//DEPS", 1))
+
+        val fix = myFixture.filterAvailableIntentions("Remove duplicate dependency").singleOrNull()
+        assertNotNull("Duplicate dependencies should have a quick fix", fix)
+        myFixture.launchAction(fix!!)
+
+        assertEquals(1, Regex("//DEPS org.example:demo:1").findAll(myFixture.file.text).count())
     }
 
     @Test

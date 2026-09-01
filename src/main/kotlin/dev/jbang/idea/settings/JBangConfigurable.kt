@@ -9,6 +9,7 @@ import com.intellij.openapi.ui.Messages
 import com.intellij.openapi.ui.TextFieldWithBrowseButton
 import com.intellij.openapi.wm.ToolWindowManager
 import com.intellij.ui.DocumentAdapter
+import com.intellij.ui.components.ActionLink
 import com.intellij.util.ui.FormBuilder
 import com.intellij.util.ui.UIUtil
 import dev.jbang.idea.cli.JBangCli
@@ -45,16 +46,16 @@ class JBangConfigurable : Configurable {
         val installButton = JButton("Install JBang\u2026").apply {
             addActionListener { installJBang() }
         }
-        val downloadLink = JButton("Download page\u2026").apply {
-            addActionListener { BrowserUtil.browse("https://www.jbang.dev/download") }
-            isBorderPainted = false
-            isContentAreaFilled = false
-            foreground = UIUtil.getLabelInfoForeground()
-        }
+        val downloadLink = ActionLink("Download page\u2026") { BrowserUtil.browse("https://www.jbang.dev/download") }
         val buttonPanel = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)).apply {
             add(installButton)
             add(Box.createHorizontalStrut(8))
             add(downloadLink)
+        }
+        val helpLinks = JPanel(FlowLayout(FlowLayout.LEFT, 0, 0)).apply {
+            add(ActionLink("Documentation") { BrowserUtil.browse("https://www.jbang.dev/documentation/jbang-idea/latest/index.html") })
+            add(Box.createHorizontalStrut(12))
+            add(ActionLink("Report Issue") { BrowserUtil.browse("https://github.com/jbangdev/jbang-idea/issues") })
         }
 
         panel = FormBuilder.createFormBuilder()
@@ -65,6 +66,8 @@ class JBangConfigurable : Configurable {
             .addComponent(autoSyncCheckbox)
             .addComponent(askToOpenRootCheckbox)
             .addComponent(notifySyncErrorsCheckbox)
+            .addSeparator()
+            .addComponent(helpLinks)
             .addComponentFillVertically(JPanel(), 0)
             .panel
         updateResolved()

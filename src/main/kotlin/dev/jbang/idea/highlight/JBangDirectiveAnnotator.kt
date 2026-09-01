@@ -1,12 +1,18 @@
 package dev.jbang.idea.highlight
 
+import com.intellij.codeInsight.intention.IntentionAction
 import com.intellij.lang.annotation.AnnotationHolder
 import com.intellij.lang.annotation.Annotator
 import com.intellij.lang.annotation.HighlightSeverity
 import com.intellij.openapi.editor.DefaultLanguageHighlighterColors
+import com.intellij.openapi.editor.Editor
+import com.intellij.openapi.project.Project
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiComment
 import com.intellij.psi.PsiElement
+import com.intellij.psi.PsiFile
+import com.intellij.psi.SmartPointerManager
+import com.intellij.psi.SmartPsiElementPointer
 import com.intellij.psi.util.PsiTreeUtil
 import dev.jbang.idea.JBangPlugin
 import dev.jbang.idea.project.JBangProjectService
@@ -42,6 +48,7 @@ class JBangDirectiveAnnotator : Annotator {
             if (upper in JBangPlugin.ALL_DIRECTIVES) {
                 holder.newAnnotation(HighlightSeverity.WARNING, "JBang directive should be uppercase: //$upper")
                     .range(TextRange(start, start + directiveEnd))
+                    .withFix(UppercaseDirectiveFix(element, upper))
                     .create()
             } else if (directive == upper) {
                 // All uppercase but unknown — likely a typo
@@ -73,6 +80,7 @@ class JBangDirectiveAnnotator : Annotator {
                 if (earlierDuplicate) {
                     holder.newAnnotation(HighlightSeverity.WARNING, "Duplicate //DEPS: $dependency")
                         .range(element)
+                        .withFix(RemoveDuplicateDependencyFix(element))
                         .create()
                 }
             }
@@ -110,5 +118,38 @@ class JBangDirectiveAnnotator : Annotator {
         val parts = split(':')
         return parts.size >= 2 && parts[0].isNotBlank() && parts[1].isNotBlank() &&
             (parts.size == 2 || parts[2].isNotBlank())
+    }
+}
+
+private abstract class JBangDirectiveFix(element: PsiElement) : IntentionAction {
+    protected val pointer: SmartPsiElementPointer<PsiElement> =
+        SmartPointerManager.getInstance(element.project).createSmartPsiElementPointer(element)
+
+    override fun getFamilyName() = "JBang directives"
+    override fun isAvailable(project: Project, editor: Editor?, file: PsiFile?) = pointer.element?.isValid == true
+    override fun startInWriteAction() = true
+}
+
+private class UppercaseDirectiveFix(element: PsiElement, private val directive: String) : JBangDirectiveFix(element) {
+    override fun getText() = "Change to //$directive"
+
+    override fun invoke(project: Project, editor: Editor?, file: PsiFile?) {
+        val comment = pointer.element ?: return
+        val document = comment.containingFile.viewProvider.document ?: return
+        document.replaceString(comment.textRange.startOffset, comment.textRange.startOffset + 2 + directive.length, "//$directive")
+    }
+}
+
+private class RemoveDuplicateDependencyFix(element: PsiElement) : JBangDirectiveFix(element) {
+    override fun getText() = "Remove duplicate dependency"
+
+    override fun invoke(project: Project, editor: Editor?, file: PsiFile?) {
+        val comment = pointer.element ?: return
+        val document = comment.containingFile.viewProvider.document ?: return
+        val start = comment.textRange.startOffset
+        var end = comment.textRange.endOffset
+        // Consume the trailing newline so we don't leave a blank line
+        if (end < document.textLength && document.charsSequence[end] == '\n') end++
+        document.deleteString(start, end)
     }
 }

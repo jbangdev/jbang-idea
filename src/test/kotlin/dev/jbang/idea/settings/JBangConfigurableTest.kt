@@ -50,6 +50,16 @@ class JBangConfigurableTest : BasePlatformTestCase() {
         assertNotNull("Settings should show resolved jbang path", resolved)
     }
 
+    fun testSettingsExposesHelpLinks() {
+        val configurable = JBangConfigurable()
+        val component = configurable.createComponent()
+        val links = UIUtil.findComponentsOfType(component, com.intellij.ui.components.ActionLink::class.java)
+            .map { it.text }
+
+        assertTrue("Settings should link to documentation", links.any { it.contains("Documentation") })
+        assertTrue("Settings should link to issue reporting", links.any { it.contains("Report") })
+    }
+
     fun testSettingsHasInstallButton() {
         val configurable = JBangConfigurable()
         val component = configurable.createComponent()

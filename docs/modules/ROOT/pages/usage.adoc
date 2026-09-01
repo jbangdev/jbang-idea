@@ -134,6 +134,7 @@ The filename remains editable before creation. You can also enter a catalog-qual
 `q-aws-lambda@jbang-cloud` directly. The plugin resolves it against the named catalog, reports the exact
 resolved template and catalog, and loads its property descriptions and defaults into the key/value table.
 Only changed values are passed to `jbang init` as `-Dkey=value` overrides.
+The dialog shows a live command preview with a *Copy* button, and validates the destination before creating the file.
 
 image:current/create-script.png[Creating a script from a JBang template]
 

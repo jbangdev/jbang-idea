@@ -1,0 +1,19 @@
+= Architecture and integration model
+:idprefix:
+:idseparator: -
+
+The JBang CLI is the source of truth. The plugin runs `jbang info tools --quiet` for each detected root and keeps the returned classpath, sources, files, errors, and Java version in project-scoped state.
+
+== Root isolation
+
+Each root keeps a separate synthetic library. The active root determines which classpath and JDK apply to shared `//SOURCES`; dependencies from unrelated roots are never merged.
+
+== IntelliJ project model
+
+Normal dependency overlays use `AdditionalLibraryRootsProvider` and do not modify Gradle or Maven models. Kotlin K2 has one narrow exception: for a standalone IntelliJ module, Kotlin-compiled JARs from the active root are mirrored into a transient module library so K2 can create light classes. The plugin removes or replaces this support library when the active root changes. Externally managed Gradle and Maven modules are not modified.
+
+== Synchronization and network access
+
+Synchronization invokes JBang, which may download JDKs, dependencies, sources, templates, and resources according to the script. Dependency completion reads the local Maven repository and may query Maven Central. Template creation runs `jbang template list` and `jbang init`; Run and Debug invoke `jbang run`.
+
+Commands and failures are written to `idea.log` without logging credentials. Repository authentication remains JBang/Maven configuration, such as `~/.m2/settings.xml`.
