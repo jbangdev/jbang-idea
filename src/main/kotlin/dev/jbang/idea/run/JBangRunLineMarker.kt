@@ -3,7 +3,6 @@ package dev.jbang.idea.run
 import com.intellij.execution.lineMarker.ExecutorAction
 import com.intellij.execution.lineMarker.RunLineMarkerContributor
 import com.intellij.psi.*
-import com.intellij.psi.javadoc.PsiDocComment
 import dev.jbang.idea.JBangFeatureTips
 import dev.jbang.idea.JBangPlugin
 import dev.jbang.idea.project.JBangScriptDetector
@@ -25,12 +24,10 @@ class JBangRunLineMarker : RunLineMarkerContributor() {
 
         // Case 1: directive comment — only on the first one. Doc comments are
         // non-leaf PSI, so attach their marker to the first token instead.
-        val comment = when {
-            element is PsiDocComment -> return null
-            element.parent is PsiDocComment && element === element.parent.firstChild -> element.parent
-            element is PsiComment -> element
-            else -> null
-        }
+        // PsiDocCommentBase is the cross-language base for doc comments (Java's
+        // PsiDocComment and Kotlin's KDoc both implement it), so a leading `///`
+        // shebang parsed as a doc comment is handled the same way in every language.
+        val comment = commentForMarker(element)
         if (comment != null) {
             val text = comment.text
             val isShebang = text.startsWith(JBangPlugin.SHEBANG)
@@ -70,6 +67,13 @@ class JBangRunLineMarker : RunLineMarkerContributor() {
         return null
     }
 
+    internal fun commentForMarker(element: PsiElement): PsiElement? = when {
+        element is PsiDocCommentBase -> null
+        element.parent is PsiDocCommentBase && element === element.parent.firstChild -> element.parent
+        element is PsiComment -> element
+        else -> null
+    }
+
     private fun jbangInfo(fileName: String, element: PsiElement): Info {
         val line = element.containingFile.viewProvider.document?.getLineNumber(element.textOffset) ?: 0
         JBangFeatureTips.showRun(element.project, line)
@@ -107,7 +111,7 @@ class JBangRunLineMarker : RunLineMarkerContributor() {
         file.accept(object : PsiRecursiveElementVisitor() {
             override fun visitElement(element: PsiElement) {
                 if (found) return
-                if (element is PsiComment || element is PsiDocComment) {
+                if (element is PsiComment || element is PsiDocCommentBase) {
                     val t = element.text
                     if (t.startsWith(JBangPlugin.SHEBANG) || JBangScriptDetector.isRootDirectiveLine(t)) {
                         found = true
@@ -126,7 +130,7 @@ class JBangRunLineMarker : RunLineMarkerContributor() {
         file.accept(object : PsiRecursiveElementVisitor() {
             override fun visitElement(el: PsiElement) {
                 if (found != null) return
-                if (el is PsiComment || el is PsiDocComment) {
+                if (el is PsiComment || el is PsiDocCommentBase) {
                     val t = el.text
                     if (t.startsWith(JBangPlugin.SHEBANG) || JBangScriptDetector.isRootDirectiveLine(t)) {
                         found = el

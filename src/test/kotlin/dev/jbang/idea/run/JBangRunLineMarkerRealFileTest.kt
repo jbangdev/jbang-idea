@@ -194,4 +194,26 @@ class tako implements Callable<Integer> {
         val file = myFixture.addFileToProject("hello.groovy", "//DEPS com.google.guava:guava:33.0-jre\nprintln 'hello'")
         assertTrue("Groovy file with //DEPS should be a root", JBangScriptDetector.isRootScript(file.virtualFile))
     }
+
+    @Test
+    fun testKDocRunMarkerAttachesToFirstLeaf() {
+        // The light fixture parses `///` as PsiCommentImpl, unlike the live KDoc path.
+        // The existing shebang gutter test covers rendering; this catches its KDoc target.
+        val psiFile = myFixture.configureByText("hello.kt", """
+            /** Documentation. */
+            fun main() {}
+        """.trimIndent())
+        val kdoc = PsiTreeUtil.findChildOfType(
+            psiFile,
+            org.jetbrains.kotlin.kdoc.psi.api.KDoc::class.java,
+        )!!
+        val marker = JBangRunLineMarker()
+
+        assertNull("Non-leaf KDoc must not receive a marker", marker.commentForMarker(kdoc))
+        assertSame(
+            "The first KDoc leaf must attach its marker to the whole KDoc",
+            kdoc,
+            marker.commentForMarker(kdoc.firstChild),
+        )
+    }
 }

@@ -4,6 +4,13 @@
 
 ## [Unreleased]
 
+### Fixed
+- Run gutter icon now appears reliably on Kotlin scripts. The marker only recognized
+  Java's doc-comment PSI type for a leading `///` shebang; it now checks the
+  cross-language `PsiDocCommentBase` interface so a doc-comment-like leading
+  comment is handled consistently in Kotlin (and any other language) as well
+  ([#174](https://github.com/jbangdev/jbang-idea/issues/174)).
+
 ## [0.102.0]
 
 ### Added
