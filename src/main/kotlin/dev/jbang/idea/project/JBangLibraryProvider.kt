@@ -5,6 +5,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.roots.AdditionalLibraryRootsProvider
+import com.intellij.openapi.roots.JavaSyntheticLibrary
 import com.intellij.openapi.roots.SyntheticLibrary
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -59,10 +60,17 @@ private class JBangSyntheticLibrary(
     private val project: Project,
     private val classRoots: List<VirtualFile>,
     private val sourceRoots: List<VirtualFile>,
-) : SyntheticLibrary(), ItemPresentation, Navigatable {
-
-    override fun getSourceRoots(): Collection<VirtualFile> = sourceRoots
-    override fun getBinaryRoots(): Collection<VirtualFile> = classRoots
+) : JavaSyntheticLibrary(
+    // comparisonId: identifies this library for platform equality/indexing.
+    rootScriptPath,
+    sourceRoots,
+    classRoots,
+    emptySet(),
+), ItemPresentation, Navigatable {
+    // Extends JavaSyntheticLibrary (not plain SyntheticLibrary) so its JAR roots are
+    // registered in PackageIndex/fileSetsByPackagePrefix. A plain SyntheticLibrary gets
+    // DummyWorkspaceFileSetData, leaving findPackage() null so Java wildcard/on-demand
+    // imports never resolve while explicit imports/FQNs do (IDEA-393077, issue #163).
 
     override fun getPresentableText(): String = name
     override fun getLocationString(): String? = null // path is already in the name
