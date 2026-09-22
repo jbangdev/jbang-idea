@@ -24,6 +24,7 @@ import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.ui.FormBuilder
 import dev.jbang.idea.JBangPlugin
 import dev.jbang.idea.cli.JBangCli
+import dev.jbang.idea.settings.JBangSettings
 import java.io.File
 import javax.swing.JCheckBox
 import javax.swing.JComponent
@@ -199,7 +200,10 @@ class JBangRunState(private val config: JBangRunConfiguration, environment: Exec
     companion object {
         fun buildCommandLine(config: JBangRunConfiguration): GeneralCommandLine {
             val resolved = resolve(config)
-            val args = mutableListOf(JBangCli.findJBangCmd(), "run")
+            val args = JBangCli.withPreview(
+                listOf(JBangCli.findJBangCmd(), "run"),
+                JBangSettings.instance.previewFeatures,
+            ).toMutableList()
             args += resolved.jbangOptions
             args += resolved.scriptPath
             args += resolved.scriptArgs
@@ -215,7 +219,10 @@ class JBangRunState(private val config: JBangRunConfiguration, environment: Exec
 
         fun buildShellCommand(config: JBangRunConfiguration): String {
             val resolved = resolve(config)
-            val command = mutableListOf(quote(JBangCli.findJBangCmd()), "run")
+            val command = JBangCli.withPreview(
+                listOf(quote(JBangCli.findJBangCmd()), "run"),
+                JBangSettings.instance.previewFeatures,
+            ).toMutableList()
             command += resolved.jbangOptions.map(::quote)
             command += quote(resolved.scriptPath)
             command += resolved.scriptArgs.map(::quote)
