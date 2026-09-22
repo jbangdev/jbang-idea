@@ -5,6 +5,13 @@
 ## [Unreleased]
 
 ### Fixed
+- Java wildcard/on-demand imports (`import example.*`) now resolve classes from JBang
+  dependency JARs. The classpath was exposed as a plain `SyntheticLibrary`, whose roots
+  never entered the package index, so only explicit imports and fully-qualified names
+  resolved. It is now a `JavaSyntheticLibrary`
+  ([#163](https://github.com/jbangdev/jbang-idea/issues/163), IDEA-393077).
+
+### Fixed
 - Run gutter icon now appears reliably on Kotlin scripts. The marker only recognized
   Java's doc-comment PSI type for a leading `///` shebang; it now checks the
   cross-language `PsiDocCommentBase` interface so a doc-comment-like leading
