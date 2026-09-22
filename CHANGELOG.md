@@ -9,6 +9,11 @@
   switches the active root. The editor-open handler now respects the auto-sync setting
   like the file-change handler does (also removes a background resolve that could race
   with and clobber cached script info).
+- Java wildcard/on-demand imports (`import example.*`) now resolve classes from JBang
+  dependency JARs. The classpath was exposed as a plain `SyntheticLibrary`, whose roots
+  never entered the package index, so only explicit imports and fully-qualified names
+  resolved. It is now a `JavaSyntheticLibrary`
+  ([#163](https://github.com/jbangdev/jbang-idea/issues/163), IDEA-393077).
 - Run gutter icon now appears reliably on Kotlin scripts. The marker only recognized
   Java's doc-comment PSI type for a leading `///` shebang; it now checks the
   cross-language `PsiDocCommentBase` interface so a doc-comment-like leading
