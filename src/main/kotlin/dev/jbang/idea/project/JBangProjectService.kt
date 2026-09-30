@@ -177,6 +177,13 @@ class JBangProjectService(private val project: Project) : Disposable {
 
     fun getLibraryRootsForFile(path: String): List<VirtualFile> = rootForFile(path)?.let(::getLibraryRoots).orEmpty()
 
+    /** Classpath of the root script owning [libraryRoot], so its classes see types from sibling JARs. */
+    fun getLibraryRootsForLibraryRoot(libraryRoot: VirtualFile): List<VirtualFile> {
+        val owners = libraryRoots.filterValues { libraryRoot in it }.keys
+        val owner = activeRootPath?.takeIf(owners::contains) ?: owners.singleOrNull()
+        return owner?.let(::getLibraryRoots).orEmpty()
+    }
+
     internal fun allSourceFiles(): Set<VirtualFile> = cache.keys.flatMapTo(mutableSetOf(), ::getSourceFilesForFile)
 
     fun getSourceFilesForFile(path: String): List<VirtualFile> = rootForFile(path)?.let(cache::get)?.sources.orEmpty()

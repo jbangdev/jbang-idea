@@ -10,6 +10,12 @@
   cross-language `PsiDocCommentBase` interface so a doc-comment-like leading
   comment is handled consistently in Kotlin (and any other language) as well
   ([#174](https://github.com/jbangdev/jbang-idea/issues/174)).
+- Types declared in a transitive dependency no longer produce false `Unknown class` or
+  `Required type: X / Provided: X` errors when the declaring dependency is a Kotlin
+  library (e.g. `spring-ai-client-chat` with `ChatMemory`, `openai-java-core` with
+  `JsonMapper`). Classes inside a JBang JAR now resolve against the owning script's full
+  classpath, including the Kotlin JARs mirrored as a module library
+  ([#180](https://github.com/jbangdev/jbang-idea/issues/180)).
 
 ## [0.102.0]
 
