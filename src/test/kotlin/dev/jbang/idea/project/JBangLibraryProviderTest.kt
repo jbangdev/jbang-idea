@@ -177,6 +177,91 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
         return jar
     }
 
+    /**
+     * Compile [apiSource] and [clientSource] together, then split the classes into two JARs,
+     * like a declared dependency (client) and its transitive dependency (api).
+     * [kotlinClient] marks the client JAR as a Kotlin library, as `openai-java-core` or
+     * `spring-ai-client-chat` are.
+     */
+    private fun apiAndClientJars(apiSource: String, clientSource: String, kotlinClient: Boolean = false): Pair<File, File> {
+        val dir = Files.createTempDirectory("jbang-compile").toFile()
+        File(dir, "api").mkdirs()
+        File(dir, "client").mkdirs()
+        val api = File(dir, "api/Memory.java").apply { writeText(apiSource) }
+        val client = File(dir, "client/Advisor.java").apply { writeText(clientSource) }
+        val javac = ProcessBuilder("javac", "-d", dir.path, api.path, client.path)
+            .redirectErrorStream(true).start()
+        assertEquals("javac failed: ${javac.inputStream.bufferedReader().readText()}", 0, javac.waitFor())
+        fun jar(entry: String, kotlin: Boolean = false) = Files.createTempFile("jbang-dep", ".jar").toFile().also { jar ->
+            JarOutputStream(jar.outputStream()).use { jos ->
+                if (kotlin) { jos.putNextEntry(JarEntry("META-INF/client.kotlin_module")); jos.closeEntry() }
+                jos.putNextEntry(JarEntry(entry))
+                jos.write(File(dir, entry).readBytes())
+                jos.closeEntry()
+            }
+        }
+        return jar("api/Memory.class") to jar("client/Advisor.class", kotlinClient)
+    }
+
+    private fun assertNoErrorsAcrossJarBoundary(kotlinClient: Boolean) {
+        val (apiJar, clientJar) = apiAndClientJars(
+            "package api; public interface Memory { static Memory create() { return null; } void clear(); }",
+            "package client; public class Advisor { " +
+                "public static Advisor builder(api.Memory memory) { return null; } " +
+                "public static api.Memory memory() { return null; } }",
+            kotlinClient,
+        )
+        val script = myFixture.addFileToProject(
+            "Reproducer.java",
+            """
+            //DEPS example:client:1
+            import api.Memory;
+            import client.Advisor;
+
+            class Reproducer {
+                void run() {
+                    Memory memory = Memory.create();
+                    Advisor advisor = Advisor.builder(memory);
+                    Memory returned = Advisor.memory();
+                    var inferred = Advisor.memory();
+                    inferred.clear();
+                    Advisor chained = Advisor.builder(Advisor.memory());
+                }
+            }
+            """.trimIndent(),
+        )
+        val service = JBangProjectService.getInstance(project)
+        installInfo(script.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(clientJar.path, apiJar.path)))
+        try {
+            service.setActiveRoot(script.virtualFile.path)
+            myFixture.configureFromExistingVirtualFile(script.virtualFile)
+            PlatformTestUtil.dispatchAllEventsInIdeEventQueue()
+            // Light fixtures live on temp://, so the queued mirror update cannot find the root: mirror explicitly.
+            com.intellij.openapi.application.runWriteAction { JBangKotlinLibraryMirror.update(project, script.virtualFile) }
+            IndexingTestUtil.waitUntilIndexesAreReady(project)
+            val rootModel = com.intellij.openapi.roots.ModuleRootManager.getInstance(module).modifiableModel
+            val mirrored = rootModel.moduleLibraryTable.libraries.any { it.name?.startsWith("JBang Kotlin support") == true }
+            rootModel.dispose()
+            assertEquals("Only Kotlin dependencies are mirrored to the module", kotlinClient, mirrored)
+
+            val errors = myFixture.doHighlighting(com.intellij.lang.annotation.HighlightSeverity.ERROR)
+            assertEmpty(
+                "Types declared in a transitive JAR must be compatible with the same types in a dependency's signatures",
+                errors.map { it.description },
+            )
+        } finally {
+            service.clear()
+            com.intellij.openapi.application.runWriteAction { JBangKotlinLibraryMirror.update(project) }
+        }
+    }
+
+    @Test
+    fun testTypeFromTransitiveJarIsCompatibleAcrossJarBoundary() = assertNoErrorsAcrossJarBoundary(kotlinClient = false)
+
+    /** Regression for #180: the declared dependency is a Kotlin library, its transitive one is not. */
+    @Test
+    fun testTypeFromTransitiveJarIsCompatibleWhenDependencyIsKotlinLibrary() = assertNoErrorsAcrossJarBoundary(kotlinClient = true)
+
     @Test
     fun testJbangDependencyClassResolvesInJavaScript() {
         val jar = jarWithClass("example", "Greeter",

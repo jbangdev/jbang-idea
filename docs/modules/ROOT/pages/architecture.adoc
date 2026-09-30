@@ -10,7 +10,7 @@ Each root keeps a separate synthetic library. The active root determines which c
 
 == IntelliJ project model
 
-Normal dependency overlays use `AdditionalLibraryRootsProvider` and do not modify Gradle or Maven models. Kotlin K2 has one narrow exception: for a standalone IntelliJ module, Kotlin-compiled JARs from the active root are mirrored into a transient module library so K2 can create light classes. The plugin removes or replaces this support library when the active root changes. Externally managed Gradle and Maven modules are not modified.
+Normal dependency overlays use `AdditionalLibraryRootsProvider` and do not modify Gradle or Maven models. Kotlin K2 has one narrow exception: for a standalone IntelliJ module, Kotlin-compiled JARs from the active root are mirrored into a transient module library so K2 can create light classes. The plugin removes or replaces this support library when the active root changes. Classes inside any JBang JAR, mirrored or not, resolve against the owning root's full classpath, so signatures that reference types from sibling JARs stay consistent. Externally managed Gradle and Maven modules are not modified.
 
 == Synchronization and network access
 
