@@ -11,7 +11,7 @@
         <psi.referenceContributor language="kotlin"
             implementation="dev.jbang.idea.navigation.JBangNavigation"/>
         <runLineMarkerContributor language="kotlin"
-            implementationClass="dev.jbang.idea.run.JBangRunLineMarker"/>
+            implementationClass="dev.jbang.idea.run.JBangKotlinRunLineMarker"/>
         <annotator language="kotlin"
             implementationClass="dev.jbang.idea.highlight.JBangDirectiveAnnotator"/>
     </extensions>
