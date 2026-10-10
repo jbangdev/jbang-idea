@@ -262,6 +262,54 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
     @Test
     fun testTypeFromTransitiveJarIsCompatibleWhenDependencyIsKotlinLibrary() = assertNoErrorsAcrossJarBoundary(kotlinClient = true)
 
+    /** Create an empty JAR on disk and return its in-VFS jar root (what resolve scopes operate on). */
+    private fun emptyJarRoot(name: String): Pair<File, VirtualFile> {
+        val jar = Files.createTempFile(name, ".jar").toFile()
+        JarOutputStream(jar.outputStream()).use { }
+        val root = LocalFileSystem.getInstance().refreshAndFindFileByIoFile(jar)
+            ?.let(JarFileSystem.getInstance()::getJarRootForLocalFile)
+        assertNotNull("JAR root must be resolvable for $name", root)
+        return jar to root!!
+    }
+
+    /**
+     * Regression for the multi-root ownership invariant of #180 (Copilot review finding):
+     * when a dependency JAR is shared by two root scripts with different classpaths, a class
+     * inside that JAR must resolve against the *active* root's classpath only, never leaking the
+     * other root's sibling JARs. A JAR owned by a single root always uses that root's classpath.
+     */
+    @Test
+    fun testSharedJarResolvesAgainstActiveRootClasspathOnly() {
+        val (aOnlyFile, aOnlyRoot) = emptyJarRoot("jbang-a-only")
+        val (bOnlyFile, bOnlyRoot) = emptyJarRoot("jbang-b-only")
+        val (sharedFile, sharedRoot) = emptyJarRoot("jbang-shared")
+
+        val scriptA = myFixture.addFileToProject("RootA.java", "//DEPS a:only:1\nclass RootA {}")
+        val scriptB = myFixture.addFileToProject("RootB.java", "//DEPS b:only:1\nclass RootB {}")
+        val service = JBangProjectService.getInstance(project)
+        installInfo(scriptA.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(aOnlyFile.path, sharedFile.path)))
+        installInfo(scriptB.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(bOnlyFile.path, sharedFile.path)))
+
+        // A JAR owned by a single root always resolves against that root, regardless of active root.
+        service.setActiveRoot(scriptB.virtualFile.path)
+        assertTrue(
+            "A-only JAR must see root A's classpath even when B is active",
+            service.getLibraryRootsForLibraryRoot(aOnlyRoot).containsAll(listOf(aOnlyRoot, sharedRoot)),
+        )
+
+        // The shared JAR must follow the active root: A active -> A's siblings, not B's.
+        service.setActiveRoot(scriptA.virtualFile.path)
+        val whenAActive = service.getLibraryRootsForLibraryRoot(sharedRoot)
+        assertTrue("Shared JAR must see root A's sibling when A is active", aOnlyRoot in whenAActive)
+        assertFalse("Shared JAR must not leak root B's sibling when A is active", bOnlyRoot in whenAActive)
+
+        // Switching the active root to B flips the isolation the other way.
+        service.setActiveRoot(scriptB.virtualFile.path)
+        val whenBActive = service.getLibraryRootsForLibraryRoot(sharedRoot)
+        assertTrue("Shared JAR must see root B's sibling when B is active", bOnlyRoot in whenBActive)
+        assertFalse("Shared JAR must not leak root A's sibling when B is active", aOnlyRoot in whenBActive)
+    }
+
     @Test
     fun testJbangDependencyClassResolvesInJavaScript() {
         val jar = jarWithClass("example", "Greeter",
