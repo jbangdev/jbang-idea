@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+- JBang settings can enable preview features, adding `--preview` to plugin commands and
+  Run/Debug launches.
+
 ### Fixed
 - Run gutter icon now appears reliably on Kotlin scripts. The marker only recognized
   Java's doc-comment PSI type for a leading `///` shebang; it now checks the

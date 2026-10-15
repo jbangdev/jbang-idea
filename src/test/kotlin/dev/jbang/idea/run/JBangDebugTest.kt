@@ -6,10 +6,31 @@ import com.intellij.execution.configurations.GeneralCommandLine
 import com.intellij.execution.executors.DefaultRunExecutor
 import com.intellij.openapi.util.SystemInfo
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
+import dev.jbang.idea.settings.JBangSettings
 import org.junit.Test
 import java.io.File
 
 class JBangDebugTest : LightJavaCodeInsightFixtureTestCase() {
+
+    @Test
+    fun testPreviewFeaturesFlagIsPassedToDebugCommand() {
+        val previous = JBangSettings.instance.previewFeatures
+        try {
+            JBangSettings.instance.previewFeatures = true
+            val config = RunManager.getInstance(project)
+                .createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
+                .configuration as JBangRunConfiguration
+            config.scriptPath = "/tmp/tako.java"
+
+            assertEquals(
+                listOf("--preview", "run", "--debug=4004", "/tmp/tako.java"),
+                JBangDebugRunState.buildDebugCommandLine(config, 4004).parametersList.list,
+            )
+            assertTrue(JBangDebugRunState.buildDebugShellCommand(config, 4004).contains("jbang --preview run"))
+        } finally {
+            JBangSettings.instance.previewFeatures = previous
+        }
+    }
 
     @Test
     fun testDebugCommandLineHasDebugFlag() {

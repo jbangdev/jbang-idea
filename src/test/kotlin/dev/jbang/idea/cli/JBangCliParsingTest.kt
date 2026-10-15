@@ -164,6 +164,18 @@ class JBangCliParsingTest {
     }
 
     @Test
+    fun `preview flag is added before the command`() {
+        assertEquals(
+            listOf("jbang", "--preview", "info", "tools"),
+            JBangCli.withPreview(listOf("jbang", "info", "tools"), enabled = true),
+        )
+        assertEquals(
+            listOf("jbang", "info", "tools"),
+            JBangCli.withPreview(listOf("jbang", "info", "tools"), enabled = false),
+        )
+    }
+
+    @Test
     fun `template list requests declared properties`() {
         assertEquals(
             listOf("jbang", "template", "list", "--show-properties", "--format=json"),
