@@ -83,11 +83,8 @@ private class JBangSyntheticLibrary(
         FileEditorManager.getInstance(project).openFile(file, requestFocus)
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is JBangSyntheticLibrary) return false
-        return rootScriptPath == other.rootScriptPath && classRoots == other.classRoots
-    }
-
-    override fun hashCode(): Int = rootScriptPath.hashCode() * 31 + classRoots.hashCode()
+    // No equals()/hashCode() override: ImmutableSyntheticLibrary (JavaSyntheticLibrary's
+    // parent) already implements them from the comparisonId (rootScriptPath) plus roots,
+    // and marks them @ApiStatus.Internal so overriding them is forbidden (verifyPlugin
+    // INTERNAL_API_USAGES). The base identity matches what we need.
 }
