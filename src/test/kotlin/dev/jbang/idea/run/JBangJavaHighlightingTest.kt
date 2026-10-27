@@ -8,11 +8,16 @@ import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 
 class JBangJavaHighlightingTest : LightJavaCodeInsightFixtureTestCase() {
 
-    fun testUnresolvedMethodIsHighlightedInNormalJavaModule() {
+    fun testNormalJavaRetainsErrorHighlightingAndHasNoJBangGutter() {
+        // Regression for #184: the Java-registered run line marker must not suppress the
+        // highlighting daemon (it previously threw NoClassDefFoundError reaching Kotlin PSI),
+        // and plain Java must not get a JBang gutter icon. (The light fixture has no JDK, so
+        // an unresolved reference surfaces as a "Cannot resolve" error — enough to prove the
+        // daemon still runs.)
         val file = myFixture.addFileToProject("Main.java", """
             public class Main {
                 public static void main(String[] args) {
-                    System.out.println_("Hello");
+                    thisReferenceDoesNotExist();
                 }
             }
         """.trimIndent())
@@ -20,9 +25,10 @@ class JBangJavaHighlightingTest : LightJavaCodeInsightFixtureTestCase() {
 
         val errors = myFixture.doHighlighting().filter { it.severity == HighlightSeverity.ERROR }
 
-        assertTrue("Unresolved method must retain Java error highlighting", errors.any {
-            it.text == "println_" && it.description?.contains("Cannot resolve method") == true
-        })
+        assertTrue(
+            "Normal Java must retain error highlighting; got: ${errors.map { it.description }}",
+            errors.any { it.description?.contains("Cannot resolve") == true },
+        )
         assertFalse("Normal Java must not have JBang gutter icons",
             myFixture.findAllGutters().any { it.tooltipText?.contains("JBang") == true })
     }
