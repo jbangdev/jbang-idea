@@ -148,13 +148,16 @@ class JBangEditorListener(private val project: Project) : FileEditorManagerListe
         if (JBangScriptDetector.isRootScript(file)) {
             val path = file.path
             log.debug { "Editor opened jbang root: $path" }
-            if (service.getInfo(path) == null) {
+            if (service.getInfo(path) == null && JBangSettings.instance.autoSync) {
                 service.scope.launch {
                     service.resolve(file)
                     service.setActiveRoot(path)
                     fireLibraryChange(project)
                 }
             } else {
+                // No cached info and auto-sync off: just switch the active root, don't
+                // shell out to jbang on open (matches the content-change listener, and
+                // avoids a background resolve racing/clobbering cached info).
                 service.setActiveRoot(path)
             }
         }

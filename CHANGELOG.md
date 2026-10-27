@@ -5,6 +5,10 @@
 ## [Unreleased]
 
 ### Fixed
+- Opening a JBang script no longer runs `jbang` when auto-sync is disabled; it just
+  switches the active root. The editor-open handler now respects the auto-sync setting
+  like the file-change handler does (also removes a background resolve that could race
+  with and clobber cached script info).
 - Run gutter icon now appears reliably on Kotlin scripts. The marker only recognized
   Java's doc-comment PSI type for a leading `///` shebang; it now checks the
   cross-language `PsiDocCommentBase` interface so a doc-comment-like leading
