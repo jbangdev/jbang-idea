@@ -5,6 +5,7 @@ import com.intellij.openapi.fileEditor.FileEditorManager
 import com.intellij.openapi.project.Project
 import com.intellij.openapi.project.guessProjectDir
 import com.intellij.openapi.roots.AdditionalLibraryRootsProvider
+import com.intellij.openapi.roots.JavaSyntheticLibrary
 import com.intellij.openapi.roots.SyntheticLibrary
 import com.intellij.openapi.vfs.LocalFileSystem
 import com.intellij.openapi.vfs.VirtualFile
@@ -59,10 +60,17 @@ private class JBangSyntheticLibrary(
     private val project: Project,
     private val classRoots: List<VirtualFile>,
     private val sourceRoots: List<VirtualFile>,
-) : SyntheticLibrary(), ItemPresentation, Navigatable {
-
-    override fun getSourceRoots(): Collection<VirtualFile> = sourceRoots
-    override fun getBinaryRoots(): Collection<VirtualFile> = classRoots
+) : JavaSyntheticLibrary(
+    // comparisonId: identifies this library for platform equality/indexing.
+    rootScriptPath,
+    sourceRoots,
+    classRoots,
+    emptySet(),
+), ItemPresentation, Navigatable {
+    // Extends JavaSyntheticLibrary (not plain SyntheticLibrary) so its JAR roots are
+    // registered in PackageIndex/fileSetsByPackagePrefix. A plain SyntheticLibrary gets
+    // DummyWorkspaceFileSetData, leaving findPackage() null so Java wildcard/on-demand
+    // imports never resolve while explicit imports/FQNs do (IDEA-393077, issue #163).
 
     override fun getPresentableText(): String = name
     override fun getLocationString(): String? = null // path is already in the name
@@ -75,11 +83,8 @@ private class JBangSyntheticLibrary(
         FileEditorManager.getInstance(project).openFile(file, requestFocus)
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is JBangSyntheticLibrary) return false
-        return rootScriptPath == other.rootScriptPath && classRoots == other.classRoots
-    }
-
-    override fun hashCode(): Int = rootScriptPath.hashCode() * 31 + classRoots.hashCode()
+    // No equals()/hashCode() override: ImmutableSyntheticLibrary (JavaSyntheticLibrary's
+    // parent) already implements them from the comparisonId (rootScriptPath) plus roots,
+    // and marks them @ApiStatus.Internal so overriding them is forbidden (verifyPlugin
+    // INTERNAL_API_USAGES). The base identity matches what we need.
 }

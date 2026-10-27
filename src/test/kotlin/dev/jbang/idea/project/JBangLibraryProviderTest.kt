@@ -67,6 +67,26 @@ class JBangLibraryProviderTest : LightJavaCodeInsightFixtureTestCase() {
     }
 
     @Test
+    fun testProviderExposesJavaSyntheticLibraryForPackageIndex() {
+        // IDEA-393077: only a JavaSyntheticLibrary contributes its roots to PackageIndex
+        // (fileSetsByPackagePrefix). A plain SyntheticLibrary gets DummyWorkspaceFileSetData,
+        // so findPackage() returns null and Java wildcard/on-demand imports stay unresolved
+        // while explicit imports/FQNs work. Guard the base type so the regression can't return.
+        val jar = Files.createTempFile("jbang-overlay", ".jar").toFile()
+        JarOutputStream(jar.outputStream()).use { }
+        val script = myFixture.addFileToProject("overlay.java", "//DEPS example:overlay:1\nclass overlay {}")
+        installInfo(script.virtualFile.path, ScriptInfo(resolvedDependencies = listOf(jar.path)))
+
+        val library = JBangLibraryProvider().getAdditionalProjectLibraries(project).single()
+
+        assertTrue(
+            "Synthetic library must be a JavaSyntheticLibrary so its roots enter PackageIndex " +
+                "and Java wildcard imports resolve (IDEA-393077)",
+            library is com.intellij.openapi.roots.JavaSyntheticLibrary,
+        )
+    }
+
+    @Test
     fun testClasspathJarsAreExposedAsIndexableArchiveRoots() {
         val jar = Files.createTempFile("jbang-overlay", ".jar").toFile()
         JarOutputStream(jar.outputStream()).use { }
