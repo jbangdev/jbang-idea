@@ -24,6 +24,7 @@ class JBangConfigurable : Configurable {
     private var panel: JPanel? = null
     private val pathField = TextFieldWithBrowseButton()
     private val resolvedLabel = JLabel()
+    private val previewFeaturesCheckbox = JCheckBox("Enable JBang preview features")
     private val autoSyncCheckbox = JCheckBox("Auto-sync dependencies on save")
     private val askToOpenRootCheckbox = JCheckBox("Ask to open a root selected from the status bar")
     private val notifySyncErrorsCheckbox = JCheckBox("Show sync errors as notifications")
@@ -63,6 +64,7 @@ class JBangConfigurable : Configurable {
             .addComponent(resolvedLabel)
             .addComponent(buttonPanel)
             .addSeparator()
+            .addComponent(previewFeaturesCheckbox)
             .addComponent(autoSyncCheckbox)
             .addComponent(askToOpenRootCheckbox)
             .addComponent(notifySyncErrorsCheckbox)
@@ -77,6 +79,7 @@ class JBangConfigurable : Configurable {
     override fun isModified(): Boolean {
         val settings = JBangSettings.instance
         return pathField.text != settings.jbangPath ||
+            previewFeaturesCheckbox.isSelected != settings.previewFeatures ||
             autoSyncCheckbox.isSelected != settings.autoSync ||
             askToOpenRootCheckbox.isSelected != settings.askToOpenSelectedRoot ||
             notifySyncErrorsCheckbox.isSelected != settings.notifySyncErrors
@@ -85,6 +88,7 @@ class JBangConfigurable : Configurable {
     override fun apply() {
         val settings = JBangSettings.instance
         settings.jbangPath = pathField.text
+        settings.previewFeatures = previewFeaturesCheckbox.isSelected
         settings.autoSync = autoSyncCheckbox.isSelected
         settings.askToOpenSelectedRoot = askToOpenRootCheckbox.isSelected
         if (settings.askToOpenSelectedRoot) settings.openSelectedRootWithoutAsking = false
@@ -95,6 +99,7 @@ class JBangConfigurable : Configurable {
     override fun reset() {
         val settings = JBangSettings.instance
         pathField.text = settings.jbangPath
+        previewFeaturesCheckbox.isSelected = settings.previewFeatures
         autoSyncCheckbox.isSelected = settings.autoSync
         askToOpenRootCheckbox.isSelected = settings.askToOpenSelectedRoot
         notifySyncErrorsCheckbox.isSelected = settings.notifySyncErrors
