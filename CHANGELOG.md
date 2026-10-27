@@ -9,6 +9,9 @@
   switches the active root. The editor-open handler now respects the auto-sync setting
   like the file-change handler does (also removes a background resolve that could race
   with and clobber cached script info).
+- Normal Java modules retain error highlighting when optional Kotlin support is
+  unavailable. Kotlin-specific run marker classes are now loaded only through the
+  optional Kotlin integration ([#184](https://github.com/jbangdev/jbang-idea/issues/184)).
 - Run gutter icon now appears reliably on Kotlin scripts. The marker only recognized
   Java's doc-comment PSI type for a leading `///` shebang; it now checks the
   cross-language `PsiDocCommentBase` interface so a doc-comment-like leading

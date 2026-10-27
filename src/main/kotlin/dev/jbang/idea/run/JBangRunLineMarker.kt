@@ -6,8 +6,6 @@ import com.intellij.psi.*
 import dev.jbang.idea.JBangFeatureTips
 import dev.jbang.idea.JBangPlugin
 import dev.jbang.idea.project.JBangScriptDetector
-import org.jetbrains.kotlin.psi.KtClass
-import org.jetbrains.kotlin.psi.KtNamedFunction
 
 /**
  * Shows a run gutter icon for jbang scripts on:
@@ -17,7 +15,7 @@ import org.jetbrains.kotlin.psi.KtNamedFunction
  *
  * Only fires if the file is a jbang root script.
  */
-class JBangRunLineMarker : RunLineMarkerContributor() {
+open class JBangRunLineMarker : RunLineMarkerContributor() {
 
     override fun getInfo(element: PsiElement): Info? {
         val file = element.containingFile ?: return null
@@ -39,28 +37,24 @@ class JBangRunLineMarker : RunLineMarkerContributor() {
         }
 
         // Cases 2 & 3: class/main identifiers in jbang scripts.
-        // Accept both Java PSI (PsiIdentifier) and Kotlin PSI (KtClass/KtNamedFunction
-        // name identifiers are LeafPsiElement) so the marker works for .kt files too.
-        val parent = element.parent
-        val isNameId = element is PsiIdentifier ||
-            (parent is KtClass && element == parent.nameIdentifier) ||
-            (parent is KtNamedFunction && element == parent.nameIdentifier)
-        if (!isNameId) return null
+        if (!isNameIdentifier(element)) return null
         if (!isJBangFile(file)) return null
+        return declarationInfo(element)
+    }
+
+    protected open fun isNameIdentifier(element: PsiElement): Boolean = element is PsiIdentifier
+
+    protected open fun declarationInfo(element: PsiElement): Info? {
+        val file = element.containingFile ?: return null
+        val parent = element.parent
 
         // Case 2: class name identifier — first/only class
         if (parent is PsiClass && element == parent.nameIdentifier) {
             if (isFirstClass(parent)) return jbangInfo(file.name, element)
         }
-        if (parent is KtClass && element == parent.nameIdentifier) {
-            if (isFirstKtClass(parent)) return jbangInfo(file.name, element)
-        }
 
         // Case 3: main() method identifier
         if (parent is PsiMethod && element == parent.nameIdentifier && parent.name == "main") {
-            return jbangInfo(file.name, element)
-        }
-        if (parent is KtNamedFunction && element == parent.nameIdentifier && parent.name == "main") {
             return jbangInfo(file.name, element)
         }
 
@@ -74,7 +68,7 @@ class JBangRunLineMarker : RunLineMarkerContributor() {
         else -> null
     }
 
-    private fun jbangInfo(fileName: String, element: PsiElement): Info {
+    protected fun jbangInfo(fileName: String, element: PsiElement): Info {
         val line = element.containingFile.viewProvider.document?.getLineNumber(element.textOffset) ?: 0
         JBangFeatureTips.showRun(element.project, line)
         val actions = ExecutorAction.getActions(0)
@@ -84,12 +78,6 @@ class JBangRunLineMarker : RunLineMarkerContributor() {
     private fun isFirstClass(clazz: PsiClass): Boolean {
         val file = clazz.containingFile ?: return false
         val firstClass = com.intellij.psi.util.PsiTreeUtil.findChildOfType(file, PsiClass::class.java)
-        return firstClass === clazz
-    }
-
-    private fun isFirstKtClass(clazz: KtClass): Boolean {
-        val file = clazz.containingFile ?: return false
-        val firstClass = com.intellij.psi.util.PsiTreeUtil.findChildOfType(file, KtClass::class.java)
         return firstClass === clazz
     }
 
