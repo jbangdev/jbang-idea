@@ -102,7 +102,7 @@ class tako implements Callable<Integer> {
 
         assertNotNull(
             "Kotlin shebang should get a run marker",
-            JBangRunLineMarker().getInfo(psiFile.findElementAt(0)!!),
+            JBangKotlinRunLineMarker().getInfo(psiFile.findElementAt(0)!!),
         )
         myFixture.doHighlighting()
         assertTrue(
@@ -126,7 +126,7 @@ class tako implements Callable<Integer> {
             fun main() { println("hello") }
         """.trimIndent())
 
-        val marker = JBangRunLineMarker()
+        val marker = JBangKotlinRunLineMarker()
         val comments = PsiTreeUtil.findChildrenOfType(psiFile, PsiComment::class.java)
         val depsComment = comments.find { it.text.startsWith("//DEPS") }
         assertNotNull("Should find //DEPS in Kotlin file", depsComment)
@@ -154,7 +154,7 @@ class tako implements Callable<Integer> {
             fun main() { println("hello") }
         """.trimIndent())
 
-        val marker = JBangRunLineMarker()
+        val marker = JBangKotlinRunLineMarker()
         val mainFun = PsiTreeUtil.findChildrenOfType(psiFile, KtNamedFunction::class.java)
             .find { it.name == "main" }
         assertNotNull("Should find fun main() in Kotlin file", mainFun)
@@ -162,6 +162,10 @@ class tako implements Callable<Integer> {
             "Kotlin main function should get a run marker",
             marker.getInfo(mainFun!!.nameIdentifier!!),
         )
+        myFixture.editor.caretModel.moveToOffset(mainFun!!.nameIdentifier!!.textOffset)
+        myFixture.doHighlighting()
+        assertTrue("Kotlin main function should expose a JBang gutter icon",
+            myFixture.findGuttersAtCaret().any { it.tooltipText?.contains("JBang") == true })
     }
 
     @Test
@@ -173,7 +177,7 @@ class tako implements Callable<Integer> {
             }
         """.trimIndent())
 
-        val marker = JBangRunLineMarker()
+        val marker = JBangKotlinRunLineMarker()
         val clazz = PsiTreeUtil.findChildrenOfType(psiFile, KtClass::class.java)
             .find { it.name == "Hello" }
         assertNotNull("Should find class Hello in Kotlin file", clazz)
@@ -181,6 +185,10 @@ class tako implements Callable<Integer> {
             "Kotlin class name should get a run marker",
             marker.getInfo(clazz!!.nameIdentifier!!),
         )
+        myFixture.editor.caretModel.moveToOffset(clazz!!.nameIdentifier!!.textOffset)
+        myFixture.doHighlighting()
+        assertTrue("Kotlin class should expose a JBang gutter icon",
+            myFixture.findGuttersAtCaret().any { it.tooltipText?.contains("JBang") == true })
     }
 
     @Test
@@ -207,7 +215,7 @@ class tako implements Callable<Integer> {
             psiFile,
             org.jetbrains.kotlin.kdoc.psi.api.KDoc::class.java,
         )!!
-        val marker = JBangRunLineMarker()
+        val marker = JBangKotlinRunLineMarker()
 
         assertNull("Non-leaf KDoc must not receive a marker", marker.commentForMarker(kdoc))
         assertSame(
