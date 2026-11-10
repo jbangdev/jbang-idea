@@ -4,6 +4,10 @@
 
 ## [Unreleased]
 
+### Added
+- JBang settings can enable preview features, adding `--preview` to plugin commands and
+  Run/Debug launches.
+
 ### Fixed
 - Opening a JBang script no longer runs `jbang` when auto-sync is disabled; it just
   switches the active root. The editor-open handler now respects the auto-sync setting

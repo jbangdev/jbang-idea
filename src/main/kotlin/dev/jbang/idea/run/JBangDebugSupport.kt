@@ -20,6 +20,7 @@ import com.intellij.openapi.util.Key
 import dev.jbang.idea.cli.JBangCli
 import dev.jbang.idea.debug
 import dev.jbang.idea.jbangLog
+import dev.jbang.idea.settings.JBangSettings
 
 private val log = jbangLog<JBangDebugRunState>()
 
@@ -89,7 +90,10 @@ class JBangDebugRunState(
 
         fun buildDebugCommandLine(config: JBangRunConfiguration, port: Int): GeneralCommandLine {
             val resolved = JBangRunState.resolve(config)
-            val args = mutableListOf(JBangCli.findJBangCmd(), "run", "--debug=$port")
+            val args = JBangCli.withPreview(
+                listOf(JBangCli.findJBangCmd(), "run", "--debug=$port"),
+                JBangSettings.instance.previewFeatures,
+            ).toMutableList()
             args += resolved.jbangOptions
             args += resolved.scriptPath
             args += resolved.scriptArgs
@@ -105,7 +109,10 @@ class JBangDebugRunState(
 
         fun buildDebugShellCommand(config: JBangRunConfiguration, port: Int): String {
             val resolved = JBangRunState.resolve(config)
-            val parts = mutableListOf(JBangRunState.quote(JBangCli.findJBangCmd()), "run", "--debug=$port")
+            val parts = JBangCli.withPreview(
+                listOf(JBangRunState.quote(JBangCli.findJBangCmd()), "run", "--debug=$port"),
+                JBangSettings.instance.previewFeatures,
+            ).toMutableList()
             parts += resolved.jbangOptions.map(JBangRunState::quote)
             parts += JBangRunState.quote(resolved.scriptPath)
             parts += resolved.scriptArgs.map(JBangRunState::quote)

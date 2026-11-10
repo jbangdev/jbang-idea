@@ -20,6 +20,7 @@ import com.intellij.util.ui.ListTableModel
 import dev.jbang.idea.cli.JBangCli
 import dev.jbang.idea.cli.TemplateInfo
 import dev.jbang.idea.cli.TemplateLookupResult
+import dev.jbang.idea.settings.JBangSettings
 import java.awt.BorderLayout
 import java.awt.datatransfer.StringSelection
 import java.nio.file.InvalidPathException
@@ -292,7 +293,12 @@ class JBangCreateScriptDialog internal constructor(
             copyCommandButton.isEnabled = false
             return
         }
-        val cmd = JBangCli.buildInitCommand(name, selectedTemplate, propertyOverrides)
+        val cmd = JBangCli.buildInitCommand(
+            name,
+            selectedTemplate,
+            propertyOverrides,
+            JBangSettings.instance.previewFeatures,
+        )
         commandPreview.text = cmd.joinToString(" ")
         copyCommandButton.isEnabled = true
     }

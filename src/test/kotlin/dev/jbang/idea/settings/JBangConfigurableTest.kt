@@ -9,18 +9,22 @@ import javax.swing.JLabel
 class JBangConfigurableTest : BasePlatformTestCase() {
     private var previousAsk = true
     private var previousOpen = false
+    private var previousPreviewFeatures = false
 
     override fun setUp() {
         super.setUp()
         previousAsk = JBangSettings.instance.askToOpenSelectedRoot
         previousOpen = JBangSettings.instance.openSelectedRootWithoutAsking
+        previousPreviewFeatures = JBangSettings.instance.previewFeatures
         JBangSettings.instance.askToOpenSelectedRoot = false
         JBangSettings.instance.openSelectedRootWithoutAsking = true
+        JBangSettings.instance.previewFeatures = false
     }
 
     override fun tearDown() {
         JBangSettings.instance.askToOpenSelectedRoot = previousAsk
         JBangSettings.instance.openSelectedRootWithoutAsking = previousOpen
+        JBangSettings.instance.previewFeatures = previousPreviewFeatures
         super.tearDown()
     }
 
@@ -38,6 +42,21 @@ class JBangConfigurableTest : BasePlatformTestCase() {
 
         assertTrue(JBangSettings.instance.askToOpenSelectedRoot)
         assertFalse(JBangSettings.instance.openSelectedRootWithoutAsking)
+    }
+
+    fun testSettingsCanEnablePreviewFeatures() {
+        val configurable = JBangConfigurable()
+        val component = configurable.createComponent()
+        configurable.reset()
+        val checkbox = UIUtil.findComponentsOfType(component, JCheckBox::class.java)
+            .single { it.text == "Enable JBang preview features" }
+
+        assertFalse(checkbox.isSelected)
+        checkbox.isSelected = true
+        assertTrue(configurable.isModified)
+        configurable.apply()
+
+        assertTrue(JBangSettings.instance.previewFeatures)
     }
 
     fun testSettingsShowsResolvedJBangPath() {

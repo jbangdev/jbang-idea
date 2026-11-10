@@ -106,6 +106,10 @@ object JBangCli {
      */
     fun findJBangCmd(): String = resolveJBangPath() ?: if (SystemInfo.isWindows) "jbang.cmd" else "jbang"
 
+    internal fun withPreview(command: List<String>, enabled: Boolean): List<String> = if (enabled && command.getOrNull(1) != "--preview") {
+        command.toMutableList().apply { add(1, "--preview") }
+    } else command
+
     /**
      * Resolves the actual jbang executable path, or null if not found.
      * Checks: settings → JBANG_HOME/bin → ~/.jbang/bin → IntelliJ console PATH → process PATH.
@@ -241,8 +245,10 @@ object JBangCli {
         }
     }
 
-    internal fun buildTemplateListCommand(): List<String> =
-        listOf("jbang", "template", "list", "--show-properties", "--format=json")
+    internal fun buildTemplateListCommand(previewFeatures: Boolean = false): List<String> = withPreview(
+        listOf("jbang", "template", "list", "--show-properties", "--format=json"),
+        previewFeatures,
+    )
 
     fun lookupTemplate(reference: String): TemplateLookupResult {
         val catalogName = reference.substringAfterLast('@', missingDelimiterValue = "")
@@ -258,13 +264,16 @@ object JBangCli {
         }
     }
 
-    internal fun buildTemplateLookupCommand(reference: String): List<String> {
+    internal fun buildTemplateLookupCommand(
+        reference: String,
+        previewFeatures: Boolean = false,
+    ): List<String> {
         val catalogName = reference.substringAfterLast('@', missingDelimiterValue = "")
         require(catalogName.isNotBlank()) { "Template reference must include @catalog" }
-        return listOf(
+        return withPreview(listOf(
             "jbang", "template", "list", catalogName,
             "--show-properties", "--show-origin", "--format=json",
-        )
+        ), previewFeatures)
     }
 
     internal fun parseTemplateLookup(reference: String, json: String): TemplateLookupResult {
@@ -302,7 +311,8 @@ object JBangCli {
         filePath: String,
         templateName: String? = null,
         properties: Map<String, String> = emptyMap(),
-    ): List<String> = buildList {
+        previewFeatures: Boolean = false,
+    ): List<String> = withPreview(buildList {
         add("jbang")
         add("init")
         properties.forEach { (key, value) -> add("-D$key=$value") }
@@ -311,7 +321,7 @@ object JBangCli {
             add(it)
         }
         add(filePath)
-    }
+    }, previewFeatures)
 
     private fun exec(
         vararg command: String,
@@ -321,7 +331,9 @@ object JBangCli {
         project: com.intellij.openapi.project.Project? = null,
     ): String {
         val isWsl = wslDistributionId != null
-        val exeCommand = if (isWsl) command else arrayOf(findJBangCmd(), *command.drop(1).toTypedArray())
+        val previewCommand = withPreview(command.toList(), JBangSettings.instance.previewFeatures)
+        val exeCommand = if (isWsl) previewCommand.toTypedArray()
+            else arrayOf(findJBangCmd(), *previewCommand.drop(1).toTypedArray())
         var cmd = GeneralCommandLine(*exeCommand)
             .withParentEnvironmentType(GeneralCommandLine.ParentEnvironmentType.CONSOLE)
             .withEnvironment("NO_COLOR", "true")

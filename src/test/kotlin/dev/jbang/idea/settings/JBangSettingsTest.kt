@@ -15,8 +15,10 @@ class JBangSettingsTest : TestCase() {
 
         settings.jbangPath = "/changed/jbang"
         settings.autoSync = true
+        settings.previewFeatures = true
 
         assertEquals("/changed/jbang", settings.state.jbangPath)
         assertTrue(settings.state.autoSync)
+        assertTrue(settings.state.previewFeatures)
     }
 }

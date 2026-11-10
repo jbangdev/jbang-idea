@@ -9,6 +9,7 @@ class JBangSettings : PersistentStateComponent<JBangSettings.State> {
 
     data class State(
         var jbangPath: String = "",
+        var previewFeatures: Boolean = false,
         var autoSync: Boolean = true,
         var askToOpenSelectedRoot: Boolean = true,
         var openSelectedRootWithoutAsking: Boolean = false,
@@ -25,6 +26,9 @@ class JBangSettings : PersistentStateComponent<JBangSettings.State> {
     var jbangPath: String
         get() = myState.jbangPath
         set(value) { myState.jbangPath = value }
+    var previewFeatures: Boolean
+        get() = myState.previewFeatures
+        set(value) { myState.previewFeatures = value }
     var autoSync: Boolean
         get() = myState.autoSync
         set(value) { myState.autoSync = value }

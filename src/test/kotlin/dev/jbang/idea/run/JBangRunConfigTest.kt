@@ -13,9 +13,32 @@ import java.io.File
 import com.intellij.psi.PsiComment
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import com.intellij.util.ui.UIUtil
+import dev.jbang.idea.settings.JBangSettings
 import org.junit.Test
 
 class JBangRunConfigTest : LightJavaCodeInsightFixtureTestCase() {
+
+    @Test
+    fun testPreviewFeaturesFlagIsPassedToRunCommand() {
+        val previous = JBangSettings.instance.previewFeatures
+        try {
+            JBangSettings.instance.previewFeatures = true
+            val config = RunManager.getInstance(project)
+                .createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
+                .configuration as JBangRunConfiguration
+            config.scriptPath = "/tmp/hello.java"
+
+            assertEquals(
+                listOf("--preview", "run", "/tmp/hello.java"),
+                JBangRunState.buildCommandLine(config).parametersList.list,
+            )
+            // Not "jbang --preview run": the executable is a full path (and jbang.cmd on
+            // Windows), so assert only that --preview is placed right before run.
+            assertTrue(JBangRunState.buildShellCommand(config).contains("--preview run"))
+        } finally {
+            JBangSettings.instance.previewFeatures = previous
+        }
+    }
 
     @Test
     fun testContextRunConfigurationsArePathSpecificAndTemporary() {
