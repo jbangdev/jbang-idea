@@ -32,7 +32,9 @@ class JBangRunConfigTest : LightJavaCodeInsightFixtureTestCase() {
                 listOf("--preview", "run", "/tmp/hello.java"),
                 JBangRunState.buildCommandLine(config).parametersList.list,
             )
-            assertTrue(JBangRunState.buildShellCommand(config).contains("jbang --preview run"))
+            // Not "jbang --preview run": the executable is a full path (and jbang.cmd on
+            // Windows), so assert only that --preview is placed right before run.
+            assertTrue(JBangRunState.buildShellCommand(config).contains("--preview run"))
         } finally {
             JBangSettings.instance.previewFeatures = previous
         }
