@@ -15,6 +15,10 @@
   Run/Debug launches.
 
 ### Fixed
+- The EAP channel now offers EAP builds. They were versioned after the last stable release
+  (`0.102.0-eap.N`), which sorts below `0.102.0`, so EAP subscribers were always offered the
+  stable release instead. `main` now moves to the next development version after each release
+  ([#187](https://github.com/jbangdev/jbang-idea/issues/187)).
 - Opening a JBang script no longer runs `jbang` when auto-sync is disabled; it just
   switches the active root. The editor-open handler now respects the auto-sync setting
   like the file-change handler does (also removes a background resolve that could race

@@ -1,5 +1,6 @@
 package dev.jbang.idea
 
+import com.intellij.util.text.VersionComparatorUtil
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -19,6 +20,38 @@ class DocumentationTest {
         assertTrue("EAP publication needs the Marketplace token", workflow.contains("PUBLISH_TOKEN: \${{ secrets.PUBLISH_TOKEN }}"))
         assertTrue("Stable releases must also reach EAP subscribers", Files.readString(Path.of(".github/workflows/release.yml")).contains("-PpluginChannel=eap"))
         assertTrue("Gradle must support an explicit channel", Files.readString(Path.of("build.gradle.kts")).contains("pluginChannel"))
+    }
+
+    @Test
+    fun `EAP builds of main sort above the last stable release`() {
+        val pluginVersion = Properties().apply {
+            Files.newInputStream(Path.of("gradle.properties")).use(::load)
+        }.getProperty("pluginVersion")
+        val lastRelease = Regex("""^## \[(\d+\.\d+\.\d+)]""", RegexOption.MULTILINE)
+            .find(Files.readString(Path.of("CHANGELOG.md")))
+            ?.groupValues?.get(1)
+            ?: error("No released version heading found in CHANGELOG.md")
+        // Same suffix as the publishEarlyAccess job in build.yml; IntelliJ compares versions with this utility.
+        val eapVersion = "$pluginVersion-eap.1"
+
+        assertTrue(
+            "EAP build $eapVersion must be newer than the last release $lastRelease, " +
+                "otherwise EAP subscribers are offered the stable release instead (#187)",
+            VersionComparatorUtil.compare(eapVersion, lastRelease) > 0,
+        )
+    }
+
+    @Test
+    fun `release workflow starts the next development version`() {
+        val release = Files.readString(Path.of(".github/workflows/release.yml"))
+        val createPr = release.substringAfter("- name: Create Pull Request")
+
+        assertTrue("Release must bump pluginVersion for the next development cycle", release.contains("pluginVersion = \$NEXT_VERSION"))
+        assertFalse("The version bump PR must not depend on non-empty release notes", createPr.substringBefore("run:").contains("if:"))
+        assertTrue(
+            "RELEASING.md must explain why main stays ahead of the last release",
+            Files.readString(Path.of("RELEASING.md")).contains("next development version"),
+        )
     }
 
     @Test

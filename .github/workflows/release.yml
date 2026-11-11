@@ -68,24 +68,42 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh release upload ${{ github.event.release.tag_name }} ./build/distributions/*
 
+      # Keep main ahead of the release: EAP builds are published as <pluginVersion>-eap.N, and a
+      # pre-release suffix sorts below the plain version, so main must move to the next version.
+      - name: Start Next Development Version
+        env:
+          TAG_NAME: ${{ github.event.release.tag_name }}
+        run: |
+          VERSION="${TAG_NAME#v}"
+          if [[ "$VERSION" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
+            NEXT_VERSION="${BASH_REMATCH[1]}.${BASH_REMATCH[2]}.$((BASH_REMATCH[3] + 1))"
+            sed -i "s/^pluginVersion = .*/pluginVersion = $NEXT_VERSION/" gradle.properties
+          else
+            echo "::notice::$VERSION is not a plain x.y.z release, pluginVersion left unchanged"
+          fi
+
       # Create pull request
       - name: Create Pull Request
-        if: ${{ steps.properties.outputs.changelog != '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${{ github.event.release.tag_name }}"
           BRANCH="changelog-update-$VERSION"
 
+          if git diff --quiet; then
+            echo "Nothing to update after $VERSION"
+            exit 0
+          fi
+
           git config user.email "action@github.com"
           git config user.name "GitHub Action"
 
           git checkout -b $BRANCH
-          git commit -am "Changelog update - $VERSION"
+          git commit -am "Changelog update and next development version - $VERSION"
           git push --set-upstream origin $BRANCH
 
           gh pr create \
-            --title "Changelog update - \`$VERSION\`" \
-            --body "Current pull request contains patched \`CHANGELOG.md\` file for the \`$VERSION\` version." \
+            --title "Changelog update and next development version - \`$VERSION\`" \
+            --body "Patches \`CHANGELOG.md\` for \`$VERSION\` and moves \`pluginVersion\` to the next development version, so EAP builds of \`main\` sort above \`$VERSION\`. Merge it right after the release." \
             --base main \
             --head $BRANCH
