@@ -31,7 +31,11 @@
    - Builds the plugin
    - Publishes to JetBrains Marketplace via `./gradlew publishPlugin`
    - Uploads the artifact to the GitHub Release
-   - Creates a changelog update PR
+   - Creates a PR that patches the changelog and moves `pluginVersion` to the next
+     development version (e.g. `0.26.0` → `0.26.1`)
+
+6. **Merge that PR right away.** Until it is merged, EAP builds of `main` are versioned
+   below the release you just published (see [Early access channel](#early-access-channel)).
 
 ## Early access channel
 
@@ -44,6 +48,12 @@ https://plugins.jetbrains.com/plugins/eap/18257
 ```
 
 Stable releases are also uploaded to `eap` because custom channels take precedence over the default channel.
+
+EAP builds are versioned `<pluginVersion>-eap.<run number>`. A pre-release suffix sorts **below** the
+plain version (`0.26.0-eap.42` < `0.26.0`), so `pluginVersion` on `main` must always be the
+next development version, never an already released one. The release workflow takes care of this
+through its post-release PR; `DocumentationTest` fails if `pluginVersion` falls behind the latest
+release in `CHANGELOG.md`.
 
 ## Common Pitfalls
 
