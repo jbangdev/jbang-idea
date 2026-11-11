@@ -11,6 +11,7 @@ import com.intellij.openapi.util.SystemInfo
 import com.intellij.util.EnvironmentUtil
 import dev.jbang.idea.debug
 import dev.jbang.idea.jbangLog
+import dev.jbang.idea.settings.JBangProjectSettings
 import dev.jbang.idea.settings.JBangSettings
 import java.io.File
 
@@ -220,7 +221,7 @@ object JBangCli {
             val wsl = if (SystemInfo.isWindows) WslPath.parseWindowsUncPath(scriptPath) else null
             val effectivePath = wsl?.linuxPath ?: scriptPath
             val properties = project?.let {
-                dev.jbang.idea.settings.JBangProjectSettings.getInstance(it).asDFlags()
+                JBangProjectSettings.getInstance(it).asDFlags()
             }.orEmpty()
             val output = exec(*buildInfoToolsCommand(effectivePath, properties).toTypedArray(),
                 env = mapOf("JBANG_DOWNLOAD_SOURCES" to "true"),

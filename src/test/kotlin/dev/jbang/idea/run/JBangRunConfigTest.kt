@@ -13,6 +13,7 @@ import java.io.File
 import com.intellij.psi.PsiComment
 import com.intellij.testFramework.fixtures.LightJavaCodeInsightFixtureTestCase
 import com.intellij.util.ui.UIUtil
+import dev.jbang.idea.settings.JBangProjectSettings
 import dev.jbang.idea.settings.JBangSettings
 import org.junit.Test
 
@@ -20,7 +21,7 @@ class JBangRunConfigTest : LightJavaCodeInsightFixtureTestCase() {
 
     @Test
     fun testProjectPropertiesArePassedToRunCommand() {
-        val settings = dev.jbang.idea.settings.JBangProjectSettings.getInstance(project)
+        val settings = JBangProjectSettings.getInstance(project)
         val previous = settings.properties
         try {
             settings.properties = linkedMapOf("miniterm.version" to "1.2.3")
