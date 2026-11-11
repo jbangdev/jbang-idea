@@ -219,7 +219,10 @@ object JBangCli {
         return try {
             val wsl = if (SystemInfo.isWindows) WslPath.parseWindowsUncPath(scriptPath) else null
             val effectivePath = wsl?.linuxPath ?: scriptPath
-            val output = exec("jbang", "info", "tools", "--quiet", effectivePath,
+            val properties = project?.let {
+                dev.jbang.idea.settings.JBangProjectSettings.getInstance(it).asDFlags()
+            }.orEmpty()
+            val output = exec(*buildInfoToolsCommand(effectivePath, properties).toTypedArray(),
                 env = mapOf("JBANG_DOWNLOAD_SOURCES" to "true"),
                 workDirectory = if (wsl != null) null else File(scriptPath).absoluteFile.parentFile,
                 wslDistributionId = wsl?.distributionId,
@@ -231,6 +234,13 @@ object JBangCli {
             ScriptInfo(originalResource = scriptPath, commandErrors = listOf(error))
         }
     }
+
+    /**
+     * `jbang info tools --quiet [-Dname=value ...] <script>`. Property flags are placed
+     * after `info tools` (jbang rejects `-D` before the subcommand) and before the script.
+     */
+    internal fun buildInfoToolsCommand(scriptPath: String, properties: List<String> = emptyList()): List<String> =
+        listOf("jbang", "info", "tools", "--quiet") + properties + scriptPath
 
     /**
      * Calls `jbang template list --format=json` and returns available templates.

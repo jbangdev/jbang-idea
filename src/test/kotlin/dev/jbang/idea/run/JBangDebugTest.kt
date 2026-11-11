@@ -13,6 +13,27 @@ import java.io.File
 class JBangDebugTest : LightJavaCodeInsightFixtureTestCase() {
 
     @Test
+    fun testProjectPropertiesArePassedToDebugCommand() {
+        val settings = dev.jbang.idea.settings.JBangProjectSettings.getInstance(project)
+        val previous = settings.properties
+        try {
+            settings.properties = linkedMapOf("miniterm.version" to "1.2.3")
+            val config = RunManager.getInstance(project)
+                .createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
+                .configuration as JBangRunConfiguration
+            config.scriptPath = "/tmp/tako.java"
+
+            assertEquals(
+                listOf("run", "--debug=4004", "-Dminiterm.version=1.2.3", "/tmp/tako.java"),
+                JBangDebugRunState.buildDebugCommandLine(config, 4004).parametersList.list,
+            )
+            assertTrue(JBangDebugRunState.buildDebugShellCommand(config, 4004).contains("-Dminiterm.version=1.2.3"))
+        } finally {
+            settings.properties = previous
+        }
+    }
+
+    @Test
     fun testPreviewFeaturesFlagIsPassedToDebugCommand() {
         val previous = JBangSettings.instance.previewFeatures
         try {

@@ -5,6 +5,12 @@
 ## [Unreleased]
 
 ### Added
+- Project-level JBang properties (Settings → Tools → JBang → Properties). Defined
+  `name=value` pairs are passed to jbang as `-Dname=value` for editor resolution and
+  Run/Debug, so directive placeholders like `${name}` / `${name:default}` can be pinned
+  per project ([#178](https://github.com/jbangdev/jbang-idea/issues/178)).
+
+### Added
 - JBang settings can enable preview features, adding `--preview` to plugin commands and
   Run/Debug launches.
 

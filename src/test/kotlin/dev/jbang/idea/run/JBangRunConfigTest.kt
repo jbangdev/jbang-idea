@@ -19,6 +19,27 @@ import org.junit.Test
 class JBangRunConfigTest : LightJavaCodeInsightFixtureTestCase() {
 
     @Test
+    fun testProjectPropertiesArePassedToRunCommand() {
+        val settings = dev.jbang.idea.settings.JBangProjectSettings.getInstance(project)
+        val previous = settings.properties
+        try {
+            settings.properties = linkedMapOf("miniterm.version" to "1.2.3")
+            val config = RunManager.getInstance(project)
+                .createConfiguration("test", JBangConfigurationFactory(JBangConfigurationType()))
+                .configuration as JBangRunConfiguration
+            config.scriptPath = "/tmp/hello.java"
+
+            assertEquals(
+                listOf("run", "-Dminiterm.version=1.2.3", "/tmp/hello.java"),
+                JBangRunState.buildCommandLine(config).parametersList.list,
+            )
+            assertTrue(JBangRunState.buildShellCommand(config).contains("-Dminiterm.version=1.2.3"))
+        } finally {
+            settings.properties = previous
+        }
+    }
+
+    @Test
     fun testPreviewFeaturesFlagIsPassedToRunCommand() {
         val previous = JBangSettings.instance.previewFeatures
         try {

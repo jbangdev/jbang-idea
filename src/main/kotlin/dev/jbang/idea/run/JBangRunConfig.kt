@@ -204,6 +204,7 @@ class JBangRunState(private val config: JBangRunConfiguration, environment: Exec
                 listOf(JBangCli.findJBangCmd(), "run"),
                 JBangSettings.instance.previewFeatures,
             ).toMutableList()
+            args += dev.jbang.idea.settings.JBangProjectSettings.getInstance(config.project).asDFlags()
             args += resolved.jbangOptions
             args += resolved.scriptPath
             args += resolved.scriptArgs
@@ -223,6 +224,7 @@ class JBangRunState(private val config: JBangRunConfiguration, environment: Exec
                 listOf(quote(JBangCli.findJBangCmd()), "run"),
                 JBangSettings.instance.previewFeatures,
             ).toMutableList()
+            command += dev.jbang.idea.settings.JBangProjectSettings.getInstance(config.project).asDFlags().map(::quote)
             command += resolved.jbangOptions.map(::quote)
             command += quote(resolved.scriptPath)
             command += resolved.scriptArgs.map(::quote)

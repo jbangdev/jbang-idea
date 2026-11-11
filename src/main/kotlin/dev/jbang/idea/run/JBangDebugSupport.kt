@@ -94,6 +94,7 @@ class JBangDebugRunState(
                 listOf(JBangCli.findJBangCmd(), "run", "--debug=$port"),
                 JBangSettings.instance.previewFeatures,
             ).toMutableList()
+            args += dev.jbang.idea.settings.JBangProjectSettings.getInstance(config.project).asDFlags()
             args += resolved.jbangOptions
             args += resolved.scriptPath
             args += resolved.scriptArgs
@@ -113,6 +114,7 @@ class JBangDebugRunState(
                 listOf(JBangRunState.quote(JBangCli.findJBangCmd()), "run", "--debug=$port"),
                 JBangSettings.instance.previewFeatures,
             ).toMutableList()
+            parts += dev.jbang.idea.settings.JBangProjectSettings.getInstance(config.project).asDFlags().map(JBangRunState::quote)
             parts += resolved.jbangOptions.map(JBangRunState::quote)
             parts += JBangRunState.quote(resolved.scriptPath)
             parts += resolved.scriptArgs.map(JBangRunState::quote)
