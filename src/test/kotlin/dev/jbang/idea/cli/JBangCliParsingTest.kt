@@ -176,6 +176,31 @@ class JBangCliParsingTest {
     }
 
     @Test
+    fun `info tools command has no property flags by default`() {
+        assertEquals(
+            listOf("jbang", "info", "tools", "--quiet", "/tmp/hello.java"),
+            JBangCli.buildInfoToolsCommand("/tmp/hello.java"),
+        )
+    }
+
+    @Test
+    fun `info tools command places property flags after the subcommand`() {
+        // jbang rejects -D before the subcommand, so they must sit after `info tools`
+        // and before the script path.
+        assertEquals(
+            listOf(
+                "jbang", "info", "tools", "--quiet",
+                "-Dminiterm.version=1.2.3", "-Dminiterm.ffm=",
+                "/tmp/hello.java",
+            ),
+            JBangCli.buildInfoToolsCommand(
+                "/tmp/hello.java",
+                listOf("-Dminiterm.version=1.2.3", "-Dminiterm.ffm="),
+            ),
+        )
+    }
+
+    @Test
     fun `template list requests declared properties`() {
         assertEquals(
             listOf("jbang", "template", "list", "--show-properties", "--format=json"),

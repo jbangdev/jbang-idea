@@ -71,6 +71,10 @@
             implementation="dev.jbang.idea.project.JBangStatusBarWidgetFactory"/>
 
         <!-- Settings -->
+        <projectConfigurable parentId="dev.jbang.intellij.JBangConfigurable"
+            instance="dev.jbang.idea.settings.JBangProjectConfigurable"
+            id="dev.jbang.intellij.JBangProjectConfigurable"
+            displayName="Properties"/>
         <applicationConfigurable parentId="tools"
             instance="dev.jbang.idea.settings.JBangConfigurable"
             id="dev.jbang.intellij.JBangConfigurable"

@@ -20,6 +20,7 @@ import com.intellij.openapi.util.Key
 import dev.jbang.idea.cli.JBangCli
 import dev.jbang.idea.debug
 import dev.jbang.idea.jbangLog
+import dev.jbang.idea.settings.JBangProjectSettings
 import dev.jbang.idea.settings.JBangSettings
 
 private val log = jbangLog<JBangDebugRunState>()
@@ -94,6 +95,7 @@ class JBangDebugRunState(
                 listOf(JBangCli.findJBangCmd(), "run", "--debug=$port"),
                 JBangSettings.instance.previewFeatures,
             ).toMutableList()
+            args += JBangProjectSettings.getInstance(config.project).asDFlags()
             args += resolved.jbangOptions
             args += resolved.scriptPath
             args += resolved.scriptArgs
@@ -113,6 +115,7 @@ class JBangDebugRunState(
                 listOf(JBangRunState.quote(JBangCli.findJBangCmd()), "run", "--debug=$port"),
                 JBangSettings.instance.previewFeatures,
             ).toMutableList()
+            parts += JBangProjectSettings.getInstance(config.project).asDFlags().map(JBangRunState::quote)
             parts += resolved.jbangOptions.map(JBangRunState::quote)
             parts += JBangRunState.quote(resolved.scriptPath)
             parts += resolved.scriptArgs.map(JBangRunState::quote)

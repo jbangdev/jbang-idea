@@ -24,6 +24,7 @@ import com.intellij.util.execution.ParametersListUtil
 import com.intellij.util.ui.FormBuilder
 import dev.jbang.idea.JBangPlugin
 import dev.jbang.idea.cli.JBangCli
+import dev.jbang.idea.settings.JBangProjectSettings
 import dev.jbang.idea.settings.JBangSettings
 import java.io.File
 import javax.swing.JCheckBox
@@ -204,6 +205,7 @@ class JBangRunState(private val config: JBangRunConfiguration, environment: Exec
                 listOf(JBangCli.findJBangCmd(), "run"),
                 JBangSettings.instance.previewFeatures,
             ).toMutableList()
+            args += JBangProjectSettings.getInstance(config.project).asDFlags()
             args += resolved.jbangOptions
             args += resolved.scriptPath
             args += resolved.scriptArgs
@@ -223,6 +225,7 @@ class JBangRunState(private val config: JBangRunConfiguration, environment: Exec
                 listOf(quote(JBangCli.findJBangCmd()), "run"),
                 JBangSettings.instance.previewFeatures,
             ).toMutableList()
+            command += JBangProjectSettings.getInstance(config.project).asDFlags().map(::quote)
             command += resolved.jbangOptions.map(::quote)
             command += quote(resolved.scriptPath)
             command += resolved.scriptArgs.map(::quote)
