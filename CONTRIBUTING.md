@@ -29,6 +29,30 @@ run configuration discovery), not only an internal method.
 
 Building the plugin requires JDK 25. The plugin targets IntelliJ IDEA 2026.2+.
 
+## Compatibility with new IntelliJ versions
+
+New IntelliJ versions can break the plugin in two ways: removed or changed APIs (binary breaks,
+e.g. #155) and changed platform behavior (e.g. #165, #180). CI checks both:
+
+| Check | When | IntelliJ versions |
+|---|---|---|
+| `test` (`build.yml`) | every PR and push | `platformVersion` (oldest supported line), Linux/Windows/macOS |
+| `testLatestIde` (`build.yml`) | every PR and push | newest stable release, Linux |
+| `verifyPlugin` (`build.yml`) | every PR and push | newest build of every line ≥ `pluginSinceBuild`, EAPs included (binary checks only) |
+| `compatibility.yml` | every Monday, or by hand from the Actions tab | newest build of every line ≥ `pluginSinceBuild`, EAPs included |
+
+`.github/scripts/intellij-versions.sh` lists the versions to test from the JetBrains release API.
+To run the tests against another version locally:
+
+```sh
+./gradlew test -PplatformVersion=2026.3        # a release
+./gradlew test -PplatformVersion=263.7307.44   # an EAP, by build number
+```
+
+When `compatibility.yml` fails, it opens an issue named
+`IntelliJ IDEA <version> (<build>): tests fail` and comments on it in later failing runs. Fix it
+like any bug: reproduce with the command above, write a failing test, fix, and close the issue.
+
 ## IntelliJ platform conventions
 
 - Override `getOptionsClass()` on run configurations.

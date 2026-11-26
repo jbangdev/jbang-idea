@@ -47,6 +47,33 @@ jobs:
           name: tests-result-${{ matrix.os }}
           path: build/reports/tests
 
+  # `test` covers platformVersion, the oldest supported IntelliJ line; also test the newest stable release.
+  # EAPs are left to compatibility.yml so PRs are not blocked by unreleased platform changes.
+  testLatestIde:
+    name: Test (latest IntelliJ release)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Setup Java
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          distribution: zulu
+          java-version: 25
+          cache: gradle
+      - name: Run Tests
+        timeout-minutes: 20
+        run: |
+          PLATFORM_VERSION="$(.github/scripts/intellij-versions.sh release | jq -r '.[0].platformVersion')"
+          echo "Testing against IntelliJ IDEA $PLATFORM_VERSION"
+          ./gradlew test -PplatformVersion="$PLATFORM_VERSION" --stacktrace --console=plain
+      - name: Collect Test Results
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: tests-result-latest-ide
+          path: build/reports/tests
+
   # Build once after all operating systems pass, then verify and publish the artifact.
   build:
     name: Build
