@@ -55,6 +55,34 @@ class DocumentationTest {
     }
 
     @Test
+    fun `scheduled workflow tests the plugin on new IntelliJ releases and EAPs`() {
+        val path = Path.of(".github/workflows/compatibility.yml")
+        assertTrue("Missing IntelliJ compatibility workflow: $path", Files.exists(path))
+        val workflow = Files.readString(path)
+
+        listOf(
+            "schedule:" to "it must run on a schedule, not only when someone pushes",
+            "workflow_dispatch:" to "maintainers must be able to start it by hand",
+            "intellij-versions.sh release,eap" to "it must test EAP builds, before users get them",
+            "./gradlew test -PplatformVersion=" to "it must run the test suite, not only the verifier",
+            "issues: write" to "it needs permission to report failures",
+            "gh issue create" to "a failing IntelliJ version must open an issue",
+        ).forEach { (snippet, reason) -> assertTrue("compatibility.yml: $reason ($snippet)", workflow.contains(snippet)) }
+    }
+
+    @Test
+    fun `PR builds test the latest IntelliJ release`() {
+        val workflow = Files.readString(Path.of(".github/workflows/build.yml"))
+
+        assertTrue("PR builds must look up the latest stable IntelliJ release", workflow.contains("intellij-versions.sh release |"))
+        assertTrue("PR builds must run the tests on that release", workflow.contains("./gradlew test -PplatformVersion="))
+        assertTrue(
+            "CONTRIBUTING.md must explain the compatibility checks",
+            Files.readString(Path.of("CONTRIBUTING.md")).contains("## Compatibility with new IntelliJ versions"),
+        )
+    }
+
+    @Test
     fun `CI identifies and bounds hanging tests`() {
         val workflow = Files.readString(Path.of(".github/workflows/build.yml"))
         val build = Files.readString(Path.of("build.gradle.kts"))

@@ -1,0 +1,95 @@
+# Runs the test suite against the newest IntelliJ IDEA build of every supported line, EAPs included,
+# so platform changes that break the plugin are caught before users hit them.
+# `build.yml` only tests `platformVersion` (the oldest supported line) and the latest stable release.
+
+name: IntelliJ Compatibility
+on:
+  schedule:
+    # Every Monday at 06:00 UTC
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  versions:
+    name: Detect IntelliJ versions
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.detect.outputs.matrix }}
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Detect Versions
+        id: detect
+        run: |
+          MATRIX="$(.github/scripts/intellij-versions.sh release,eap)"
+          echo "$MATRIX" | jq .
+          echo "matrix=$MATRIX" >> "$GITHUB_OUTPUT"
+
+  test:
+    name: Test (IntelliJ ${{ matrix.ide.line }} ${{ matrix.ide.type }} ${{ matrix.ide.build }})
+    needs: versions
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    strategy:
+      fail-fast: false
+      matrix:
+        ide: ${{ fromJSON(needs.versions.outputs.matrix) }}
+    steps:
+      - name: Fetch Sources
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Setup Java
+        uses: actions/setup-java@c1e323688fd81a25caa38c78aa6df2d33d3e20d9 # v4
+        with:
+          distribution: zulu
+          java-version: 25
+          cache: gradle
+      - name: Run Tests
+        timeout-minutes: 30
+        run: ./gradlew test -PplatformVersion=${{ matrix.ide.platformVersion }} --stacktrace --console=plain
+      - name: Collect Test Results
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: tests-result-${{ matrix.ide.build }}
+          path: build/reports/tests
+
+      # One open issue per IntelliJ build: later failing runs comment on it instead of opening duplicates.
+      - name: Report Failure
+        if: ${{ failure() }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          LINE: ${{ matrix.ide.line }}
+          PLATFORM_VERSION: ${{ matrix.ide.platformVersion }}
+          BUILD: ${{ matrix.ide.build }}
+          TYPE: ${{ matrix.ide.type }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          if [[ "$TYPE" == "eap" ]]; then NAME="$LINE EAP"; else NAME="$PLATFORM_VERSION"; fi
+          TITLE="IntelliJ IDEA $NAME ($BUILD): tests fail"
+
+          EXISTING="$(gh issue list --state open --search "in:title $TITLE" --json number,title \
+            | jq -r --arg title "$TITLE" '.[] | select(.title == $title) | .number' | head -n 1)"
+
+          if [[ -n "$EXISTING" ]]; then
+            gh issue comment "$EXISTING" --body "Still failing: $RUN_URL"
+          else
+            gh issue create --title "$TITLE" --body "$(cat <<EOF
+          The scheduled compatibility check fails on IntelliJ IDEA $PLATFORM_VERSION ($TYPE, build $BUILD).
+
+          - Run: $RUN_URL
+          - Test reports: artifact \`tests-result-$BUILD\` of that run
+
+          Reproduce locally with:
+
+          \`\`\`sh
+          ./gradlew test -PplatformVersion=$PLATFORM_VERSION
+          \`\`\`
+          EOF
+          )"
+          fi
